@@ -2,69 +2,68 @@
 {% block content %}
 <main class="container">
     <div class="row">
+        {% for item in test_list %}
         <div class="col-md-4">
             <article class="media content-section">
                 <div class="media-body">
                     <div class="card" style="width: 18rem;">
-                        <img class="card-img-top" src="../static/puck you.png" alt="Card image cap">
+                        <img class="card-img-top" src="../static/{{ item.image }}" alt="Card image cap">
                         <div class="card-body">
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk
-                                of the
-                                card's
-                                content.</p>
+                            <p class="card-text">{{ item.name }}</p>
                         </div>
                     </div>
                 </div>
             </article>
         </div>
+        {% endfor %}
 
-         <div class="col-md-4">
-            <article class="media content-section">
-                <div class="media-body">
-                    <div class="card" style="width: 18rem;">
-                        <img class="card-img-top" src="../static/bayek.jpg" alt="Card image cap">
-                        <div class="card-body">
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk
-                                of the
-                                card's
-                                content.</p>
-                        </div>
-                    </div>
-                </div>
-            </article>
-        </div>
+<!--         <div class="col-md-4">-->
+<!--            <article class="media content-section">-->
+<!--                <div class="media-body">-->
+<!--                    <div class="card" style="width: 18rem;">-->
+<!--                        <img class="card-img-top" src="../static/bayek.jpg" alt="Card image cap">-->
+<!--                        <div class="card-body">-->
+<!--                            <p class="card-text">Some quick example text to build on the card title and make up the bulk-->
+<!--                                of the-->
+<!--                                card's-->
+<!--                                content.</p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </article>-->
+<!--        </div>-->
 
-        <div class="col-md-4">
-            <article class="media content-section">
-                <div class="media-body">
-                    <div class="card" style="width: 18rem;">
-                        <img class="card-img-top" src="../static/bayek.jpg" alt="Card image cap">
-                        <div class="card-body">
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk
-                                of the
-                                card's
-                                content.</p>
-                        </div>
-                    </div>
-                </div>
-            </article>
-        </div>
+<!--        <div class="col-md-4">-->
+<!--            <article class="media content-section">-->
+<!--                <div class="media-body">-->
+<!--                    <div class="card" style="width: 18rem;">-->
+<!--                        <img class="card-img-top" src="../static/bayek.jpg" alt="Card image cap">-->
+<!--                        <div class="card-body">-->
+<!--                            <p class="card-text">Some quick example text to build on the card title and make up the bulk-->
+<!--                                of the-->
+<!--                                card's-->
+<!--                                content.</p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </article>-->
+<!--        </div>-->
 
-        <div class="col-md-4">
-            <article class="media content-section">
-                <div class="media-body">
-                    <div class="card" style="width: 18rem;">
-                        <img class="card-img-top" src="../static/bayek.jpg" alt="Card image cap">
-                        <div class="card-body">
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk
-                                of the
-                                card's
-                                content.</p>
-                        </div>
-                    </div>
-                </div>
-            </article>
-        </div>
+<!--        <div class="col-md-4">-->
+<!--            <article class="media content-section">-->
+<!--                <div class="media-body">-->
+<!--                    <div class="card" style="width: 18rem;">-->
+<!--                        <img class="card-img-top" src="../static/bayek.jpg" alt="Card image cap">-->
+<!--                        <div class="card-body">-->
+<!--                            <p class="card-text">Some quick example text to build on the card title and make up the bulk-->
+<!--                                of the-->
+<!--                                card's-->
+<!--                                content.</p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </article>-->
+<!--        </div>-->
     </div>
 </main>
 
