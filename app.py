@@ -8,6 +8,10 @@ app = Flask(__name__)
 def home():
     test_list = [
         {"name": "Green Tea", "image": "bayek.jpg"},
+        {"name": "Puck you", "image": "puck you.png"},
+        {"name": "Green Tea", "image": "bayek.jpg"},
+        {"name": "Puck you", "image": "puck you.png"},
+        {"name": "Green Tea", "image": "bayek.jpg"},
         {"name": "Puck you", "image": "puck you.png"}
     ]
 
