@@ -18,5 +18,10 @@ def home():
     return render_template("home.html", test_list=test_list)
 
 
+@app.route("/admin")
+def admin_home():
+    return render_template("admin_base.html")
+
+
 if __name__ == "__main__":
     app.run(debug=True)
