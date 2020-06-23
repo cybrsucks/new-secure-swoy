@@ -1,10 +1,10 @@
 from flask import Flask, request, render_template, redirect
-
+import Forms
 
 app = Flask(__name__)
 
 
-@app.route("/")
+@app.route("/home", methods=['GET', 'POST'])
 def home():
     test_list = [
         {"name": "Green Tea", "image": "raymond.jpg"},
@@ -15,7 +15,8 @@ def home():
         {"name": "Puck you", "image": "raymond.jpg"}
     ]
 
-    return render_template("home.html", test_list=test_list)
+    form = LoginForm
+    return render_template("home.html", test_list=test_list, form=form)
 
 
 @app.route("/admin")
