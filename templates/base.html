@@ -25,10 +25,13 @@
             <li class="nav-item active">
                 <a class="nav-link" href="#">Products<span class="sr-only">(current)</span></a>
             </li>
-            <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            </form>
+            <div class="search-bar-padding">
+                <form method="POST" action="" id="searchform" class="form-inline">
+                    <input class="form-control mr-sm-2 searchbar-container" id="SearchBar" type="search" name="search_navbar"
+                           placeholder="Search...">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+            </div>
         </ul>
         <ul class="navbar-nav">
             <li class="nav-item active">
@@ -40,31 +43,32 @@
 
 
         <!-- Modal -->
-            <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel"
-                 aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="loginModalLabel">Login</h5>
-                        </div>
-                        <div class="modal-body login-align">
-                            <form method="POST">
-                                <div class="form-group">
-                                    <label> Email: </label>
-                                    <input class="form-control" type="email" name="login_email" placeholder="name@example.com">
-                                    <label> Password: </label>
-                                    <input class="form-control" type="password" name="login_password" placeholder="secret">
-                                </div>
-                                <div class="form-group">
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary">Login</button>
-                        </div>
+        <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="loginModalLabel">Login</h5>
+                    </div>
+                    <div class="modal-body login-align">
+                        <form method="POST">
+                            <div class="form-group">
+                                <label> Email: </label>
+                                <input class="form-control" type="email" name="login_email"
+                                       placeholder="name@example.com">
+                                <label> Password: </label>
+                                <input class="form-control" type="password" name="login_password" placeholder="secret">
+                            </div>
+                            <div class="form-group">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary">Login</button>
                     </div>
                 </div>
             </div>
+        </div>
 
         <a href="/signup">
             <button class="btn btn-outline-success my-2 my-sm-0">Sign up</button>
@@ -87,7 +91,6 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
-
 
 </body>
 </html>
