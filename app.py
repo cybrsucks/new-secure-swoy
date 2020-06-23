@@ -15,7 +15,8 @@ def home():
         {"name": "Puck you", "image": "raymond.jpg"}
     ]
 
-    return render_template("home.html", test_list=test_list)
+    form = LoginForm()
+    return render_template("home.html", test_list=test_list, form=form)
 
 
 @app.route("/admin")
