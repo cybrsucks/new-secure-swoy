@@ -51,6 +51,7 @@ a.article-title:hover {
     border-radius:10px;
     width:800px;
     padding:50px;
-    margin-left:500px;
+    margin: auto;
     margin-top:100px;
+    margin-bottom: 100px;
 }

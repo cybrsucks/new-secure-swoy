@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, redirect
-import Forms
+from Forms import *
 
 app = Flask(__name__)
 
@@ -15,8 +15,7 @@ def home():
         {"name": "Puck you", "image": "raymond.jpg"}
     ]
 
-    form = LoginForm
-    return render_template("home.html", test_list=test_list, form=form)
+    return render_template("home.html", test_list=test_list)
 
 
 @app.route("/admin")
