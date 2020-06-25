@@ -1,5 +1,5 @@
-from flask import Flask, render_template
-from Forms import LoginForm, RegistrationForm
+from flask import Flask, render_template, redirect, url_for
+from Forms import LoginForm, RegistrationForm, CheckoutForm
 
 
 # class User:
@@ -48,9 +48,9 @@ def admin_home():
     return render_template("admin_base.html")
 
 
-@app.route("/signup")
+@app.route("/signup", methods=["GET", "POST"])
 def signup():
-    form = RegistrationForm
+    form = RegistrationForm()
     return render_template("signup.html", form=form)
 
 

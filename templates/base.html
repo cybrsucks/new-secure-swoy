@@ -12,6 +12,9 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
     <title>SWOY Bubble Tea</title>
 </head>
+
+{% from "formhelper.html" import render_field %}
+
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="/home">SWOY Bubble Tea</a>
@@ -38,35 +41,6 @@
             </li>
         </ul>
 
-
-        <!-- Modal -->
-        <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel"
-             aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="loginModalLabel">Login</h5>
-                    </div>
-                    <div class="modal-body login-align">
-                        <form method="POST">
-                            <div class="form-group">
-                                <label> Email: </label>
-                                <input class="form-control" type="email" name="login_email"
-                                       placeholder="name@example.com">
-                                <label> Password: </label>
-                                <input class="form-control" type="password" name="login_password" placeholder="secret">
-                            </div>
-                            <div class="form-group">
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary">Login</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <a href="/signup">
             <button class="btn btn-outline-success my-2 my-sm-0">Sign up</button>
         </a>
@@ -74,8 +48,35 @@
     </div>
 </nav>
 
+<!-- Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginModalLabel">Login</h5>
+            </div>
+            <div class="modal-body login-align">
+                <form method="POST">
+                    <div class="form-group">
+                        {{render_field(form.email, class="form-control", placeholder="name@example.com")}}
+                        {{render_field(form.password, class="form-control", placeholder="secret")}}
+                        <!--                                <label> Email: </label>-->
+                        <!--                                <input class="form-control" type="email" name="login_email"-->
+                        <!--                                       placeholder="name@example.com">-->
+                        <!--                                <label> Password: </label>-->
+                        <!--                                <input class="form-control" type="password" name="login_password" placeholder="secret">-->
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
 
-{% block content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% block content %} {% endblock %}
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
