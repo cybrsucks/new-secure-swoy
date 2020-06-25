@@ -39,8 +39,7 @@ def home():
     #         return redirect(url_for("admin_base"))
     #
     #     return redirect(url_for("home"))
-    form = LoginForm()
-    return render_template("home.html", test_list=test_list, form=form)
+    return render_template("home.html", test_list=test_list)
 
 
 @app.route("/admin")
@@ -54,9 +53,14 @@ def signup():
     return render_template("signup.html", form=form)
 
 
-@app.route("/checkout")
+@app.route("/checkout", methods=["GET", "POST"])
 def checkout():
     return render_template("checkout.html")
+
+
+@app.route("/delivery")
+def delivery():
+    return render_template("delivery.html")
 
 
 if __name__ == "__main__":

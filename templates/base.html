@@ -59,15 +59,12 @@
             <div class="modal-body login-align">
                 <form method="POST">
                     <div class="form-group">
-                        {{render_field(form.email, class="form-control", placeholder="name@example.com")}}
-                        {{render_field(form.password, class="form-control", placeholder="secret")}}
-                        <!--                                <label> Email: </label>-->
-                        <!--                                <input class="form-control" type="email" name="login_email"-->
-                        <!--                                       placeholder="name@example.com">-->
-                        <!--                                <label> Password: </label>-->
-                        <!--                                <input class="form-control" type="password" name="login_password" placeholder="secret">-->
+                        <label> Email: </label>
+                        <input class="form-control" type="email" name="login_email" placeholder="name@example.com">
+                        <label> Password: </label>
+                        <input class="form-control" type="password" name="login_password" placeholder="secret">
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Login</button>
+                            <a href="/home"><button type="button" class="btn btn-primary">Login</button></a>
                         </div>
                     </div>
                 </form>
