@@ -2,9 +2,32 @@ body{
 font-family: Quenda-Medium;
 }
 
+/* responsive navbar image */
+.responsive {
+  height: auto;
+  width: 100%;
+  max-width: 486px;
+}
+/* end navbar image */
+/* hamburger menu */
+.hamburger-custom{
+    color: #253D52;
+    font-size: 10px;
+    padding:10px;
+    border-radius:15px;
+    border: 1px solid #253D52;
+    transition: all 0.4s ease;
+}
+
+.hamburger-custom:hover{
+    background: #253D52;
+    color: white;
+    }
+
+/* login hover styles */
 .navbar-links{
-color: #253D52;
-padding-right: .5rem;
+    color: #253D52;
+    padding-right: .5rem;
     padding-left: .5rem;
     display: block;
     padding: .5rem 1rem;
@@ -12,8 +35,13 @@ padding-right: .5rem;
 
 .navbar-links:hover{
 color:#007DE8;
-  transition: all 0.6s ease;
+  transition: all 0.4s ease;
   text-decoration: none;
+}
+/* end of login hover styles */
+/* this is the search and sign up button styles*/
+.navbar-toggler{
+    color: #253d52;
 }
 
 .btn-navbar{
@@ -26,8 +54,9 @@ color:#007DE8;
     color: white;
     background-color: #253d52;
     border-color: #253d52;
+      transition: all 0.4s ease;
 }
-
+/* end of navbar button styles */
 .content-section {
   background: #;
   padding: 10px 20px;
@@ -130,7 +159,7 @@ background-color: lightgrey;
   border-radius: 50px;
   color: #29313a;
   border: 1px;
-  transition: all 0.8s ease;
+  transition: all 0.4s ease;
 }
 
 .input_search:focus {
