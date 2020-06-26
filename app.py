@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect, url_for
-from Forms import LoginForm, RegistrationForm, CheckoutForm
+# from Forms import LoginForm, RegistrationForm, CheckoutForm
 
 
 # class User:
