@@ -6,16 +6,34 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
 
 {% block content %}
-<div class="col-md-4">
-    <h1> Earl Grey Milk Tea </h1>
-    <img src="../static/Earl Grey Boba.jpeg">
-    <p> Choice of Toppings: </p>
-    <ul>
-        <li> <img src="../static/aloe vera.png"></li>
-        <li> <img src="static\black pearl.png"> </li>
-        <li> <img src="static\golden pearl.png"> </li>
-        <li> <img src="static\grass jelly.png"> </li>
-    </ul>
+
+<div class="row">
+    <div class="col-md-6">
+        <div style="margin-left: 30px;">
+            <div class="container-fluid swoy-container transaction-details-container">
+
+                <h1> Earl Grey Milk Tea </h1>
+                <img src="../static/Earl Grey Boba.jpeg" style="max-width: 500px;">
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div style="margin-left: 30px;">
+            <div class="container-fluid swoy-container transaction-details-container">
+                <p> Choice of Toppings: </p>
+                <form action="/action_page.php">
+                    <ul>
+                        <li class="list-style-none"><input type="checkbox" name="" value=""><label> Aloe Vera</label><img src="../static/aloe vera.png" class="toppings-img"></li>
+                        <li class="list-style-none"><input type="checkbox" name="" value=""><label> Black Pearl</label><img src="../static/black pearl.png" class="toppings-img"></li>
+                        <li class="list-style-none"><input type="checkbox" name="" value=""><label> Golden Pearl</label><img src="../static/golden pearl.png" class="toppings-img"></li>
+                        <li class="list-style-none"><input type="checkbox" name="" value=""><label> Grass Jelly</label><img src="../static/grass jelly.png" class="toppings-img"></li>
+                    </ul>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}
