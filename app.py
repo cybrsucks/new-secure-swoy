@@ -16,15 +16,17 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = "supersecretkey"
 
 
+@app.route("/", methods=['GET', 'POST'])
 @app.route("/home", methods=['GET', 'POST'])
 def home():
     test_list = [
-        {"name": "Green Tea", "image": "raymond.jpg"},
-        {"name": "Milk Tea", "image": "raymond.jpg"},
-        {"name": "Green Tea", "image": "bayek.jpg"},
-        {"name": "Milk Tea", "image": "raymond.jpg"},
-        {"name": "Green Tea", "image": "bayek.jpg"},
-        {"name": "Milk Tea", "image": "raymond.jpg"}
+
+        {"name": "Chocolate", "image": "Chocolate Boba.jpeg"},
+        {"name": "Earl Grey", "image": "Earl Grey Boba.jpeg"},
+        {"name": "Green Tea", "image": "Green Tea Boba.jpg"},
+        {"name": "Mango", "image": "Mango Boba.jpg"},
+        {"name": "Passionfruit", "image": "Passionfruit Boba.jpg"},
+        {"name": "Strawberry", "image": "Strawberry Boba.jpeg"},
     ]
 
     # if request == 'POST' and form.validate on :

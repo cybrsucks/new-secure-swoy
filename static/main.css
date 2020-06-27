@@ -1,6 +1,13 @@
 body{
 font-family: Quenda-Medium;
+background: #253d52;
 }
+
+/* this makes font sizes responsive to the changes in viewport width */
+h1{
+font-size: 3.2vw;
+}
+/* end responsive font sizes */
 
 /* responsive navbar image */
 .responsive {
@@ -8,18 +15,19 @@ font-family: Quenda-Medium;
   width: 100%;
   max-width: 486px;
 }
+
 /* end navbar image */
 /* hamburger menu */
 .hamburger-custom{
     color: #253D52;
-    font-size: 10px;
+    font-size: 20px;
     padding:10px;
     border-radius:15px;
     border: 1px solid #253D52;
     transition: all 0.4s ease;
 }
 
-.hamburger-custom:hover{
+.hamburger-custom:hover, .hamburger-custom:focus{
     background: #253D52;
     color: white;
     }
@@ -44,17 +52,17 @@ color:#007DE8;
     color: #253d52;
 }
 
-.btn-navbar{
+.swoy-btn{
     color: #253d52;
     background-color: transparent;
     border-color: #253d52;
 }
 
-.btn-navbar:hover{
+.swoy-btn:hover{
     color: white;
     background-color: #253d52;
     border-color: #253d52;
-      transition: all 0.4s ease;
+      transition: all 0.3s ease;
 }
 /* end of navbar button styles */
 .content-section {
@@ -147,7 +155,7 @@ a.article-title:hover {
   position: relative;
 }
 
-.input_search {
+.input-search {
 display: inline-block;
 vertical-align: middle;
 background-color: lightgrey;
@@ -162,7 +170,7 @@ background-color: lightgrey;
   transition: all 0.4s ease;
 }
 
-.input_search:focus {
+.input-search:focus {
   width: 250px;
   background: light grey;
     border: 1px solid #007de8;
@@ -176,5 +184,33 @@ src: url(Quenda-Medium.otf);
 }
 /*end import font*/
 
+.product-caption{
+text-align: center;
+}
 
+/* product item card style for home.html*/
+.swoy-card{
+width: 18rem;
+border: 4px solid #E7F3FC;
+}
+/* end product item card */
+/* checkout stylings */
 
+/* checkout container */
+.swoy-container{
+    background: #E7F3FC;
+    margin: 30px;
+    margin-bottom: 100px;
+}
+/* end custom container */
+.transaction-details-container{
+    border: 2px solid grey;
+    border-radius: 10px;
+    padding: 30px;
+    }
+
+.order-details-container{
+    border: 2px solid grey;
+    border-radius: 10px;
+    padding: 30px;
+}
