@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect, url_for
-# from Forms import LoginForm, RegistrationForm, CheckoutForm
+from Forms import LoginForm, RegistrationForm, CheckoutForm, DeliveryForm
 
 
 # class User:
@@ -60,7 +60,8 @@ def checkout():
 
 @app.route("/delivery")
 def delivery():
-    return render_template("delivery.html")
+    form = DeliveryForm()
+    return render_template("delivery.html", form=form)
 
 
 if __name__ == "__main__":
