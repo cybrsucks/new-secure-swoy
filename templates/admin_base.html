@@ -19,26 +19,12 @@
 
 
 </head>
-
 <body>
-<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"
-        style="border: none; outline: none;">
-    <i class="fa fa-bars hamburger-custom" aria-hidden="true"></i>
-</button>
-
-
-<div class="page-wrapper chiller-theme toggled collapse navbar-collapse" id="navbarSupportedContent">
-    <a id="" class="show-sidebar btn btn-sm btn-dark" href="#">
-        <i class="fas fa-bars"></i>
-    </a>
+    <div class="chiller-theme admin-sidebar" style="display: block">
     <nav id="sidebar" class="sidebar-wrapper">
         <div class="sidebar-content">
             <div class="sidebar-brand">
                 <a href="#">ADMIN DASHBOARD</a>
-                <div class="close-sidebar">
-                    <i class="fas fa-times"></i>
-                </div>
             </div>
             <div class="sidebar-header">
                 <div class="user-pic">
@@ -52,17 +38,17 @@
                 </div>
             </div>
             <!-- sidebar-header  -->
-            <div class="sidebar-search">
-                <div>
-                    <div class="input-group">
-                        <input type="text" class="form-control search-menu" placeholder="Search...">
-                        <div class="input-group-append">
-                            <span class="input-group-text">
-                                <i class="fa fa-search" aria-hidden="true"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
+            <div class="">
+<!--                <div>-->
+<!--                    <div class="input-group">-->
+<!--                        <input type="text" class="form-control search-menu" placeholder="Search...">-->
+<!--                        <div class="input-group-append">-->
+<!--                            <span class="input-group-text">-->
+<!--                                <i class="fa fa-search" aria-hidden="true"></i>-->
+<!--                            </span>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
                 <div class="sidebar-menu">
                     <ul>
                         <li class="header-menu">
@@ -164,7 +150,8 @@
                 </div>
             </div>
         </div>
-
+    </nav>
+    </div>
 
 <!-- page-wrapper -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -198,19 +185,8 @@
           .addClass("active");
       }
     });
-
-    $(".close-sidebar").click(function() {
-      $(".page-wrapper").removeClass("toggled");
-    });
-    $(".show-sidebar").click(function() {
-      $(".page-wrapper").addClass("toggled");
-    });
-    });
-
-
-
-
 </script>
 </body>
+
 
 </html>

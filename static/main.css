@@ -1,11 +1,32 @@
 /* this makes font sizes responsive to the changes in viewport width */
+
+/*
+
 *{
-font-size: 2.8vw;
-font-size: 2.8vh;
+font-size: 2.7vw;
+font-size: 2.7vh;
+}
+
+@media screen and (min-width: 600px) {
+  * {
+     font-size: 16px;
+  }
+}
+*/
+@media screen and (min-width: 320px) {
+  body {
+    font-size: calc(16px + 6 * ((100vw - 320px) / 680));
+  }
+}
+@media screen and (min-width: 1000px) {
+  body {
+    font-size: 22px;
+  }
 }
 /* end responsive font sizes */
 
 body{
+font-size: 16px;
 font-family: Quenda-Medium;
 background: #253d52;
 }
@@ -182,8 +203,10 @@ text-align: center;
 
 /* product item card style for home.html*/
 .swoy-card{
-width: 18rem;
-border: 4px solid #E7F3FC;
+    width: 16rem;
+    border: 4px solid #E7F3FC;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 /* end product item card */
 /* checkout stylings */
