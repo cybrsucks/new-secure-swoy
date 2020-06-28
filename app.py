@@ -52,6 +52,7 @@ def admin_home():
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     form = RegistrationForm()
+    print(form.email.data, form.password.data, form.username.data)
     return render_template("signup.html", form=form)
 
 
