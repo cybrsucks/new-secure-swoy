@@ -42,8 +42,8 @@
           href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
           integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
-    <link href="../static/hamburgers.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+    <link href="../static/hamburgers.css" rel="stylesheet">
     <link rel="shortcut icon" href="static\favicon.ico"/>
     <title>SWOY Bubble Tea</title>
 </head>
@@ -58,9 +58,9 @@
     <!--            style="border: none; outline: none;">-->
     <!--        <i class="fa fa-bars hamburger-custom" aria-hidden="true"></i>-->
     <!--    </button>-->
-    <button class="hamburger hamburger--collapse navbar-toggler" type="button" data-toggle="collapse"
+    <button class="hamburger hamburger--collapse hamburger-custom navbar-toggler" type="button" data-toggle="collapse"
             data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-            aria-label="Toggle navigation" style="border: none; outline: none;">
+            aria-label="Toggle navigation" style="outline: none;">
   <span class="hamburger-box">
     <span class="hamburger-inner">
 
@@ -71,18 +71,19 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent" style="text-align: center;">
         <ul class="navbar-nav mr-auto">
-            <!--            <li class="nav-item active">-->
-            <!--                <a class="navbar-links" href="#">Products<span class="sr-only">(current)</span></a>-->
-            <!--            </li>-->
+            <li class="nav-item active">
+                <a class="navbar-links" href="/product">Browse our menu<span class="sr-only">(current)</span></a>
+            </li>
+
+        </ul>
+        <ul class="navbar-nav" style="margin-right:30px;">
             <div class="search-box">
-                <form class="form-inline">
-                    <input class="mr-sm-2 input-search" type="text" placeholder="Search" aria-label="Search">
+                <form class="">
+                    <input class="mr-sm-2 input-search" type="text" placeholder="Search" aria-label="Search" style="text-align:middle">
                     <button class="btn btn-navbar swoy-btn my-2 my-sm-0" type="submit" style="border-radius:50%;"><i
                             class="fas fa-search"></i></button>
                 </form>
             </div>
-        </ul>
-        <ul class="navbar-nav" style="margin-right:30px;">
             <li class="nav-item active">
                 <!-- Button trigger modal -->
                 <a href="/" class="navbar-links" type="button" data-toggle="modal" data-target="#loginModal">Login<span

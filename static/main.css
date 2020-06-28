@@ -1,13 +1,14 @@
+/* this makes font sizes responsive to the changes in viewport width */
+*{
+font-size: 2.8vw;
+font-size: 2.8vh;
+}
+/* end responsive font sizes */
+
 body{
 font-family: Quenda-Medium;
 background: #253d52;
 }
-
-/* this makes font sizes responsive to the changes in viewport width */
-h1{
-font-size: 3.2vw;
-}
-/* end responsive font sizes */
 
 /* checkout container */
 .swoy-container{
@@ -23,21 +24,6 @@ font-size: 3.2vw;
 }
 
 /* end navbar image */
-/* hamburger menu */
-.hamburger-custom{
-    color: #253D52;
-    font-size: 20px;
-    padding:10px;
-    border-radius:15px;
-    border: 1px solid #253D52;
-    transition: all 0.4s ease;
-}
-
-.hamburger-custom:hover, .hamburger-custom:focus{
-    background: #253D52;
-    color: white;
-    }
-
 /* login hover styles */
 .navbar-links{
     color: #253D52;
@@ -48,9 +34,9 @@ font-size: 3.2vw;
 }
 
 .navbar-links:hover{
-color:#007DE8;
-  transition: all 0.4s ease;
-  text-decoration: none;
+    color:#007DE8;
+    transition: all 0.4s ease;
+    text-decoration: none;
 }
 /* end of login hover styles */
 /* this is the search and sign up button styles*/

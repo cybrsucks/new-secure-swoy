@@ -38,9 +38,20 @@
     opacity: 0;
   }
 }
+
+.openbtn {
+  -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+  -ms-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+
 body {
   font-size: 0.9rem;
 }
+
 .page-wrapper .sidebar-wrapper,
 .sidebar-wrapper .sidebar-brand > a,
 .sidebar-wrapper .sidebar-dropdown > a:after,
@@ -50,14 +61,24 @@ body {
 .sidebar-wrapper .sidebar-search input.search-menu,
 .sidebar-wrapper .sidebar-search .input-group-text,
 .sidebar-wrapper .sidebar-menu ul li a,
-#show-sidebar,
-#close-sidebar {
+.show-sidebar,
+.close-sidebar {
   -webkit-transition: all 0.3s ease;
   -moz-transition: all 0.3s ease;
   -ms-transition: all 0.3s ease;
   -o-transition: all 0.3s ease;
   transition: all 0.3s ease;
 }
+
+.show-sidebar{
+    position: fixed;
+    left: 0;
+    top: 30px;
+    border-radius: 0 4px 4px 0px;
+    width: 50px;
+    transition-delay: 0.3s;
+    padding: 20px;
+    border: 1px solid black;}
 
 /*----------------page-wrapper----------------*/
 
@@ -89,15 +110,18 @@ body {
   }
 }
 /*----------------show sidebar button----------------*/
-#show-sidebar {
+.show-sidebar {
   position: fixed;
   left: 0;
-  top: 10px;
+  top: 30px;
   border-radius: 0 4px 4px 0px;
-  width: 35px;
+  width: 50px;
   transition-delay: 0.3s;
+  padding: 20px;
+  border: 1px solid black;
+  background: black;
 }
-.page-wrapper.toggled #show-sidebar {
+.page-wrapper.toggled .show-sidebar {
   left: -40px;
 }
 /*----------------sidebar-wrapper----------------*/
@@ -149,7 +173,7 @@ body {
   flex-grow: 1;
 }
 
-.sidebar-wrapper .sidebar-brand #close-sidebar {
+.sidebar-wrapper .sidebar-brand .close-sidebar {
   cursor: pointer;
   font-size: 20px;
 }
@@ -438,11 +462,11 @@ body {
     color: #b8bfce;
 }
 
-.page-wrapper.chiller-theme.toggled #close-sidebar {
+.page-wrapper.chiller-theme.toggled .close-sidebar {
     color: #bdbdbd;
 }
 
-.page-wrapper.chiller-theme.toggled #close-sidebar:hover {
+.page-wrapper.chiller-theme.toggled .close-sidebar:hover {
     color: #ffffff;
 }
 
