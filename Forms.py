@@ -5,7 +5,7 @@ from flask_wtf import FlaskForm
 
 class LoginForm(FlaskForm):
     email = StringField('Email Address:', [validators.DataRequired(), validators.Length(min=6, max=35)])
-    password = PasswordField('Password:', [validators.DataRequired(), Length(min=8, max=99)])
+    password = PasswordField('Password:', [validators.DataRequired(), validators.Length(min=8)])
 
 
 class RegistrationForm(FlaskForm):
@@ -13,7 +13,8 @@ class RegistrationForm(FlaskForm):
     email = StringField('Email Address:', [validators.DataRequired(), validators.Length(min=6, max=35)])
     password = PasswordField('New Password:', [
         validators.DataRequired(),
-        validators.EqualTo('confirm', message='Passwords must match')
+        validators.EqualTo('confirm', message='Passwords must match'),
+        validators.Length(min=8)
     ])
     confirm = PasswordField('Repeat Password:', [validators.DataRequired()])
 

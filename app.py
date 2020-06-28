@@ -1,5 +1,6 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request, flash
 from Forms import LoginForm, RegistrationForm, CheckoutForm, DeliveryForm
+import sqlite3
 
 
 # class User:
@@ -14,6 +15,22 @@ from Forms import LoginForm, RegistrationForm, CheckoutForm, DeliveryForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "supersecretkey"
+with sqlite3.connect("swoy.db") as conn:
+    cursor = conn.cursor()
+    cursor.execute("""CREATE TABLE IF NOT EXISTS user(
+        user_id INTEGER PRIMARY KEY,
+        username TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL,
+        admin INTEGER NOT NULL)""")
+    # Uncomment to insert admin and test account if db is deleted
+    # cursor.execute("INSERT INTO user(username, email,password, admin) "
+    #                "VALUES('Super Admin', 'superadmin@swoy.com', 'swoyadmin', True)")
+    # cursor.execute("INSERT INTO user(username, email,password, admin) "
+    #                "VALUES('John Doe', 'johndoe@gmail.com', '12345678', False)")
+    cursor.execute("SELECT * FROM user")
+    print(cursor.fetchall())
+    conn.commit()
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -52,8 +69,43 @@ def admin_home():
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     form = RegistrationForm()
-    print(form.email.data, form.password.data, form.username.data)
+    if request.method == "POST" and form.validate_on_submit():
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            username = form.username.data
+            email = form.email.data
+            password = form.password.data
+            admin = 0
+            command = f"INSERT INTO user(username, email, password, admin) " \
+                      f"VALUES ('{username}', '{email}', '{password}', '{admin}')"
+            cursor.execute(command)
+            updated = cursor.execute("SELECT * FROM user").fetchall()
+            print(f"Updated database : {updated}")
+            conn.commit()
+
     return render_template("signup.html", form=form)
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    form = LoginForm()
+    if request.method == "POST" and form.validate_on_submit():
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            email = form.email.data
+            password = form.password.data
+            command = f"SELECT * FROM user WHERE email='{email}' and password='{password}'"
+            account_match = cursor.execute(command).fetchone()
+            print(f"Account: {account_match}")
+            if account_match:
+                if account_match[4]:
+                    return redirect(url_for("admin_home"))
+                else:
+                    return redirect(url_for("home"))
+            else:
+                return render_template("login.html", form=form, error=True)
+
+    return render_template("login.html", form=form)
 
 
 @app.route("/checkout", methods=["GET", "POST"])
