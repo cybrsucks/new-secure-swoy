@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "formhelper.html" import render_field %}
 <!-- Bootstrap CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
@@ -13,29 +14,34 @@
                 <h1>Transaction Details</h1>
                 <form>
                     <div class="form-group">
-                        <label>Name:</label>
-                        <input type="text" class="form-control" placeholder="Tommy Hilfiger">
+                        {{render_field(form.name, class="form-control", placeholder="Tommy Hilfiger")}}
+<!--                        <label>Name:</label>-->
+<!--                        <input type="text" class="form-control" placeholder="Tommy Hilfiger">-->
                     </div>
                     <div class="form-group">
-                        <label>Address:</label>
-                        <input type="text" class="form-control" placeholder="123 Hunan Road">
+                        {{render_field(form.address, class="form-control", placeholder="123 Hunan Road")}}
+<!--                        <label>Address:</label>-->
+<!--                        <input type="text" class="form-control" placeholder="123 Hunan Road">-->
                     </div>
 
                     <div class="form-row">
                         <div class="form-group col-md-6">
-                            <label>Credit Card number:</label>
-                            <input type="text" class="form-control" placeholder="0000111122223333">
+                            {{render_field(form.creditNo, class="form-control", placeholder="0000111122223333")}}
+<!--                            <label>Credit Card number:</label>-->
+<!--                            <input type="text" class="form-control" placeholder="0000111122223333">-->
                         </div>
 
                         <div class="form-group col-md-6">
-                            <label>CCV:</label>
-                            <input type="text" class="form-control" placeholder="345">
+                            {{render_field(form.ccv, class="form-control", placeholder="345")}}
+<!--                            <label>CCV:</label>-->
+<!--                            <input type="text" class="form-control" placeholder="345">-->
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Expiry Date</label>
-                        <input type="date" class="form-control">
+                        {{render_field(form.expireDate, class="form-control", type="date")}}
+<!--                        <label>Expiry Date</label>-->
+<!--                        <input type="date" class="form-control">-->
                     </div>
 
                     <div class="form-group">

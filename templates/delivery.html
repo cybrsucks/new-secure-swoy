@@ -7,7 +7,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
 
 {% block content %}
-<form method="post" class="delivery">
+<form method="post" class="swoy-container" id="delivery">
     <h2>Delivery Particulars</h2>
     <div class="form-group">
         {{render_field(form.name, class="form-control", placeholder="Tom")}}

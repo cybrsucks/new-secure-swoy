@@ -131,7 +131,7 @@ a.article-title:hover {
     padding:10px;
 }
 
-.delivery{
+#delivery{
     border:5px solid black;
     border-radius:10px;
     width:800px;

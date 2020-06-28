@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect, url_for
-# from Forms import LoginForm, RegistrationForm, CheckoutForm, DeliveryForm
+from Forms import LoginForm, RegistrationForm, CheckoutForm, DeliveryForm
 
 
 # class User:
@@ -57,7 +57,8 @@ def signup():
 
 @app.route("/checkout", methods=["GET", "POST"])
 def checkout():
-    return render_template("checkout.html")
+    form = CheckoutForm()
+    return render_template("checkout.html", form=form)
 
 
 @app.route("/delivery")
