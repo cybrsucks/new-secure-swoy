@@ -76,12 +76,18 @@ def signup():
             email = form.email.data
             password = form.password.data
             admin = 0
-            command = f"INSERT INTO user(username, email, password, admin) " \
-                      f"VALUES ('{username}', '{email}', '{password}', '{admin}')"
-            cursor.execute(command)
-            updated = cursor.execute("SELECT * FROM user").fetchall()
-            print(f"Updated database : {updated}")
-            conn.commit()
+            command = f"SELECT * FROM user WHERE email='{email}'"
+            account_match = cursor.execute(command).fetchone()
+            # print(f"Account: {account_match}")
+            if account_match:
+                return "error"
+            else:
+                command = f"INSERT INTO user(username, email, password, admin) " \
+                          f"VALUES ('{username}', '{email}', '{password}', '{admin}')"
+                cursor.execute(command)
+                updated = cursor.execute("SELECT * FROM user").fetchall()
+                print(f"Updated database : {updated}")
+                conn.commit()
 
     return render_template("signup.html", form=form)
 
