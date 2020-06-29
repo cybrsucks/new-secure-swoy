@@ -2,14 +2,15 @@
 {% block content %}
 <main class="container">
     <div class="row">
-        {% for item in test_list %}
+        {% for item in drink_list %}
         <div class="col-md-4">
             <article class="media content-section">
                 <div class="media-body">
                     <div class=" swoy-card card" style="">
                         <img class="card-img-top responsive" src="../static/{{ item.image }}" alt="Card image cap">
                         <div class="card-body">
-                            <p class="card-text product-caption">{{ item.name }}</p>
+                            <span class="card-text product-caption">{{ item.name|safe }}</span>
+                            <span style="float:right;">$ {{ item.price }}</span>
                         </div>
                         <div class="text-center">
                             <a href="/checkout"><button class="btn btn-primary swoy-btn" style="margin:10px;">Add to Cart</button></a>
@@ -44,7 +45,6 @@
 <!--                </div>-->
 <!--            </div>-->
         {% endfor %}
-
     </div>
 </main>
 
