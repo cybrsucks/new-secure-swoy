@@ -34,7 +34,9 @@
                 <div class="form-group col">
                     {{render_field(form.security_ans, class="form-control")}}
                 </div>
-
+                {% if error %}
+                <p class="error form-group col" style="color:red; background-color:pink; border-radius:10px;">{{ error }}</p>
+                {% endif %}
                 <div class="text-center">
                     <button type="submit" class="swoy-btn btn btn-primary btn-block">Sign Up</button>
                 </div>

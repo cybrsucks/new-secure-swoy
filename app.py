@@ -172,6 +172,7 @@ def admin_logs():
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     form = RegistrationForm()
+    error = None
     if request.method == "POST" and form.validate_on_submit():
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
@@ -185,7 +186,7 @@ def signup():
             account_match = cursor.execute(command).fetchone()
             # print(f"Account: {account_match}")
             if account_match:
-                return "error"
+                error = "Email already exists"
             else:
                 command = f"INSERT INTO user(username, email, password, security_qns, security_ans, admin) " \
                           f"VALUES ('{username}', '{email}', '{password}', '{security_qns}', '{security_ans}', '{admin}')"
@@ -195,7 +196,7 @@ def signup():
                 conn.commit()
                 return render_template("login.html", form=LoginForm())
 
-    return render_template("signup.html", form=form)
+    return render_template("signup.html", form=form, error=error)
 
 
 @app.route("/login", methods=["GET", "POST"])
