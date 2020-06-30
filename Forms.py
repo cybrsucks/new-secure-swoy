@@ -5,17 +5,16 @@ from flask_wtf.file import FileField, FileRequired, FileAllowed
 
 
 class LoginForm(FlaskForm):
-    email = StringField('Email Address:', [validators.DataRequired(), validators.Length(min=6, max=35)])
-    password = PasswordField('Password:', [validators.DataRequired(), validators.Length(min=8)])
+    email = StringField('Email Address:', [validators.DataRequired()])
+    password = PasswordField('Password:', [validators.DataRequired()])
 
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Username:', [validators.DataRequired(), validators.Length(min=4, max=25)])
-    email = StringField('Email Address:', [validators.DataRequired(), validators.Length(min=6, max=35)])
+    username = StringField('Username:', [validators.DataRequired()])
+    email = StringField('Email Address:', [validators.DataRequired()])
     password = PasswordField('New Password:', [
         validators.DataRequired(),
         validators.EqualTo('confirm', message='Passwords must match'),
-        validators.Length(min=8)
     ])
     confirm = PasswordField('Repeat Password:', [validators.DataRequired()])
     security_qns = SelectField('Security Question:',
@@ -66,7 +65,7 @@ class AddDrinkForm(FlaskForm):
 
 
 class ForgotPasswordEmailForm(FlaskForm):
-    email = StringField('Email Address:', [validators.data_required(), validators.Length(min=6, max=35)])
+    email = StringField('Email Address:', [validators.data_required()])
 
 
 class ForgotPasswordSecurityAnswerForm(FlaskForm):
@@ -75,6 +74,5 @@ class ForgotPasswordSecurityAnswerForm(FlaskForm):
 
 class UpdatePasswordForm(FlaskForm):
     new_pwd = PasswordField('New Password:',
-                          [validators.data_required(), validators.EqualTo('confirm_new_pwd', message='Passwords must match'),
-                           validators.Length(min=8)])
+                          [validators.data_required(), validators.EqualTo('confirm_new_pwd', message='Passwords must match')])
     confirm_new_pwd = PasswordField('Confirm New Password:', [validators.data_required()])

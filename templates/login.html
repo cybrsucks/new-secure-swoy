@@ -23,9 +23,7 @@
                     {{render_field(form.password, class="form-control", placeholder="secret")}}
                 </div>
                 {% if error %}
-                <p class="error form-group col" style="color:red; background-color:pink; border-radius:10px;">Either the
-                    email or
-                    password is wrong.</p>
+                <p class="error form-group col" style="color:red; background-color:pink; border-radius:10px;">{{ error }}</p>
                 {% endif %}
                 <div class="text-center">
                     <button type="submit" class="swoy-btn btn btn-primary btn-block">Sign In</button>

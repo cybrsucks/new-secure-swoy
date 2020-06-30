@@ -21,6 +21,14 @@ app.config['SECRET_KEY'] = "supersecretkey"
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/home", methods=['GET', 'POST'])
 def home():
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM drinks")
@@ -41,12 +49,20 @@ def home():
     #         return redirect(url_for("admin_base"))
     #
     #     return redirect(url_for("home"))
-    return render_template("home.html", drink_list=drink_list)
+    return render_template("home.html", drink_list=drink_list, user_account=user_account)
 
 
 @app.route("/admin")
 def admin_dashboard():
-    return render_template("admin_dashboard.html", admin_title="Dashboard")
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+    return render_template("admin_dashboard.html", admin_title="Dashboard", user_account=user_account)
 
 
 @app.route("/admin/<user_id>")
@@ -177,6 +193,7 @@ def signup():
                 updated = cursor.execute("SELECT * FROM user").fetchall()
                 print(f"Updated database : {updated}")
                 conn.commit()
+                return render_template("login.html", form=LoginForm())
 
     return render_template("signup.html", form=form)
 
@@ -184,23 +201,29 @@ def signup():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
+    error = None
     if request.method == "POST" and form.validate_on_submit():
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
             email = form.email.data
             password = form.password.data
-            command = f"SELECT * FROM user WHERE email='{email}' and password='{password}'"
-            account_match = cursor.execute(command).fetchone()
-            print(f"Account: {account_match}")
+            cursor.execute(f"SELECT * FROM user WHERE email='{email}'")
+            account_match = cursor.fetchone()
             if account_match:
-                if account_match[6]:
-                    return redirect(url_for("admin_dashboard"))
+                command = f"SELECT * FROM user WHERE email='{email}' and password='{password}'"
+                account_match = cursor.execute(command).fetchone()
+                print(f"Account: {account_match}")
+                if account_match:
+                    if account_match[6]:
+                        return redirect(url_for("admin_dashboard", id=account_match[0]))
+                    else:
+                        return redirect(url_for("home", id=account_match[0]))
                 else:
-                    return redirect(url_for("home"))
+                    error = "Password is incorrect."
             else:
-                return render_template("login.html", form=form, error=True)
+                error = "Email does not exist."
 
-    return render_template("login.html", form=form)
+    return render_template("login.html", form=form, error=error)
 
 
 @app.route("/checkout", methods=["GET", "POST"])
@@ -223,6 +246,7 @@ def product():
 @app.route("/forgot_password", methods=["GET", "POST"])
 def forgot_password():
     form = ForgotPasswordEmailForm()
+    error = None
     if request.method == "POST" and form.validate_on_submit():
         with sqlite3.connect("swoy.db") as conn:
             email = form.email.data
@@ -233,14 +257,15 @@ def forgot_password():
             if account_match:
                 return redirect(url_for('security_question', email=email))
             else:
-                return redirect(url_for('signup'))
+                error = "Email does not exist"
 
-    return render_template("forgot_password_EMAIL.html", form=form)
+    return render_template("forgot_password_EMAIL.html", form=form, error=error)
 
 
 @app.route("/forgot_password/<email>", methods=["GET", "POST"])
 def security_question(email):
     form = ForgotPasswordSecurityAnswerForm()
+    error = None
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM user WHERE email = '{email}'")
@@ -250,7 +275,9 @@ def security_question(email):
         given_ans = form.security_ans.data
         if given_ans.lower() == user_account[5].lower():
             return redirect(url_for('forgot_password_change', email=email))
-    return render_template("forgot_password.html", form=form, security_qn=security_qn, email=email)
+        else:
+            error = "Wrong answer given."
+    return render_template("forgot_password.html", form=form, security_qn=security_qn, email=email, error=error)
 
 
 @app.route("/forgot_password/<email>/change", methods=["GET", "POST"])
