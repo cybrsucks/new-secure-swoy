@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, Response
 from Forms import *
 from werkzeug.utils import secure_filename
 import sqlite3
@@ -21,6 +21,14 @@ app.config['SECRET_KEY'] = "supersecretkey"
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/home", methods=['GET', 'POST'])
 def home():
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM drinks")
@@ -41,12 +49,20 @@ def home():
     #         return redirect(url_for("admin_base"))
     #
     #     return redirect(url_for("home"))
-    return render_template("home.html", drink_list=drink_list)
+    return render_template("home.html", drink_list=drink_list, user_account=user_account)
 
 
 @app.route("/admin")
 def admin_dashboard():
-    return render_template("admin_dashboard.html", admin_title="Dashboard")
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+    return render_template("admin_dashboard.html", admin_title="Dashboard", user_account=user_account)
 
 
 @app.route("/admin/<user_id>")
@@ -194,9 +210,9 @@ def login():
             print(f"Account: {account_match}")
             if account_match:
                 if account_match[6]:
-                    return redirect(url_for("admin_dashboard"))
+                    return redirect(url_for("admin_dashboard", id=account_match[0]))
                 else:
-                    return redirect(url_for("home"))
+                    return redirect(url_for("home", id=account_match[0]))
             else:
                 return render_template("login.html", form=form, error=True)
 
