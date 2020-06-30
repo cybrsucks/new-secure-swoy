@@ -18,6 +18,11 @@ with sqlite3.connect("swoy.db") as conn:
         security_qns TEXT NOT NULL,
         security_ans TEXT NOT NULL,
         admin INTEGER NOT NULL)""")
+    cursor.execute("""CREATE TABLE IF NOT EXISTS comments(
+        comment_id INTEGER PRIMARY KEY,
+        content TEXT NOT NULL,
+        user_id INTEGER NOT NULL,
+        drink_id INTEGER NOT NULL)""")
 
     cursor.execute("INSERT INTO user(username, email, password, security_qns, security_ans, admin) "
                    "VALUES('testing', 'test@test.com', 'testtest', 'What is the name of your favourite teacher?', 'Ms Tan', 0)")
@@ -39,8 +44,19 @@ with sqlite3.connect("swoy.db") as conn:
     cursor.execute("INSERT INTO drinks(name, price, thumbnail)"
                    "VALUES('Strawberry Milk', 5, 'Strawberry Boba.jpeg')")
 
+    cursor.execute("INSERT INTO comments(content, user_id, drink_id)"
+                   "VALUES ('I love it!', 3, 1)")
+    cursor.execute("INSERT INTO comments(content, user_id, drink_id)"
+                   "VALUES ('This is our special!', 2, 1)")
+    cursor.execute("INSERT INTO comments(content, user_id, drink_id)"
+                   "VALUES ('Classic taste!', 1, 2)")
+    cursor.execute("INSERT INTO comments(content, user_id, drink_id)"
+                   "VALUES ('Pretty bland.. disappointed :(', 3, 2)")
+
     cursor.execute("SELECT * FROM user")
     print(f"User table : {cursor.fetchall()}")
     cursor.execute("SELECT * FROM drinks")
     print(f"Drinks table : {cursor.fetchall()}")
+    cursor.execute("SELECT * FROM comments")
+    print(f"Comments table : {cursor.fetchall()}")
     conn.commit()

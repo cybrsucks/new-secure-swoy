@@ -18,40 +18,6 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = "supersecretkey"
 
 
-@app.route("/", methods=['GET', 'POST'])
-@app.route("/home", methods=['GET', 'POST'])
-def home():
-    try:
-        user_id = request.args["id"]
-        with sqlite3.connect("swoy.db") as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
-            user_account = cursor.fetchone()
-    except:
-        user_account = None
-    with sqlite3.connect("swoy.db") as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM drinks")
-        drinks = cursor.fetchall()
-    drink_list = []
-    for drink in drinks:
-        drink_list.append({"id": drink[0], "name": drink[1], "price": drink[2], "image": drink[3]})
-
-    # if request == 'POST' and form.validate on :
-    #     session.pop('user_id', None)
-    #
-    #     email = request.form['email']
-    #     password = request.form['password']
-    #
-    #     user = [x for x in users if x.email == email][0]
-    #     if user and user.password == password:
-    #         session['user_id'] = user.id
-    #         return redirect(url_for("admin_base"))
-    #
-    #     return redirect(url_for("home"))
-    return render_template("home.html", drink_list=drink_list, user_account=user_account)
-
-
 @app.route("/admin")
 def admin_dashboard():
     try:
@@ -169,6 +135,50 @@ def admin_logs():
     return render_template("admin_logs.html", admin_title="History Logs")
 
 
+@app.route("/", methods=['GET', 'POST'])
+@app.route("/home", methods=['GET', 'POST'])
+def home():
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+    try:
+        search = request.args["search"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM drinks WHERE "
+                           f"name = '{search}' OR name LIKE '{search}%' OR name LIKE '%{search}' OR name LIKE '%{search}%'")
+            drinks = cursor.fetchall()
+    except:
+        search = None
+    if not search:
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM drinks")
+            drinks = cursor.fetchall()
+    drink_list = []
+    for drink in drinks:
+        drink_list.append({"id": drink[0], "name": drink[1], "price": drink[2], "image": drink[3]})
+
+    # if request == 'POST' and form.validate on :
+    #     session.pop('user_id', None)
+    #
+    #     email = request.form['email']
+    #     password = request.form['password']
+    #
+    #     user = [x for x in users if x.email == email][0]
+    #     if user and user.password == password:
+    #         session['user_id'] = user.id
+    #         return redirect(url_for("admin_base"))
+    #
+    #     return redirect(url_for("home"))
+    return render_template("home.html", drink_list=drink_list, user_account=user_account, search=search)
+
+
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     form = RegistrationForm()
@@ -227,6 +237,49 @@ def login():
     return render_template("login.html", form=form, error=error)
 
 
+@app.route("/product/<drink_name>")
+def product(drink_name):
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+    with sqlite3.connect("swoy.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM drinks WHERE name = '{drink_name}'")
+        drink = cursor.fetchone()
+        if drink:
+            cursor.execute(f"SELECT * FROM comments WHERE drink_id = '{drink[0]}'")
+            comments = cursor.fetchall()
+            comment_list = []
+            for comment in comments:
+                cursor.execute(f"SELECT username FROM user WHERE user_id = '{comment[2]}'")
+                author = cursor.fetchone()[0]
+                comment_list.append({"content": comment[1], "author": author})
+    return render_template("product.html", drink=drink, comment_list=comment_list, user_account=user_account)
+
+
+@app.route("/product/update_drink_comments", methods=["GET", "POST"])  # API
+def update_comment():
+    try:
+        drink_id = request.args["drink_id"]
+        user_id = request.args["user_id"]
+        content = request.form["content"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"INSERT INTO comments(content, user_id, drink_id) "
+                           f"VALUES ('{content}', '{user_id}', '{drink_id}')")
+            cursor.execute(f"SELECT name FROM drinks WHERE drink_id = '{drink_id}'")
+            drink_name = cursor.fetchone()[0]
+            conn.commit()
+        return redirect(url_for("product", id=user_id, drink_name=drink_name, _anchor="comments"))
+    except:
+        return redirect(url_for("home"))
+
+
 @app.route("/checkout", methods=["GET", "POST"])
 def checkout():
     form = CheckoutForm()
@@ -237,11 +290,6 @@ def checkout():
 def delivery():
     form = DeliveryForm()
     return render_template("delivery.html", form=form)
-
-
-@app.route("/product")
-def product():
-    return render_template("product.html")
 
 
 @app.route("/forgot_password", methods=["GET", "POST"])

@@ -12,25 +12,66 @@
         <div style="margin-left: 30px;">
             <div class="container-fluid swoy-container transaction-details-container">
 
-                <h1> Earl Grey Milk Tea </h1>
-                <img src="../static/Earl Grey Boba.jpeg" style="max-width: 500px;" class="responsive">
+                <h1> {{ drink[1] }} </h1>
+                <img src="../static/{{ drink[3] }}" style="max-width: 500px;" class="responsive">
 
             </div>
         </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-5">
         <div style="margin-left: 30px;">
             <div class="container-fluid swoy-container transaction-details-container">
-                <p> Choice of Toppings: </p>
+                <h5> Choice of Toppings: </h5>
                 <form action="/action_page.php">
                     <ul>
-                        <li class="list-style-none"><input type="checkbox" name="" value=""><label> Aloe Vera</label><img src="../static/aloe vera.png" class="toppings-img"></li>
-                        <li class="list-style-none"><input type="checkbox" name="" value=""><label> Black Pearl</label><img src="../static/black pearl.png" class="toppings-img"></li>
-                        <li class="list-style-none"><input type="checkbox" name="" value=""><label> Golden Pearl</label><img src="../static/golden pearl.png" class="toppings-img"></li>
-                        <li class="list-style-none"><input type="checkbox" name="" value=""><label> Grass Jelly</label><img src="../static/grass jelly.png" class="toppings-img"></li>
+                        <li class="list-style-none"><input type="checkbox" name="" value=""><label>&nbsp;&nbsp;Aloe Vera</label><img src="../static/aloe vera.png" class="toppings-img"></li>
+                        <li class="list-style-none"><input type="checkbox" name="" value=""><label>&nbsp;&nbsp;Black Pearl</label><img src="../static/black pearl.png" class="toppings-img"></li>
+                        <li class="list-style-none"><input type="checkbox" name="" value=""><label>&nbsp;&nbsp;Golden Pearl</label><img src="../static/golden pearl.png" class="toppings-img"></li>
+                        <li class="list-style-none"><input type="checkbox" name="" value=""><label>&nbsp;&nbsp;Grass Jelly</label><img src="../static/grass jelly.png" class="toppings-img"></li>
                     </ul>
+                    <hr>
+                    <h5> Sugar Level: </h5>
+                    <select name="sugar-level" id="" class="form-control" required>
+                        <option value="0">0%</option>
+                        <option value="25">25%</option>
+                        <option value="50" selected>50%</option>
+                        <option value="75">75%</option>
+                        <option value="100">100%</option>
+                    </select>
+                    <hr>
+                    <h5> Quantity: </h5>
+                    <div>
+                       <input class="form-control" type="number" step="1" min="1" value="1" required>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                        <a href="/checkout"><button class="btn btn-primary swoy-btn" style="margin:10px;">Add to Cart</button></a>
+                    </div>
                 </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6" id="comments">
+        <div style="margin-left: 30px; margin-top:-100px;">
+            <div class="container-fluid swoy-container transaction-details-container">
+                <h5> Comments ({{ comment_list|length }}) </h5>
+                <hr>
+                {% for comment in comment_list %}
+                    <strong>{{ comment.author|safe }}</strong>
+                    <p>{{ comment.content|safe }}</p>
+                {% endfor %}
+                <hr>
+                {% if user_account %}
+                <form method="POST" action="{{ url_for('update_comment', drink_id=drink[0], user_id=user_account[0]) }}">
+                    <textarea class="form-control" rows="4" name="content" placeholder="Enter comment here..." required></textarea>
+                    <div style="text-align:right; margin-top:5px;">
+                        <button type="submit" class="swoy-btn btn btn-primary btn-block">Submit</button>
+                    </div>
+                </form>
+                {% else %}
+                <p>Please login to comment.</p>
+                {% endif %}
             </div>
         </div>
     </div>

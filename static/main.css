@@ -235,7 +235,13 @@ text-align: center;
     border: 4px solid #E7F3FC;
     margin-left: 20px;
     margin-right: 20px;
+    transition: 0.3s;
 }
+
+.swoy-card:hover {
+    opacity: 0.9;
+}
+
 /* end product item card */
 /* checkout stylings */
 .transaction-details-container, .order-details-container{
