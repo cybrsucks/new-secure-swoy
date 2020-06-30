@@ -1,6 +1,6 @@
 Admin Account
 Email: superadmin@swoy.com
-Password: swoyadmin
+Password: admin
 
 Test Accounts
 Email: test@test.com

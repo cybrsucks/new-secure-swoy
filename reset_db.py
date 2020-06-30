@@ -22,7 +22,7 @@ with sqlite3.connect("swoy.db") as conn:
     cursor.execute("INSERT INTO user(username, email, password, security_qns, security_ans, admin) "
                    "VALUES('testing', 'test@test.com', 'testtest', 'What is the name of your favourite teacher?', 'Ms Tan', 0)")
     cursor.execute("INSERT INTO user(username, email, password, security_qns, security_ans, admin) "
-                   "VALUES('Super Admin', 'superadmin@swoy.com', 'swoyadmin', 'What is the name of your favourite teacher?', 'Ms Tan', 1)")
+                   "VALUES('Super Admin', 'superadmin@swoy.com', 'admin', 'What is the name of your favourite teacher?', 'Ms Tan', 1)")
     cursor.execute("INSERT INTO user(username, email, password, security_qns, security_ans, admin) "
                    "VALUES('John Doe', 'johndoe@gmail.com', '12345678', 'What is the name of your favourite teacher?', 'Ms Tan', 0)")
 
