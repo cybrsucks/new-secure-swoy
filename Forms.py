@@ -1,6 +1,7 @@
-from wtforms import StringField, PasswordField, validators, Form, DateField
-from wtforms.validators import InputRequired, Email, Length
+from wtforms import StringField, PasswordField, validators, Form, DateField, DecimalField, SelectField
+from wtforms.validators import InputRequired, Email, Length, NumberRange
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 
 
 class LoginForm(FlaskForm):
@@ -17,6 +18,20 @@ class RegistrationForm(FlaskForm):
         validators.Length(min=8)
     ])
     confirm = PasswordField('Repeat Password:', [validators.DataRequired()])
+    security_qns = SelectField('Security Question:',
+                               choices=[('What is the name of your first pet?', 'What is the name of your first pet?'),
+                                        ('What is the name of your favourite teacher?',
+                                        'What is the name of your favourite teacher?'),
+                                        ('What is your favourite pet?', 'What is your favourite pet?'),
+                                        ('What is your hobby?', 'What is your hobby?'),
+                                        ('What is a place that you would like to visit?',
+                                        'What is a place that you would like to visit?'),
+                                        ('What is the first country you visited?',
+                                        'What is the first country you visited?'),
+                                        ('What is the name of your favourite place to visit?',
+                                        'What is the name of your favourite place to visit?')])
+
+    security_ans = StringField("Answer:", [validators.DataRequired()])
 
 
 class CheckoutForm(FlaskForm):
@@ -27,8 +42,32 @@ class CheckoutForm(FlaskForm):
     expireDate = DateField('Expiry Date:', [validators.data_required()])
 
 
-class DeliveryForm(Form):
+class DeliveryForm(FlaskForm):
     name = StringField('Name:', [validators.data_required(), validators.length(max=99)])
     address = StringField('Address:', [validators.data_required()])
     email = StringField('Email Address:', [validators.data_required(), validators.Length(min=6, max=35)])
     contactNo = StringField('Contact Number:', [validators.data_required(), validators.length(min=8, max=8)])
+
+
+class ModifyDrinkForm(FlaskForm):
+    name = StringField('Name:', [validators.data_required(), validators.length(min=3)])
+    price = DecimalField('Price:', [validators.data_required(), validators.NumberRange(min=3, max=50,
+                                                                                       message="Field must be between $3.00 to $50.00")],
+                         places=2)
+    thumbnail = FileField('Thumbnail:', [FileAllowed(['jpg', 'jpeg', 'png'], 'Images Only!')])
+
+
+class AddDrinkForm(FlaskForm):
+    name = StringField('Name:', [validators.data_required(), validators.length(min=3)])
+    price = DecimalField('Price:', [validators.data_required(), validators.NumberRange(min=3, max=50,
+                                                                                       message="Field must be between $3.00 to $50.00")],
+                         places=2, default=5)
+    thumbnail = FileField('Thumbnail:', [FileRequired(), FileAllowed(['jpg', 'jpeg', 'png'], 'Images Only!')])
+
+
+class ForgotPasswordEmailForm(FlaskForm):
+    email = StringField('Email Address:', [validators.data_required(), validators.Length(min=6, max=35)])
+
+
+class ForgotPasswordSecurityAnswerForm(FlaskForm):
+    security_ans = StringField('Answer:', [validators.data_required()])
