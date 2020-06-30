@@ -248,7 +248,7 @@ def security_question(email):
     security_qn = user_account[4]
     if request.method == "POST" and form.validate_on_submit():
         given_ans = form.security_ans.data
-        if given_ans == user_account[5]:
+        if given_ans.lower() == user_account[5].lower():
             return redirect(url_for('forgot_password_change', email=email))
     return render_template("forgot_password.html", form=form, security_qn=security_qn, email=email)
 
