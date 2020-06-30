@@ -32,11 +32,10 @@
     <button class="hamburger hamburger--collapse hamburger-custom navbar-toggler" type="button" data-toggle="collapse"
             data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
             aria-label="Toggle navigation" style="outline: none;">
-  <span class="hamburger-box">
-    <span class="hamburger-inner">
-
-    </span>
-  </span>
+          <span class="hamburger-box">
+            <span class="hamburger-inner">
+            </span>
+          </span>
     </button>
 
 
@@ -50,7 +49,8 @@
         <ul class="navbar-nav" style="margin-right:30px;">
             <div class="search-box">
                 <form class="">
-                    <input class="mr-sm-2 input-search" type="text" placeholder="Search" aria-label="Search" style="text-align:middle">
+                    <input class="mr-sm-2 input-search" type="text" placeholder="Search" aria-label="Search"
+                           style="text-align:middle">
                     <button class="btn btn-navbar swoy-btn my-2 my-sm-0" type="submit" style="border-radius:50%;"><i
                             class="fas fa-search"></i></button>
                 </form>
@@ -65,43 +65,14 @@
                 <button class="btn btn-navbar swoy-btn my-2 my-sm-0">Sign up</button>
             </a></li>
             <li><a href="/cart">
-                <button class="btn btn-navbar swoy-btn my-2 my-sm-0"><i class="fa fa-shopping-bag"></i>  Cart</button>
+                <button class="btn btn-navbar swoy-btn my-2 my-sm-0"><i class="fa fa-shopping-bag"></i> Cart</button>
             </a>
 
             </li>
         </ul>
-
-
     </div>
 </nav>
 
-<!-- Modal -->
-<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="loginModalLabel">Login</h5>
-            </div>
-            <div class="modal-body login-align">
-                <form method="POST">
-                    <div class="form-group">
-                        <label> Email: </label>
-                        <input class="form-control" type="email" name="login_email" placeholder="name@example.com">
-                        <label> Password: </label>
-                        <input class="form-control" type="password" name="login_password" placeholder="secret">
-                        <div class="modal-footer">
-                            <a href="/home">
-                                <button type="button" class="btn btn-primary">Login</button>
-                            </a>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-        </div>
-    </div>
-</div>
 {% block content %} {% endblock %}
 
 <!-- Optional JavaScript -->
@@ -125,6 +96,7 @@
     hamburger.classList.toggle("is-active");
     // Do something else, like open/close menu
   });
+
 </script>
 </body>
 </html>
