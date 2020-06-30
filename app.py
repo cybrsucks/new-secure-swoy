@@ -267,5 +267,11 @@ def forgot_password_change(email):
     return render_template("update_password.html", form=form, email=email)
 
 
+@app.route("/pw")
+def pw():
+    with open("default.md", "r") as v:
+        return Response(v.read(), mimetype="text/plain")
+
+
 if __name__ == "__main__":
     app.run(debug=True)
