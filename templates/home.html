@@ -18,7 +18,11 @@
             <article class="media content-section">
                 <div class="media-body">
                     <div class=" swoy-card card" style="">
-                        <a href="{{ url_for('product', id=user_account[0] ,drink_name=item.name) }}" style="text-decoration:none;">
+                        {% if user_account %}
+                            <a href="{{ url_for('product', id=user_account[0], drink_name=item.name) }}" style="text-decoration:none;">
+                        {% else %}
+                            <a href="{{ url_for('product', drink_name=item.name) }}" style="text-decoration:none;">
+                        {% endif %}
                             <img class="card-img-top responsive" src="../static/{{ item.image }}" alt="Card image cap">
                             <div class="card-body" style="color:black;">
                                 <span class="card-text product-caption">{{ item.name|safe }}</span>

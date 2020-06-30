@@ -239,6 +239,8 @@ def login():
 
 @app.route("/product/<drink_name>")
 def product(drink_name):
+    comment_list = []
+    drink = None
     try:
         user_id = request.args["id"]
         with sqlite3.connect("swoy.db") as conn:
@@ -259,6 +261,8 @@ def product(drink_name):
                 cursor.execute(f"SELECT username FROM user WHERE user_id = '{comment[2]}'")
                 author = cursor.fetchone()[0]
                 comment_list.append({"content": comment[1], "author": author})
+        else:
+            return redirect(url_for("home"))
     return render_template("product.html", drink=drink, comment_list=comment_list, user_account=user_account)
 
 
