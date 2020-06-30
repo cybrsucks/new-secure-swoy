@@ -21,15 +21,15 @@ class RegistrationForm(FlaskForm):
     security_qns = SelectField('Security Question:',
                                choices=[('What is the name of your first pet?', 'What is the name of your first pet?'),
                                         ('What is the name of your favourite teacher?',
-                                        'What is the name of your favourite teacher?'),
+                                         'What is the name of your favourite teacher?'),
                                         ('What is your favourite pet?', 'What is your favourite pet?'),
                                         ('What is your hobby?', 'What is your hobby?'),
                                         ('What is a place that you would like to visit?',
-                                        'What is a place that you would like to visit?'),
+                                         'What is a place that you would like to visit?'),
                                         ('What is the first country you visited?',
-                                        'What is the first country you visited?'),
+                                         'What is the first country you visited?'),
                                         ('What is the name of your favourite place to visit?',
-                                        'What is the name of your favourite place to visit?')])
+                                         'What is the name of your favourite place to visit?')])
 
     security_ans = StringField("Answer:", [validators.DataRequired()])
 
@@ -71,3 +71,10 @@ class ForgotPasswordEmailForm(FlaskForm):
 
 class ForgotPasswordSecurityAnswerForm(FlaskForm):
     security_ans = StringField('Answer:', [validators.data_required()])
+
+
+class UpdatePasswordForm(FlaskForm):
+    new_pwd = PasswordField('New Password:',
+                          [validators.data_required(), validators.EqualTo('confirm_new_pwd', message='Passwords must match'),
+                           validators.Length(min=8)])
+    confirm_new_pwd = PasswordField('Confirm New Password:', [validators.data_required()])

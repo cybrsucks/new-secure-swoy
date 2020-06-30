@@ -172,7 +172,7 @@ def signup():
                 return "error"
             else:
                 command = f"INSERT INTO user(username, email, password, security_qns, security_ans, admin) " \
-                          f"VALUES ('{username}', '{email}', '{password}', '{security_qns}', '{security_ans}' '{admin}')"
+                          f"VALUES ('{username}', '{email}', '{password}', '{security_qns}', '{security_ans}', '{admin}')"
                 cursor.execute(command)
                 updated = cursor.execute("SELECT * FROM user").fetchall()
                 print(f"Updated database : {updated}")
@@ -193,7 +193,7 @@ def login():
             account_match = cursor.execute(command).fetchone()
             print(f"Account: {account_match}")
             if account_match:
-                if account_match[4]:
+                if account_match[6]:
                     return redirect(url_for("admin_dashboard"))
                 else:
                     return redirect(url_for("home"))
@@ -224,8 +224,17 @@ def product():
 def forgot_password():
     form = ForgotPasswordEmailForm()
     if request.method == "POST" and form.validate_on_submit():
-        email = form.email.data
-        return redirect(url_for('security_question', email=email))
+        with sqlite3.connect("swoy.db") as conn:
+            email = form.email.data
+            cursor = conn.cursor()
+            command = f"SELECT * FROM user WHERE email='{email}'"
+            account_match = cursor.execute(command).fetchone()
+            # print(f"Account: {account_match}")
+            if account_match:
+                return redirect(url_for('security_question', email=email))
+            else:
+                return redirect(url_for('signup'))
+
     return render_template("forgot_password_EMAIL.html", form=form)
 
 
@@ -246,7 +255,16 @@ def security_question(email):
 
 @app.route("/forgot_password/<email>/change", methods=["GET", "POST"])
 def forgot_password_change(email):
-    return "Hello"
+    form = UpdatePasswordForm()
+    if request.method == "POST" and form.validate_on_submit():
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            new_password = form.new_pwd.data
+            cursor.execute(f"UPDATE user SET password = '{new_password}' WHERE email = '{email}'")
+            conn.commit()
+        return redirect(url_for('home'))
+
+    return render_template("update_password.html", form=form, email=email)
 
 
 if __name__ == "__main__":
