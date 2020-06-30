@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, Response
 from Forms import *
 from werkzeug.utils import secure_filename
 import sqlite3

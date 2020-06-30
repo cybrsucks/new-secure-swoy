@@ -15,7 +15,7 @@
           integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
     <link href="../static/hamburgers.css" rel="stylesheet">
-    <link rel="shortcut icon" href="static\favicon.ico"/>
+    <link rel="shortcut icon" href="../../../static/favicon.ico"/>
     <title>SWOY Bubble Tea</title>
 </head>
 
@@ -23,7 +23,7 @@
 
 <body>
 <nav class="navbar navbar-expand-lg row" style="background:#E7F3FC;">
-    <a href="/home"> <img class="navbar-brand responsive" src="static\cover.png"/></a>
+    <a href="/home"> <img class="navbar-brand responsive" src="../../../static/cover.png"/></a>
     <!--    <button class="" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"-->
     <!--            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"-->
     <!--            style="border: none; outline: none;">-->
@@ -38,13 +38,11 @@
           </span>
     </button>
 
-
     <div class="collapse navbar-collapse" id="navbarSupportedContent" style="text-align: center;">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
                 <a class="navbar-links" href="/product">Browse our menu<span class="sr-only">(current)</span></a>
             </li>
-
         </ul>
         <ul class="navbar-nav" style="margin-right:30px;">
             <div class="search-box">
@@ -67,7 +65,6 @@
             <li><a href="/cart">
                 <button class="btn btn-navbar swoy-btn my-2 my-sm-0"><i class="fa fa-shopping-bag"></i> Cart</button>
             </a>
-
             </li>
         </ul>
     </div>
