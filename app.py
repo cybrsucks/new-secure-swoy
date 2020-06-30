@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, Response
+from flask import Flask, render_template, redirect, url_for, request, flash
 from Forms import LoginForm, RegistrationForm, CheckoutForm, DeliveryForm
 import sqlite3
 
@@ -129,12 +129,6 @@ def delivery():
 @app.route("/product")
 def product():
     return render_template("product.html")
-
-
-@app.route("/pw")
-def pw():
-    with open("default.md", "r") as v:
-        return Response(v.read(), mimetype="text/plain")
 
 
 if __name__ == "__main__":
