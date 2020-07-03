@@ -16,7 +16,7 @@
     -webkit-box-shadow: inset 0 0 3px rgba(0,0,0,0.5);
 }
 ::-webkit-scrollbar-thumb:window-inactive {
-	background: rgba(255,0,0,0.4);
+	background: #00a399;
 }
 /* end custom scrollbar */
 /*
@@ -232,14 +232,16 @@ text-align: center;
 /* product item card style for home.html*/
 .swoy-card{
     width: 16rem;
-    border: 4px solid #E7F3FC;
+    border: 2px solid white;
     margin-left: 20px;
     margin-right: 20px;
-    transition: 0.3s;
+    transition: 0.2s;
 }
 
 .swoy-card:hover {
-    opacity: 0.9;
+    opacity:0.85;
+    /*background: linear-gradient(to bottom, #ffffff 0%, #e7f3fc 100%);*/
+
 }
 
 /* end product item card */
