@@ -284,6 +284,11 @@ def update_comment():
         return redirect(url_for("home"))
 
 
+@app.route("/cart")
+def cart():
+    return render_template("cart.html")
+
+
 @app.route("/checkout", methods=["GET", "POST"])
 def checkout():
     form = CheckoutForm()
@@ -355,3 +360,4 @@ def pw():
 
 if __name__ == "__main__":
     app.run(debug=True)
+

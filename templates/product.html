@@ -23,7 +23,7 @@
         <div style="margin-left: 30px;">
             <div class="container-fluid swoy-container transaction-details-container">
                 <h5> Choice of Toppings: </h5>
-                <form action="/action_page.php">
+                <form action="{{ url_for('home') }}">
                     <ul>
                         <li class="list-style-none"><input type="checkbox" name="" value=""><label>&nbsp;&nbsp;Aloe Vera</label><img src="../static/aloe vera.png" class="toppings-img"></li>
                         <li class="list-style-none"><input type="checkbox" name="" value=""><label>&nbsp;&nbsp;Black Pearl</label><img src="../static/black pearl.png" class="toppings-img"></li>
@@ -46,7 +46,7 @@
                     </div>
                     <hr>
                     <div class="text-center">
-                        <a href="/checkout"><button class="btn btn-primary swoy-btn" style="margin:10px;">Add to Cart</button></a>
+                        <a href="{{ url_for('home') }}"><button class="btn btn-primary swoy-btn" style="margin:10px;">Add to Cart</button></a>
                     </div>
                 </form>
             </div>
