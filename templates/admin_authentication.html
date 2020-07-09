@@ -8,35 +8,21 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
 
 {% block content %}
-<div>
-    <div style="margin: 100px;">
+<div style="margin: 50px; margin-right: 200px; margin-left: 200px;">
         <div class="container-fluid swoy-container transaction-details-container">
             <form method="post" class="swoy-container" action="{{url_for('login')}}">
                 {{ form.csrf_token }}
                 <div class="form-group col">
-                    <h2>Login</h2>
+                    <h2>Check OTP in your email</h2>
                 </div>
                 <div class="form-group col">
-                    {{render_field(form.email, class="form-control", placeholder="apple@example.com")}}
-                </div>
-                <div class="form-group col">
-                    {{render_field(form.password, class="form-control", placeholder="Password")}}
-                </div>
-                {% if error %}
-                <p class="error form-group col" style="color:red; background-color:pink; border-radius:10px;">{{ error }}</p>
-                {% endif %}
-                <div class="text-center">
-                    <button type="submit" class="swoy-btn btn btn-primary btn-block">Sign In</button>
-                </div>
-                <div style="padding-top:10px;">
-                    <a href="/forgot_password" class="security-qns"> Forgot your password? </a>
+                    {{render_field(form.otp, class="form-control", placeholder="******")}}
                 </div>
                   <div style="padding-top:10px;">
-                    <a href="/signup" class="security-qns"> Don't have an account yet? </a>
+                    <a href="" class="security-qns"> Resend? </a>
                 </div>
             </form>
         </div>
     </div>
-</div>
 
 {% endblock %}

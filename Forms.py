@@ -1,4 +1,4 @@
-from wtforms import StringField, PasswordField, validators, Form, DateField, DecimalField, SelectField
+from wtforms import StringField, PasswordField, validators, Form, DateField, DecimalField, SelectField, IntegerField
 from wtforms.validators import InputRequired, Email, Length, NumberRange
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
@@ -77,3 +77,7 @@ class UpdatePasswordForm(FlaskForm):
                             [validators.data_required(),
                              validators.EqualTo('confirm_new_pwd', message='Passwords must match')])
     confirm_new_pwd = PasswordField('Confirm New Password:', [validators.data_required()])
+
+
+class OTPForm(FlaskForm):
+    otp = IntegerField('OTP: ', [validators.data_required()])

@@ -34,6 +34,12 @@ def admin_dashboard():
     return render_template("admin_dashboard.html", admin_title="Dashboard", user_account=user_account)
 
 
+@app.route("/admin/otp")
+def authenticate_otp():
+    form = OTPForm()
+    return render_template("admin_authentication.html", admin_title="Your Account", form=form)
+
+
 @app.route("/admin/<user_id>")
 def admin_own_account(user_id):
     return render_template("admin_own_account.html", admin_title="Your Account")
