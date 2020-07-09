@@ -1,7 +1,10 @@
 from flask import Flask, render_template, redirect, url_for, request, Response
+from wtforms import ValidationError
+
 from Forms import *
 from werkzeug.utils import secure_filename
 import sqlite3
+import re
 
 
 # class User:
@@ -183,12 +186,20 @@ def home():
 def signup():
     form = RegistrationForm()
     error = None
+    error_password = None
     if request.method == "POST" and form.validate_on_submit():
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
             username = form.username.data
             email = form.email.data
             password = form.password.data
+
+            if not re.search(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{8,20}$", password):
+                error_password = "Your password must be at least 8 characters, contain at least 1 symbol (@, $, !, %, *, #, ?, &), at least 1 uppercase and at least 1 lowercase"
+                return render_template("signup.html", form=form, error=error, error_password=error_password)
+            else:
+                error_password = None
+
             security_qns = form.security_qns.data
             security_ans = form.security_ans.data
             admin = 0
@@ -206,7 +217,7 @@ def signup():
                 conn.commit()
                 return render_template("login.html", form=LoginForm())
 
-    return render_template("signup.html", form=form, error=error)
+    return render_template("signup.html", form=form, error=error, error_password=error_password)
 
 
 @app.route("/login", methods=["GET", "POST"])
