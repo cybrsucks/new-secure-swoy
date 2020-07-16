@@ -9,7 +9,7 @@ base32secret = 'S3K3TPI5MYA2M67V'
 totp = pyotp.TOTP(base32secret)
 email_otp = totp.now()
 # print('OTP code:', email_otp)
-time.sleep(30)
+
 # print('OTP code:', totp.now())
 
 
@@ -32,7 +32,6 @@ while otp_not_finalised:
     resend = input("Resend?")
     if resend.upper() == "Y":
         email_otp = totp.now()
-        time.sleep(30)
         fromaddr = 'swoybubbletea@gmail.com'
         toaddrs = 'swoybubbletea@gmail.com'
         # send to recipient change the above address
