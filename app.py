@@ -2,6 +2,8 @@ from flask import Flask, render_template, redirect, url_for, request, Response
 from Forms import *
 from werkzeug.utils import secure_filename
 import sqlite3
+import xmltodict
+import xml.etree.ElementTree
 
 
 # class User:
@@ -38,13 +40,18 @@ def admin_own_account(user_id):
 
 @app.route("/admin/menu_drinks")
 def admin_menu_drinks():
-    with sqlite3.connect("swoy.db") as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM drinks")
-        drinks = cursor.fetchall()
+    # with sqlite3.connect("swoy.db") as conn:
+    #     cursor = conn.cursor()
+    #     cursor.execute("SELECT * FROM drinks")
+    #     drinks = cursor.fetchall()
+
+    productData = xmltodict.parse(open("static/products.xml", "r").read())
+    drinks = productData["products"]["drinks"]
+
     drink_list = []
     for drink in drinks:
-        drink_list.append({"id": drink[0], "name": drink[1], "price": drink[2], "image": drink[3]})
+        for i in drinks[drink]:
+            drink_list.append({"id": i["@id"], "name": i["description"], "price": i["price"], "image": i["thumbnail"]})
 
     return render_template("admin_menu_drinks.html", admin_title="Menu Items - Drinks", drink_list=drink_list)
 
@@ -53,12 +60,19 @@ def admin_menu_drinks():
 def admin_menu_drinks_modify(drink_id):
     form = ModifyDrinkForm()
     if request.method == "GET":
-        with sqlite3.connect("swoy.db") as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM drinks WHERE drink_id = '{drink_id}'")
-            drink = cursor.fetchone()
-        form.name.data = drink[1]
-        form.price.data = drink[2]
+        # with sqlite3.connect("swoy.db") as conn:
+        #     cursor = conn.cursor()
+        #     cursor.execute(f"SELECT * FROM drinks WHERE drink_id = '{drink_id}'")
+        #     drink = cursor.fetchone()
+        productData = xmltodict.parse(open("static/products.xml", "r").read())
+        drinks = productData["products"]["drinks"]
+        for drink in drinks:
+            for i in drinks[drink]:
+                if i["@id"] == drink_id:
+                    form.name.data = i["description"]
+                    form.price.data = float(i["price"])
+        #
+        # return render_template("admin_menu_drinks_modify.html", admin_title=f"Menu Items - Modify Drinks - {name}" ,form=form, drink_id=drink_id)
 
     if request.method == "POST" and form.validate_on_submit():
         name = form.name.data
@@ -67,17 +81,40 @@ def admin_menu_drinks_modify(drink_id):
             filename = secure_filename(form.thumbnail.data.filename)
         except:
             filename = None
-        with sqlite3.connect("swoy.db") as conn:
-            cursor = conn.cursor()
-            if filename:
-                cursor.execute(f"UPDATE drinks SET name = '{name}', price = '{price}', thumbnail = '{filename}'"
-                               f"WHERE drink_id = {drink_id}")
-            else:
-                cursor.execute(f"UPDATE drinks SET name = '{name}', price = '{price}'"
-                               f"WHERE drink_id = {drink_id}")
-            conn.commit()
-        if filename:
+        # with sqlite3.connect("swoy.db") as conn:
+        #     cursor = conn.cursor()
+        #     if filename:
+        #         cursor.execute(f"UPDATE drinks SET name = '{name}', price = '{price}', thumbnail = '{filename}'"
+        #                        f"WHERE drink_id = {drink_id}")
+        #     else:
+        #         cursor.execute(f"UPDATE drinks SET name = '{name}', price = '{price}'"
+        #                        f"WHERE drink_id = {drink_id}")
+        #     conn.commit()
+        # if filename:
+        #     form.thumbnail.data.save("static/" + filename)
+
+        if filename != None:
             form.thumbnail.data.save("static/" + filename)
+
+        id = int(drink_id)
+        et = xml.etree.ElementTree.parse("static/products.xml")
+        drinkTag = et.getroot()[0].getchildren()[id-1]
+        for element in list(drinkTag):
+            if element.tag == "thumbnail":
+                if filename != None:
+                    drinkTag.remove(element)
+            else:
+                drinkTag.remove(element)
+
+        et.write("static/products.xml")
+        descriptionTag = xml.etree.ElementTree.SubElement(et.getroot()[0][id-1], "description")
+        descriptionTag.text = name
+        priceTag = xml.etree.ElementTree.SubElement(et.getroot()[0][id-1], "price")
+        priceTag.text = str(price)
+        if filename != None:
+            thumbnailTag = xml.etree.ElementTree.SubElement(et.getroot()[0][id-1], "thumbnail")
+            thumbnailTag.text = filename
+        et.write("static/products.xml")
 
     return render_template("admin_menu_drinks_modify.html", admin_title=f"Menu Items - Modify Drinks - {form.name.data}", form=form, drink_id=drink_id)
 
@@ -88,20 +125,44 @@ def admin_menu_drinks_add():
     if request.method == "POST" and form.validate_on_submit():
         name = form.name.data
         price = form.price.data
-        filename = secure_filename(form.thumbnail.data.filename)
-        with sqlite3.connect("swoy.db") as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"INSERT INTO drinks(name, price, thumbnail) "
-                           f"VALUES('{name}', '{price}', '{filename}')")
-        form.thumbnail.data.save("static/" + filename)
+        try:
+            filename = secure_filename(form.thumbnail.data.filename)
+        except:
+            filename = None
+        # with sqlite3.connect("swoy.db") as conn:
+        #     cursor = conn.cursor()
+        #     cursor.execute(f"INSERT INTO drinks(name, price, thumbnail) "
+        #                    f"VALUES('{name}', '{price}', '{filename}')")
+        if filename != None:
+            form.thumbnail.data.save("static/" + filename)
+
+        et = xml.etree.ElementTree.parse("static/products.xml")
+        newTag = xml.etree.ElementTree.SubElement(et.getroot()[0], 'drink')
+        id = len(et.findall("*/drink"))
+        newTag.attrib["id"] = str(id)
+        et.write("static/products.xml")
+        descriptionTag = xml.etree.ElementTree.SubElement(et.getroot()[0][id-1], "description")
+        descriptionTag.text = name
+        priceTag = xml.etree.ElementTree.SubElement(et.getroot()[0][id-1], "price")
+        priceTag.text = str(price)
+        thumbnailTag = xml.etree.ElementTree.SubElement(et.getroot()[0][id-1], "thumbnail")
+        thumbnailTag.text = filename
+        et.write("static/products.xml")
     return render_template("admin_menu_drinks_add.html", admin_title=f"Menu Items - Add Drink", form=form)
 
 
 @app.route("/admin/menu_drinks/delete/<drink_id>", methods=["POST"])  # API
 def admin_menu_drinks_delete(drink_id):
-    with sqlite3.connect("swoy.db") as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"DELETE FROM drinks WHERE drink_id='{drink_id}'")
+    # with sqlite3.connect("swoy.db") as conn:
+    #     cursor = conn.cursor()
+    #     cursor.execute(f"DELETE FROM drinks WHERE drink_id='{drink_id}'")
+    id = drink_id
+    et = xml.etree.ElementTree.parse("static/products.xml")
+    for drinkTag in list(et.getroot()[0].getchildren()):
+        if id == drinkTag.attrib["id"]:
+            et.getroot()[0].remove(drinkTag)
+            et.write("static/products.xml")
+
     return redirect(url_for("admin_menu_drinks"))
 
 
@@ -155,14 +216,18 @@ def home():
             drinks = cursor.fetchall()
     except:
         search = None
-    if not search:
-        with sqlite3.connect("swoy.db") as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM drinks")
-            drinks = cursor.fetchall()
+    # if not search:
+    #     with sqlite3.connect("swoy.db") as conn:
+    #         cursor = conn.cursor()
+    #         cursor.execute("SELECT * FROM drinks")
+    #         drinks = cursor.fetchall()
+    productData = xmltodict.parse(open("static/products.xml", "r").read())
+    drinks = productData["products"]["drinks"]
+
     drink_list = []
     for drink in drinks:
-        drink_list.append({"id": drink[0], "name": drink[1], "price": drink[2], "image": drink[3]})
+        for i in drinks[drink]:
+            drink_list.append({"id": i["@id"], "name": i["description"], "price": i["price"], "image": i["thumbnail"]})
 
     # if request == 'POST' and form.validate on :
     #     session.pop('user_id', None)
@@ -241,6 +306,14 @@ def login():
 def product(drink_name):
     comment_list = []
     drink = None
+    productData = xmltodict.parse(open("static/products.xml", "r").read())
+    drinks = productData["products"]["drinks"]
+
+    for drinkTag in drinks:
+        for i in drinks[drinkTag]:
+            if i["description"] == drink_name:
+                drink = (int(i["@id"]), i["description"], float(i["price"]), i["thumbnail"])
+
     try:
         user_id = request.args["id"]
         with sqlite3.connect("swoy.db") as conn:
@@ -252,7 +325,8 @@ def product(drink_name):
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM drinks WHERE name = '{drink_name}'")
-        drink = cursor.fetchone()
+        # drink = cursor.fetchone()
+
         if drink:
             cursor.execute(f"SELECT * FROM comments WHERE drink_id = '{drink[0]}'")
             comments = cursor.fetchall()
@@ -263,6 +337,7 @@ def product(drink_name):
                 comment_list.append({"content": comment[1], "author": author})
         else:
             return redirect(url_for("home"))
+
     return render_template("product.html", drink=drink, comment_list=comment_list, user_account=user_account)
 
 

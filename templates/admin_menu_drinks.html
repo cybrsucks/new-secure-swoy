@@ -7,7 +7,11 @@
                 <div class="media-body">
                     <div class=" swoy-card card">
                         <a href="{{ url_for('admin_menu_drinks_modify', drink_id=item.id) }}" style="text-decoration:none;">
-                            <img class="card-img-top responsive" src="../static/{{ item.image }}" alt="Card image cap">
+                            {% if item.image != None %}
+                                <img class="card-img-top responsive" src="../static/{{ item.image }}" alt="No image">
+                            {% else %}
+                                <img class="card-img-top responsive" src="../static/noimage.png" alt="No image">
+                            {% endif %}
                             <div class="card-body" style="color:black;">
                                 <span class="card-text product-caption">{{ item.name|safe }}</span>
                                 <span style="float:right;">$ {{ item.price }}</span>

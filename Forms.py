@@ -53,7 +53,7 @@ class ModifyDrinkForm(FlaskForm):
     price = DecimalField('Price:', [validators.data_required(), validators.NumberRange(min=3, max=50,
                                                                                        message="Field must be between $3.00 to $50.00")],
                          places=2)
-    thumbnail = FileField('Thumbnail:', [FileAllowed(['jpg', 'jpeg', 'png'], 'Images Only!')])
+    thumbnail = FileField('Thumbnail:')
 
 
 class AddDrinkForm(FlaskForm):
@@ -61,7 +61,7 @@ class AddDrinkForm(FlaskForm):
     price = DecimalField('Price:', [validators.data_required(), validators.NumberRange(min=3, max=50,
                                                                                        message="Field must be between $3.00 to $50.00")],
                          places=2, default=5)
-    thumbnail = FileField('Thumbnail:', [FileRequired(), FileAllowed(['jpg', 'jpeg', 'png'], 'Images Only!')])
+    thumbnail = FileField('Thumbnail:')
 
 
 class ForgotPasswordEmailForm(FlaskForm):
