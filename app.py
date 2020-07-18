@@ -5,7 +5,9 @@ from Forms import *
 from werkzeug.utils import secure_filename
 import sqlite3
 import re
-
+from flask_jwt import jwt
+import datetime
+from functools import wraps
 
 # class User:
 #     def __init__(self, id, email, password):
@@ -17,11 +19,35 @@ import re
 # users.append(User(id=1, email="abc@example.com", password="password"))
 # users.append(User(id=2, email="qwerty@mymail.com", password="secret"))
 
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.args.get('token')
+
+        if not token:
+            print("token is missing")
+            return redirect(url_for('login'))
+
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'])
+            print("token is accepted")
+
+        except:
+            print("Token expired")
+            return redirect(url_for('home'))
+
+        return f(*args, **kwargs)
+
+    return decorated
+
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "supersecretkey"
 
 
 @app.route("/admin")
+@token_required
 def admin_dashboard():
     try:
         user_id = request.args["id"]
@@ -41,11 +67,13 @@ def authenticate_otp():
 
 
 @app.route("/admin/<user_id>")
+@token_required
 def admin_own_account(user_id):
     return render_template("admin_own_account.html", admin_title="Your Account")
 
 
 @app.route("/admin/menu_drinks")
+@token_required
 def admin_menu_drinks():
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
@@ -59,6 +87,7 @@ def admin_menu_drinks():
 
 
 @app.route("/admin/menu_drinks/<drink_id>", methods=["GET", "POST"])
+@token_required
 def admin_menu_drinks_modify(drink_id):
     form = ModifyDrinkForm()
     if request.method == "GET":
@@ -92,6 +121,7 @@ def admin_menu_drinks_modify(drink_id):
 
 
 @app.route("/admin/menu_drinks/add_drink", methods=["GET", "POST"])
+@token_required
 def admin_menu_drinks_add():
     form = AddDrinkForm()
     if request.method == "POST" and form.validate_on_submit():
@@ -107,6 +137,7 @@ def admin_menu_drinks_add():
 
 
 @app.route("/admin/menu_drinks/delete/<drink_id>", methods=["POST"])  # API
+@token_required
 def admin_menu_drinks_delete(drink_id):
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
@@ -115,31 +146,37 @@ def admin_menu_drinks_delete(drink_id):
 
 
 @app.route("/admin/menu_toppings")
+@token_required
 def admin_menu_toppings():
     return render_template("admin_menu_toppings.html", admin_title="Menu Items - Toppings")
 
 
 @app.route("/admin/orders")
+@token_required
 def admin_orders():
     return render_template("admin_orders.html", admin_title="Delivery Orders")
 
 
 @app.route("/admin/feedbacks")
+@token_required
 def admin_feedbacks():
     return render_template("admin_feedbacks.html", admin_title="Customer Feedbacks")
 
 
 @app.route("/admin/user_accounts")
+@token_required
 def admin_user_accounts():
     return render_template("admin_user_accounts.html", admin_title="User Accounts")
 
 
 @app.route("/admin/admin_accounts")
+@token_required
 def admin_admin_accounts():
     return render_template("admin_admin_accounts.html", admin_title="Admin Accounts")
 
 
 @app.route("/admin/logs")
+@token_required
 def admin_logs():
     return render_template("admin_logs.html", admin_title="History Logs")
 
@@ -243,9 +280,13 @@ def login():
                 print(f"Account: {account_match}")
                 if account_match:
                     if account_match[6]:
-                        return redirect(url_for("admin_dashboard", id=account_match[0]))
+                        token = jwt.encode({' user': account_match[0], 'exp': datetime.datetime.utcnow() +
+                                            datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
+                        return redirect(url_for("admin_dashboard", id=account_match[0], token=token.decode('utf-8')))
                     else:
-                        return redirect(url_for("home", id=account_match[0]))
+                        token = jwt.encode({' user': account_match[0], 'exp': datetime.datetime.utcnow() +
+                                            datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
+                        return redirect(url_for("home", id=account_match[0], token=token.decode('utf-8')))
                 else:
                     error = "Password is incorrect."
             else:
@@ -284,6 +325,7 @@ def product(drink_name):
 
 
 @app.route("/product/update_drink_comments", methods=["GET", "POST"])  # API
+@token_required
 def update_comment():
     try:
         drink_id = request.args["drink_id"]
@@ -302,12 +344,14 @@ def update_comment():
 
 
 @app.route("/checkout", methods=["GET", "POST"])
+@token_required
 def checkout():
     form = CheckoutForm()
     return render_template("checkout.html", form=form)
 
 
 @app.route("/delivery")
+@token_required
 def delivery():
     form = DeliveryForm()
     return render_template("delivery.html", form=form)
