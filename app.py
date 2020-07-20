@@ -137,15 +137,16 @@ def admin_menu_drinks_add():
             form.thumbnail.data.save("static/" + filename)
 
         et = xml.etree.ElementTree.parse("static/products.xml")
+        last = list(et.getroot()[0].getchildren())[-1]
+        id = int(last.attrib["id"]) + 1
         newTag = xml.etree.ElementTree.SubElement(et.getroot()[0], 'drink')
-        id = len(et.findall("*/drink"))
         newTag.attrib["id"] = str(id)
         et.write("static/products.xml")
-        descriptionTag = xml.etree.ElementTree.SubElement(et.getroot()[0][id-1], "description")
+        descriptionTag = xml.etree.ElementTree.SubElement(newTag, "description")
         descriptionTag.text = name
-        priceTag = xml.etree.ElementTree.SubElement(et.getroot()[0][id-1], "price")
+        priceTag = xml.etree.ElementTree.SubElement(newTag, "price")
         priceTag.text = str(price)
-        thumbnailTag = xml.etree.ElementTree.SubElement(et.getroot()[0][id-1], "thumbnail")
+        thumbnailTag = xml.etree.ElementTree.SubElement(newTag, "thumbnail")
         thumbnailTag.text = filename
         et.write("static/products.xml")
     return render_template("admin_menu_drinks_add.html", admin_title=f"Menu Items - Add Drink", form=form)
