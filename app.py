@@ -508,9 +508,17 @@ def update_comment():
             cursor = conn.cursor()
             cursor.execute(f"INSERT INTO comments(content, user_id, drink_id) "
                            f"VALUES ('{content}', '{user_id}', '{drink_id}')")
-            cursor.execute(f"SELECT name FROM drinks WHERE drink_id = '{drink_id}'")
-            drink_name = cursor.fetchone()[0]
+            # cursor.execute(f"SELECT name FROM drinks WHERE drink_id = '{drink_id}'")
+            # drink_name = cursor.fetchone()[0]
             conn.commit()
+
+        productData = xmltodict.parse(open("static/products.xml", "r").read())
+        drinks = productData["products"]["drinks"]
+        for drink in drinks:
+            for i in drinks[drink]:
+                if i["@id"] == drink_id:
+                    drink_name = i["description"]
+                    
         return redirect(url_for("product", id=user_id, drink_name=drink_name, _anchor="comments"))
     except:
         return redirect(url_for("home"))
