@@ -31,4 +31,26 @@
                 <thumbnail>Strawberry Boba.jpeg</thumbnail>
             </drink>
     <drink id="7"><description>W I D E Putin</description><price>6.9</price><thumbnail>w_i_d_e_putin.jpg</thumbnail></drink></drinks>
+    <toppings>
+        <topping id="1">
+            <description>Aloe Vera</description>
+            <price>0.5</price>
+            <thumbnail>aloe vera.png</thumbnail>
+        </topping>
+        <topping id="2">
+            <description>Black Pearl</description>
+            <price>0.6</price>
+            <thumbnail>black pearl.png</thumbnail>
+        </topping>
+        <topping id="3">
+            <description>Golden Pearl</description>
+            <price>0.7</price>
+            <thumbnail>golden pearl.png</thumbnail>
+        </topping>
+        <topping id="4">
+            <description>Grass Jelly</description>
+            <price>0.5</price>
+            <thumbnail>grass jelly.png</thumbnail>
+        </topping>
+    </toppings>
 </products>

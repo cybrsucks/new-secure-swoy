@@ -1,0 +1,24 @@
+{% extends "admin_base.html" %}
+{% from "formhelper.html" import render_field %}
+
+{% block content %}
+    <form method="post" action="{{ url_for('admin_menu_toppings_add') }}" enctype="multipart/form-data">
+        {{ form.csrf_token }}
+        <div class="form-group col">
+            <h2>Add</h2>
+        </div>
+        <div class="form-group col">
+            {{render_field(form.name, class="form-control")}}
+        </div>
+        <div class="form-group col">
+            {{render_field(form.price, class="form-control")}}
+        </div>
+        <div class="form-group col">
+            {{render_field(form.thumbnail, class="form-control")}}
+        </div>
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary btn-block">Submit</button>
+        </div>
+    </form>
+
+{% endblock %}

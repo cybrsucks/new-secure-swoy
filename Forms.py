@@ -64,6 +64,22 @@ class AddDrinkForm(FlaskForm):
     thumbnail = FileField('Thumbnail:')
 
 
+class ModifyToppingForm(FlaskForm):
+    name = StringField('Name:', [validators.data_required(), validators.length(min=3)])
+    price = DecimalField('Price:', [validators.data_required(), validators.NumberRange(min=0.1, max=10,
+                                                                                       message="Field must be between $3.00 to $50.00")],
+                         places=2)
+    thumbnail = FileField('Thumbnail:')
+
+
+class AddToppingForm(FlaskForm):
+    name = StringField('Name:', [validators.data_required(), validators.length(min=3)])
+    price = DecimalField('Price:', [validators.data_required(), validators.NumberRange(min=0.1, max=10,
+                                                                                       message="Field must be between $3.00 to $50.00")],
+                         places=2, default=0.5)
+    thumbnail = FileField('Thumbnail:')
+
+
 class ForgotPasswordEmailForm(FlaskForm):
     email = StringField('Email Address:', [validators.data_required()])
 

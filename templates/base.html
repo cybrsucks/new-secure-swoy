@@ -75,6 +75,9 @@
                         <button class="btn btn-navbar swoy-btn my-2 my-sm-0">Log out</button>
                     </a>
                 </li>
+                <li><a href="{{ url_for('cart', id=user_account[0]) }}">
+                    <button class="btn btn-navbar swoy-btn my-2 my-sm-0"><i class="fa fa-shopping-bag"></i> Cart ({{ cart_item_count }})</button>
+                </a>
             {% else %}
                 <li class="nav-item active">
                     <a href="/login">
@@ -87,9 +90,7 @@
                     </a>
                 </li>
             {% endif %}
-            <li><a href="{{ url_for('cart') }}">
-                <button class="btn btn-navbar swoy-btn my-2 my-sm-0"><i class="fa fa-shopping-bag"></i> Cart</button>
-            </a>
+
 
             </li>
         </ul>
