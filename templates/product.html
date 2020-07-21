@@ -23,16 +23,15 @@
         <div style="margin-left: 30px;">
             <div class="container-fluid swoy-container transaction-details-container">
                 <h5> Choice of Toppings: </h5>
-                <form action="{{ url_for('home') }}">
+                <form method="POST" action="{{ url_for('add_cart_item', drink_id=drink[0], user_id=user_account[0]) }}">
                     <ul>
-                        <li class="list-style-none"><input type="checkbox" name="" value=""><label>&nbsp;&nbsp;Aloe Vera</label><img src="../static/aloe vera.png" class="toppings-img"></li>
-                        <li class="list-style-none"><input type="checkbox" name="" value=""><label>&nbsp;&nbsp;Black Pearl</label><img src="../static/black pearl.png" class="toppings-img"></li>
-                        <li class="list-style-none"><input type="checkbox" name="" value=""><label>&nbsp;&nbsp;Golden Pearl</label><img src="../static/golden pearl.png" class="toppings-img"></li>
-                        <li class="list-style-none"><input type="checkbox" name="" value=""><label>&nbsp;&nbsp;Grass Jelly</label><img src="../static/grass jelly.png" class="toppings-img"></li>
+                        {% for topping in topping_list %}
+                            <li class="list-style-none"><input type="checkbox" name="toppings" value="{{ topping[0] }}"><label>&nbsp;&nbsp;{{ topping[1] }}&nbsp;( +${{topping[2]}} )</label><img src="../static/{{ topping[3] }}" class="toppings-img"></li>
+                        {% endfor %}
                     </ul>
                     <hr>
                     <h5> Sugar Level: </h5>
-                    <select name="sugar-level" id="" class="form-control" required>
+                    <select name="sugar" id="" class="form-control" required>
                         <option value="0">0%</option>
                         <option value="25">25%</option>
                         <option value="50" selected>50%</option>
@@ -42,12 +41,16 @@
                     <hr>
                     <h5> Quantity: </h5>
                     <div>
-                       <input class="form-control" type="number" step="1" min="1" value="1" required>
+                       <input class="form-control" name="quantity" type="number" step="1" min="1" value="1" required>
                     </div>
                     <hr>
-                    <div class="text-center">
-                        <a href="{{ url_for('home') }}"><button class="btn btn-primary swoy-btn" style="margin:10px;">Add to Cart</button></a>
-                    </div>
+                    {% if user_account %}
+                        <div class="text-center">
+                            <button class="btn btn-primary swoy-btn" style="margin:10px;">Add to Cart</button>
+                        </div>
+                    {% else %}
+                        <p class="text-center">Please login to add item to cart.</p>
+                    {% endif %}
                 </form>
             </div>
         </div>

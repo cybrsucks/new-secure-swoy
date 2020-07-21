@@ -1,8 +1,37 @@
 {% extends "admin_base.html" %}
 {% block content %}
     <div class="row">
-        <div class="col-md-12">
-            <p>Test</p>
+        {% for item in topping_list %}
+        <div class="col-md-4" style="margin-bottom:25px;">
+            <article class="media content-section">
+                <div class="media-body">
+                    <div class=" swoy-card card">
+                        <a href="{{ url_for('admin_menu_toppings_modify', topping_id=item.id) }}" style="text-decoration:none;">
+                            {% if item.image != None %}
+                                <img class="card-img-top responsive" src="../static/{{ item.image }}" alt="No image">
+                            {% else %}
+                                <img class="card-img-top responsive" src="../static/noimage.png" alt="No image">
+                            {% endif %}
+                            <div class="card-body" style="color:black;">
+                                <span class="card-text product-caption">{{ item.name|safe }}</span>
+                                <span style="float:right;">$ {{ item.price }}</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </article>
+        </div>
+        {% endfor %}
+        <div class="col-md-4" style="margin-bottom:25px;">
+            <article class="media content-section">
+                <div class="media-body">
+                    <a href="{{ url_for('admin_menu_toppings_add') }}" style="text-decoration:none;">
+                        <div class=" swoy-card card" style="text-align:center;">
+                            <i class="fas fa-plus-circle add" style="font-size: 100px; padding-top:115px; padding-bottom:115px;"></i>
+                        </div>
+                    </a>
+                </div>
+            </article>
         </div>
     </div>
 {% endblock %}
