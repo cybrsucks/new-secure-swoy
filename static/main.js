@@ -1,18 +1,32 @@
-var modal = document.getElementById("username-modal");
+var modal_user = document.getElementById("username-modal");
 
-var btn = document.getElementById("change-username");
+var btn_user = document.getElementById("change-username");
 
-var span = document.getElementsByClassName("close")[0];
+var span_user = document.getElementsByClassName("close")[0];
 
-btn.onclick = function() {
-  modal.style.display = "block";
+var modal_pass = document.getElementById("password-modal");
+
+var btn_pass = document.getElementById("change-password");
+
+var span_pass = document.getElementsByClassName("close")[1];
+
+btn_user.onclick = function() {
+  modal_user.style.display = "block";
 }
-span.onclick = function() {
-  modal.style.display = "none";
+span_user.onclick = function() {
+  modal_user.style.display = "none";
 }
-
+btn_pass.onclick = function() {
+  modal_pass.style.display = "block";
+}
+span_pass.onclick = function() {
+  modal_pass.style.display = "none";
+}
 window.onclick = function(event) {
-  if (event.target == modal) {
-    modal.style.display = "none";
+  if (event.target == modal_user) {
+    modal_user.style.display = "none";
+  }
+  if (event.target == modal_pass) {
+    modal_pass.style.display = "none";
   }
 }

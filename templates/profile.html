@@ -18,7 +18,7 @@
                 <div class="profile-row">
                     <div class="infoinfo">
                         <h3 class="profile-label"> Username </h3>
-                        <p class="profile-data"> {{username}} </p>
+                        <p class="profile-data"> {{ user_account[1] }} </p>
                     </div>
                     <div class="change-button-flex">
                         <div class="flex-button-right">
@@ -29,29 +29,31 @@
                 <div class="profile-row">
                     <div class="infoinfo">
                         <h3 class="profile-label"> Email Address </h3>
-                        <p class="profile-data"> {{email}} </p>
+                        <p class="profile-data"> {{ user_account[2] }} </p>
                     </div>
                 </div>
                 <div class="profile-row">
                     <div class="infoinfo">
                         <h3 class="profile-label"> Change Password </h3>
-                        <p class="profile-data">
-                            Password must be
-                        <ul class="profile-data">
-                            <li>
-                                at least 8 characters long,
-                            </li>
-                            <li> at least 1 uppercase,</li>
-                            <li> at least 1 lowercase,</li>
-                            <li> and contain at least 1 of the following symbols <span
-                                    style="background-color:lightgrey"> "  !#$%&()*+,-./:;<=>?@[\]^_{|}~" </span>
-                            </li>
-                        </ul>
+<!--                        <p class="profile-data">-->
+<!--                            Password must be</p>-->
+<!--                        <ul class="profile-data">-->
+<!--                            <li>-->
+<!--                                at least 8 characters long,-->
+<!--                            </li>-->
+<!--                            <li> at least 1 uppercase,</li>-->
+<!--                            <li> at least 1 lowercase,</li>-->
+<!--                            <li> and contain at least 1 of the following symbols <span-->
+<!--                                    style="background-color:lightgrey">@, $, !, %, *, #, ?, &</span>-->
+<!--                            </li>-->
+<!--                        </ul>-->
+<!--                    -->
                     </div>
                     <div class="change-button-flex">
                         <div class="flex-button-right">
-                            <button class="change-btn" id="change-password">Change</button>
+                            <button class="change-btn" id="change-password"> Change</button>
                         </div>
+
                     </div>
                 </div>
                 <div id="username-modal" class="modal">
@@ -59,57 +61,82 @@
                         <span class="close">&times;</span>
                         <div>
                             <div style="align-items: center; display: flex; flex-flow: row nowrap;">
-                                <div class="fa-envelope-circle">
-                                    <div style="left: 1px; position: relative;">
-                                        <i class="fa fa-envelope" aria-hidden="true"></i>
+                                <div class="fa-icon-circle">
+                                    <div style="position: relative;">
+                                        <i class="fa fa-user" aria-hidden="true"></i>
                                     </div>
                                 </div>
 
                                 <h2 class="update-username-title">Update your username</h2>
                             </div>
                             <p class="update-username-info">Update
-                                your username below. Your new username applies the next time you login. </p>
+                                your username below. Choose a name to be displayed on your home page. </p>
                             <div style="margin-top: 20px;">
-                                <form method="post" class="swoy-container">
-                                    {{ username_form.csrf_token }}
+                                <form method="POST" class="swoy-container"
+                                      action="{{ url_for('change_username', id=user_account[0]) }}">
                                     <div class="form-group col">
                                         {{render_field(username_form.new_username, class="form-control")}}
                                     </div>
-
-<!--                                <div class="modal-form-input"><input placeholder="Current password" type="password">-->
-<!--                                </div>-->
-<!--                                <div class="modal-form-input"><input placeholder="New username"></div>-->
-                                <div class="save-changes-btn">
-                                     <button type="submit" class="swoy-btn btn">Save Changes</button>
-                                </div>
-                                    </form>
+                                    <div class="save-changes-btn">
+                                        <button type="submit" class="swoy-btn btn">Save Changes</button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
-
                 </div>
+                <div id="password-modal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <div>
+                            <div style="align-items: center; display: flex; flex-flow: row nowrap;">
+                                <div class="fa-icon-circle">
+                                    <div style="position: relative;">
+                                        <i class="fa fa-key" aria-hidden="true"></i>
+                                    </div>
+                                </div>
 
+                                <h2 class="update-username-title">Update your password</h2>
+                            </div>
+                            <p class="update-username-info">Update
+                                your password below. Password must be
+                            <ul>
+                                <li>
+                                    at least 8 characters long,
+                                </li>
+                                <li> at least 1 uppercase,</li>
+                                <li> at least 1 lowercase,</li>
+                                <li> and contain at least 1 of the following symbols <span
+                                        style="background-color:lightgrey">@, $, !, %, *, #, ?, &</span>
+                                </li>
+                            </ul>
+                            </p>
+                            <div style="margin-top: 20px;">
+                                <form method="POST" class="swoy-container"
+                                      action="{{ url_for('change_password', id=user_account[0]) }}">
+                                    <div class="form-group col">
+                                        {{render_field(password_form.current_pwd, class="form-control")}}
+                                    </div>
+                                    <div class="form-group col">
+                                        {{render_field(password_form.new_pwd, class="form-control")}}
+                                    </div>
+                                    <div class="form-group col">
+                                        {{render_field(password_form.confirm_new_pwd, class="form-control")}}
+                                    </div>
 
-                <!--                <div class="form-group col">-->
-                <!--                    {{render_field(password_form.current_pwd, class="form-control")}}-->
-                <!--                </div>-->
-                <!--                <div class="form-group col">-->
-                <!--                    {{render_field(password_form.new_pwd, class="form-control")}}-->
-                <!--                </div>-->
-                <!--                <div class="form-group col">-->
-                <!--                    {{render_field(password_form.confirm_new_pwd, class="form-control")}}-->
-                <!--                </div>-->
-                <!--                {% if error %}-->
-                <!--                <p class="error form-group col" style="color:red; background-color:pink; border-radius:10px;">Oops.-->
-                <!--                    Something went wrong.</p>-->
-                <!--                {% endif %}-->
-                <!--                <div class="text-center">-->
-                <!--                    <button type="submit" class="swoy-btn btn btn-primary btn-block">Enter</button>-->
-                <!--                </div>-->
-                <!--            </form>-->
+                                    <!--                                <div class="modal-form-input"><input placeholder="Current password" type="password">-->
+                                    <!--                                </div>-->
+                                    <!--                                <div class="modal-form-input"><input placeholder="New username"></div>-->
+                                    <div class="save-changes-btn">
+                                        <button type="submit" class="swoy-btn btn">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
 
     {% endblock %}
