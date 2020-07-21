@@ -1,34 +1,39 @@
 <products>
     <drinks>
-            <drink id="1">
-                <description>Chocolate Milk</description>
-                <price>5.0</price>
-                <thumbnail>Chocolate Boba.jpeg</thumbnail>
-            </drink>
-            <drink id="2">
-                <description>Earl Grey Tea</description>
-                <price>4.0</price>
-                <thumbnail>Earl Grey Boba.jpeg</thumbnail>
-            </drink>
-            <drink id="3">
-                <description>Green Tea</description>
-                <price>4.0</price>
-                <thumbnail>Green Tea Boba.jpg</thumbnail>
-            </drink>
-            <drink id="4">
-                <description>Mango</description>
-                <price>5.0</price>
-                <thumbnail>Mango Boba.jpg</thumbnail>
-            </drink>
-            <drink id="5">
-                <description>Passionfruit</description>
-                <price>5.0</price>
-                <thumbnail>Passionfruit Boba.jpg</thumbnail>
-            </drink>
-            <drink id="6">
-                <description>Strawberry Milk</description>
-                <price>5.0</price>
-                <thumbnail>Strawberry Boba.jpeg</thumbnail>
-            </drink>
-    <drink id="7"><description>W I D E Putin</description><price>6.9</price><thumbnail>w_i_d_e_putin.jpg</thumbnail></drink></drinks>
+        <drink id="1">
+            <description>Chocolate Milk</description>
+            <price>5.0</price>
+            <thumbnail>Chocolate Boba.jpeg</thumbnail>
+        </drink>
+        <drink id="2">
+            <description>Earl Grey Tea</description>
+            <price>4.0</price>
+            <thumbnail>Earl Grey Boba.jpeg</thumbnail>
+        </drink>
+        <drink id="3">
+            <description>Green Tea</description>
+            <price>4.0</price>
+            <thumbnail>Green Tea Boba.jpg</thumbnail>
+        </drink>
+        <drink id="4">
+            <description>Mango</description>
+            <price>5.0</price>
+            <thumbnail>Mango Boba.jpg</thumbnail>
+        </drink>
+        <drink id="5">
+            <description>Passionfruit</description>
+            <price>5.0</price>
+            <thumbnail>Passionfruit Boba.jpg</thumbnail>
+        </drink>
+        <drink id="6">
+            <description>Strawberry Milk</description>
+            <price>5.0</price>
+            <thumbnail>Strawberry Boba.jpeg</thumbnail>
+        </drink>
+        <drink id="7">
+            <description>W I D E Putin</description>
+            <price>6.9</price>
+            <thumbnail>w_i_d_e_putin.jpg</thumbnail>
+        </drink>
+    </drinks>
 </products>

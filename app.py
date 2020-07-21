@@ -427,6 +427,43 @@ def forgot_password_change(email):
     return render_template("update_password.html", form=form, email=email)
 
 
+@app.route("/profile", methods=["GET", "POST"])
+def view_profile():
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+            username = user_account[1]
+            email = user_account[2]
+    except:
+        user_account = None
+
+    username_form = ChangeLoggedInUserUsernameForm()
+    password_form = ChangeLoggedInUserPasswordForm()
+    if request.method == "POST" and username_form.validate_on_submit():
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            new_username = username_form.new_username.data
+            cursor.execute(f"UPDATE user SET username = '{new_username}' WHERE user_id = '{user_id}'")
+            conn.commit()
+        return redirect(url_for('home'))
+    elif request.method == "POST" and password_form.validate_on_submit():
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            current_password_from_db = cursor.execute(f"SELECT password WHERE user_id = '{user_id}")
+            if current_password_from_db != password_form.current_pwd.data:
+                print("The current password was incorrect. Your password cannot be changed ta this time.")
+
+            new_password = password_form.new_pwd.data
+            cursor.execute(f"UPDATE user SET username = '{new_password}' WHERE id = '{user_id}")
+            conn.commit()
+        return redirect(url_for('home'))
+
+    return render_template("profile.html", username_form=username_form, password_form=password_form, id=user_id, user_account=user_account, username=username, email=email)
+
+
 @app.route("/pw")
 def pw():
     with open("default.md", "r") as v:

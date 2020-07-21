@@ -76,3 +76,17 @@ class UpdatePasswordForm(FlaskForm):
     new_pwd = PasswordField('New Password:',
                           [validators.data_required(), validators.EqualTo('confirm_new_pwd', message='Passwords must match')])
     confirm_new_pwd = PasswordField('Confirm New Password:', [validators.data_required()])
+
+
+class ChangeLoggedInUserUsernameForm(FlaskForm):
+    new_username = StringField('Username:', [validators.DataRequired()])
+
+
+class ChangeLoggedInUserPasswordForm(FlaskForm):
+    current_pwd = PasswordField('Current Password:', [validators.data_required()])
+    new_pwd = PasswordField('New Password:',
+                          [validators.data_required(), validators.EqualTo('confirm_new_pwd', message='Passwords must match')])
+    confirm_new_pwd = PasswordField('Confirm New Password:', [validators.data_required()])
+
+
+
