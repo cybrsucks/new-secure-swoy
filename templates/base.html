@@ -24,9 +24,9 @@
 <body>
 <nav class="navbar navbar-expand-lg row" style="background:#E7F3FC;">
     {% if user_account %}
-        <a href="/home?id={{ user_account[0] }}"> <img class="navbar-brand responsive" src="../../../static/cover.png"/></a>
+    <a href="/home?id={{ user_account[0] }}"> <img class="navbar-brand responsive" src="../../../static/cover.png"/></a>
     {% else %}
-        <a href="/home"> <img class="navbar-brand responsive" src="../../../static/cover.png"/></a>
+    <a href="/home"> <img class="navbar-brand responsive" src="../../../static/cover.png"/></a>
     {% endif %}
     <!--    <button class="" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"-->
     <!--            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"-->
@@ -44,18 +44,19 @@
 
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent" style="text-align: center;">
-<!--        <ul class="navbar-nav mr-auto">-->
-<!--            <li class="nav-item active">-->
-<!--                <a class="navbar-links" href="/product">Browse our menu<span class="sr-only">(current)</span></a>-->
-<!--            </li>-->
+        <!--        <ul class="navbar-nav mr-auto">-->
+        <!--            <li class="nav-item active">-->
+        <!--                <a class="navbar-links" href="/product">Browse our menu<span class="sr-only">(current)</span></a>-->
+        <!--            </li>-->
 
-<!--        </ul>-->
+        <!--        </ul>-->
         <ul class="navbar-nav mr-auto"></ul>
         <ul class="navbar-nav" style="margin-right:30px;">
             <div class="search-box">
                 <form method="GET" action="{{ url_for('home') }}">
 
-                    <input class="mr-sm-2 input-search" type="text" name="search" placeholder="Search" aria-label="Search"
+                    <input class="mr-sm-2 input-search" type="text" name="search" placeholder="Search"
+                           aria-label="Search"
                            style="text-align:middle">
                     {% if user_account %}
                     <input type="hidden" name="id" value="{{ user_account[0] }}">
@@ -65,30 +66,41 @@
                 </form>
             </div>
             {% if user_account %}
-                <li class="nav-item active">
-                    <a href="#">
-                        <button class="btn btn-navbar swoy-btn my-2 my-sm-0">{{ user_account[1]|safe }}</button>
-                    </a>
-                </li>
-                <li class="nav-item active">
-                    <a href="/home">
-                        <button class="btn btn-navbar swoy-btn my-2 my-sm-0">Log out</button>
-                    </a>
-                </li>
-                <li><a href="{{ url_for('cart', id=user_account[0]) }}">
-                    <button class="btn btn-navbar swoy-btn my-2 my-sm-0"><i class="fa fa-shopping-bag"></i> Cart ({{ cart_item_count }})</button>
+            <li class="nav-item active">
+                <div class="dropdown-user">
+                    <button style="min-width: 180px;" class="btn btn-navbar swoy-btn my-2 my-sm-0 dropbtn">{{
+                        user_account[1]|safe
+                        }}
+                        <i class="fa fa-caret-down"></i>
+                    </button>
+                    <div class="dropdown-content">
+                        <a class="dropdown-link" href="{{ url_for('view_profile', id=user_account[0]) }}">View My
+                            Profile</a>
+                        <a class="dropdown-link" href="/order-history">View Past Orders</a>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item active">
+                <a href="/home">
+                    <button class="btn btn-navbar swoy-btn my-2 my-sm-0">Log out</button>
                 </a>
-            {% else %}
-                <li class="nav-item active">
-                    <a href="/login">
-                        <button class="btn btn-navbar swoy-btn my-2 my-sm-0">Log in</button>
-                    </a>
-                </li>
-                <li>
-                    <a href="/signup">
-                        <button class="btn btn-navbar swoy-btn my-2 my-sm-0">Sign up</button>
-                    </a>
-                </li>
+            </li>
+            <li><a href="{{ url_for('cart', id=user_account[0]) }}">
+                <button class="btn btn-navbar swoy-btn my-2 my-sm-0"><i class="fa fa-shopping-bag"></i> Cart ({{
+                    cart_item_count }})
+                </button>
+            </a>
+                {% else %}
+            <li class="nav-item active">
+                <a href="/login">
+                    <button class="btn btn-navbar swoy-btn my-2 my-sm-0">Log in</button>
+                </a>
+            </li>
+            <li>
+                <a href="/signup">
+                    <button class="btn btn-navbar swoy-btn my-2 my-sm-0">Sign up</button>
+                </a>
+            </li>
             {% endif %}
 
 
@@ -120,7 +132,7 @@
     hamburger.classList.toggle("is-active");
     // Do something else, like open/close menu
   });
-
 </script>
+<script type="text/javascript" src="static\main.js"></script>
 </body>
 </html>
