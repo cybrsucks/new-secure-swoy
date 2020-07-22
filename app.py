@@ -518,7 +518,7 @@ def update_comment():
             for i in drinks[drink]:
                 if i["@id"] == drink_id:
                     drink_name = i["description"]
-                    
+
         return redirect(url_for("product", id=user_id, drink_name=drink_name, _anchor="comments"))
     except:
         return redirect(url_for("home"))
@@ -547,39 +547,39 @@ def cart():
         cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
         cart_items = cursor.fetchone()
         if cart_items:
-                cart_items = eval(cart_items[0])  # [[0]: drink_id, [1]: [topping_id], [2]: sugar_level, [3]: quantity]
-                formatted_cart_items = []
-                total_price = 0
-                for item in cart_items:
-                    formatted_item = []
+            cart_items = eval(cart_items[0])  # [[0]: drink_id, [1]: [topping_id], [2]: sugar_level, [3]: quantity]
+            formatted_cart_items = []
+            total_price = 0
+            for item in cart_items:
+                formatted_item = []
 
-                    productData = xmltodict.parse(open("static/products.xml", "r").read())
-                    drinks = productData["products"]["drinks"]
-                    for drink in drinks:
-                        for i in drinks[drink]:
-                            if i["@id"] == str(item[0]):
-                                formatted_item.append(i["description"])
-                                price = float(i["price"])
+                productData = xmltodict.parse(open("static/products.xml", "r").read())
+                drinks = productData["products"]["drinks"]
+                for drink in drinks:
+                    for i in drinks[drink]:
+                        if i["@id"] == str(item[0]):
+                            formatted_item.append(i["description"])
+                            price = float(i["price"])
 
-                    topping_list = []
-                    toppings = productData["products"]["toppings"]
-                    for topping in toppings:
-                        for i in toppings[topping]:
-                            if i["@id"] in [str(s) for s in item[1]]:
-                                topping_list.append(i["description"])
-                                price += float(i["price"])
-                    formatted_item.append(topping_list)
+                topping_list = []
+                toppings = productData["products"]["toppings"]
+                for topping in toppings:
+                    for i in toppings[topping]:
+                        if i["@id"] in [str(s) for s in item[1]]:
+                            topping_list.append(i["description"])
+                            price += float(i["price"])
+                formatted_item.append(topping_list)
 
-                    formatted_item.append(item[2])
-                    formatted_item.append(item[3])
+                formatted_item.append(item[2])
+                formatted_item.append(item[3])
 
-                    price *= item[3]
-                    total_price += price
-                    formatted_item.append(f"{price:.2f}")
-                    formatted_cart_items.append(formatted_item)
+                price *= item[3]
+                total_price += price
+                formatted_item.append(f"{price:.2f}")
+                formatted_cart_items.append(formatted_item)
 
-                total_price = f"{total_price:.2f}"
-                cart_items = formatted_cart_items
+            total_price = f"{total_price:.2f}"
+            cart_items = formatted_cart_items
 
         else:
             cart_items = []
@@ -602,9 +602,9 @@ def add_cart_item():
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
-            cart_items = cursor.fetchone()[0]
+            cart_items = cursor.fetchone()
             if cart_items:
-                cart_items = eval(cart_items)
+                cart_items = eval(cart_items[0])
                 cart_items.append(item_details)
                 cursor.execute(f"UPDATE cart SET cart_items = '{cart_items}' WHERE user_id = '{user_id}'")
             else:
@@ -617,8 +617,32 @@ def add_cart_item():
         return redirect(url_for("home"))
 
 
+@app.route("/cart/remove", methods=["GET", "POST"])  # API
+def remove_cart_item():
+    try:
+        user_id = int(request.args["user_id"])
+        index_to_remove = int(request.args["item_num"]) - 1
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
+            cart_items = cursor.fetchone()[0]
+            cart_items = eval(cart_items)
+            del cart_items[index_to_remove]
+            cursor.execute(f"UPDATE cart SET cart_items = '{cart_items}' WHERE user_id = '{user_id}'")
+            conn.commit()
+        return redirect(url_for("cart", id=user_id))
+    except:
+        return redirect(url_for("home"))
+
+
 @app.route("/checkout", methods=["GET", "POST"])
 def checkout():
+    form = CheckoutForm()
+    return render_template("checkout.html", form=form)
+
+
+@app.route("/checkout", methods=["GET", "POST"])
+def add_order():
     form = CheckoutForm()
     return render_template("checkout.html", form=form)
 

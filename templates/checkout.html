@@ -12,12 +12,7 @@
         <div style="margin-left: 30px;">
             <div class="container-fluid swoy-container swoy-form-container">
                 <h1>Transaction Details</h1>
-                <form>
-                    <div class="form-group">
-                        {{render_field(form.name, class="form-control", placeholder="Tommy Hilfiger")}}
-<!--                        <label>Name:</label>-->
-<!--                        <input type="text" class="form-control" placeholder="Tommy Hilfiger">-->
-                    </div>
+                <form method="POST" action="">
                     <div class="form-group">
                         {{render_field(form.address, class="form-control", placeholder="123 Hunan Road")}}
 <!--                        <label>Address:</label>-->
@@ -26,13 +21,13 @@
 
                     <div class="form-row">
                         <div class="form-group col-md-6">
-                            {{render_field(form.creditNo, class="form-control", placeholder="0000111122223333")}}
+                            {{render_field(form.creditNo, class="form-control", placeholder="1234123412341234", step="1", type="number", min="1000000000000000", max="9999999999999999")}}
 <!--                            <label>Credit Card number:</label>-->
 <!--                            <input type="text" class="form-control" placeholder="0000111122223333">-->
                         </div>
 
                         <div class="form-group col-md-6">
-                            {{render_field(form.ccv, class="form-control", placeholder="345")}}
+                            {{render_field(form.ccv, class="form-control", placeholder="345", step="1", type="number", min="100", max="999")}}
 <!--                            <label>CCV:</label>-->
 <!--                            <input type="text" class="form-control" placeholder="345">-->
                         </div>
@@ -45,7 +40,7 @@
                     </div>
 
                     <div class="form-group">
-                        <button type="submit" class="btn btn-primary btn-block">Confirm</button>
+                        <button type="submit" class="swoy-btn btn btn-primary btn-block">Confirm</button>
                     </div>
                 </form>
             </div>
