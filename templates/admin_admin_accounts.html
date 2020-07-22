@@ -1,8 +1,30 @@
 {% extends "admin_base.html" %}
 {% block content %}
-    <div class="row">
-        <div class="col-md-12">
-            <p>Test</p>
-        </div>
-    </div>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Username</th>
+      <th scope="col">Email</th>
+        <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user in userList %}
+    <tr>
+      <th scope="row">{{user.id}}</th>
+      <td>{{user.username}}</td>
+      <td>{{user.email}}</td>
+        {% if user.id != 2 %}
+                <td>
+                    <a href="{{url_for('admin_account_delete', id=user.id)}}">
+                        <button type="submit" class="btn btn-danger" style="color:white;">Delete Account</button>
+                    </a>
+                </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<a href="add_admin_account" type="button" class="btn btn-primary" style="color:white;">Add Admin Account</a>
 {% endblock %}
