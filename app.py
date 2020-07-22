@@ -309,7 +309,7 @@ def admin_menu_toppings_modify(topping_id):
             thumbnailTag.text = filename
         et.write("static/products.xml")
 
-    return render_template("admin_menu_toppings_modify.html", admin_title=f"Menu Items - Modify Toppings - {form.name.data}", form=form, topping_id=topping_id)
+    return render_template("admin_menu_toppings_modify.html", admin_title=f"Menu Items - Modify Toppings - {form.name.data}", form=form, topping_id=topping_id, user_account=user_account)
 
 
 @app.route("/admin/menu_toppings/add_topping", methods=["GET", "POST"])
