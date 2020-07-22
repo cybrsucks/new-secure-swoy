@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-11">
+        <div style="margin-left: 80px;">
+            <div class="container-fluid swoy-container swoy-form-container">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Toppings</th>
+                        <th scope="col">Sugar Level</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Price</th>
+                    </tr>
+                    </thead>
+                </table>
+                <!--                    <tbody>-->
+                <!--                    {% for item in cart_items %}-->
+                <!--                        <tr>-->
+                <!--                            <th scope="row">{{ loop.index }}</th>-->
+                <!--                            <td>{{ item[0] }}</td>-->
+                <!--                            <td>-->
+                <!--                                <ul>-->
+                <!--                                    {% for topping in item[1] %}-->
+                <!--                                        <li style="margin-left:-20px;">{{ topping }}</li>-->
+                <!--                                    {% endfor %}-->
+                <!--                                </ul>-->
+                <!--                            </td>-->
+                <!--                            <td>{{ item[2] }}%</td>-->
+                <!--                            <td>{{ item[3] }}</td>-->
+                <!--                            <td>${{ item[4] }}</td>-->
+                <!--                        </tr>-->
+                <!--                    {% endfor %}-->
+                <!--                    </tbody>-->
+                <!--                </table>-->
+                <!--                <hr>-->
+                <!--                <div style="margin-right:62px;">-->
+                <!--                    <p style="text-align:left; font-size:30px;">-->
+                <!--                        Total Price-->
+                <!--                        <span style="float:right; font-size:30px;">${{ total_price }}</span>-->
+                <!--                    </p>-->
+                <!--                </div>-->
+                <!--                <hr>-->
+                <!--                <hr>-->
+                <!--                <div>-->
+                <!--                    <a href="{{ url_for('checkout') }}" style="text-decoration:none;">-->
+                <!--                        <button class="swoy-btn btn btn-primary btn-block" >Checkout</button>-->
+                <!--                    </a>-->
+                <!--                </div>-->
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <main class="container">
+        <div class="row" style="margin-top:20px;">
+            <div class="col-md-12">
+                <article class="media content-section" style="background-color:white; ">
+                    <div class="media-body" style="padding-top:10px;">
+                        <h1>No items in cart yet.</h1>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </main>
+    {% endif %}
+    {% endblock %}
