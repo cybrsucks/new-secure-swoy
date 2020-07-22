@@ -46,14 +46,16 @@ def admin_dashboard():
         user = cursor.fetchall()
         noOfUser = len(user)
 
-        # cursor.execute(f"SELECT * FROM ")
+        cursor.execute(f"SELECT * FROM delivery_order WHERE delivered = 0")
+        order = cursor.fetchall()
+        noOfOrder = len(order)
 
     productData = xmltodict.parse(open("static/products.xml", "r").read())
     toppingsNo = len(productData["products"]["toppings"]["topping"])
     drinkNo = len(productData["products"]["drinks"]["drink"])
 
     return render_template("admin_dashboard.html", admin_title="Dashboard", user_account=user_account,
-                           noOfAdmin=noOfAdmin, noOfUser=noOfUser, toppingsNo=toppingsNo, drinkNo=drinkNo)
+                           noOfAdmin=noOfAdmin, noOfUser=noOfUser, toppingsNo=toppingsNo, drinkNo=drinkNo, noOfOrder=noOfOrder)
 
 
 
@@ -396,11 +398,12 @@ def admin_orders():
 @app.route("/admin/orders/clear")  # API
 def clear_admin_orders():
     order_id = request.args["order_id"]
+    user_id = request.args["id"]
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
         cursor.execute(f"UPDATE delivery_order SET delivered = 1 WHERE order_id = '{order_id}'")
         conn.commit()
-    return redirect(url_for("admin_orders"))
+    return redirect(url_for("admin_orders", id=user_id))
 
 
 @app.route("/admin/orders_details")
@@ -462,6 +465,15 @@ def admin_feedbacks():
 
 @app.route("/admin/user_accounts")
 def admin_user_accounts():
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+
     users = None
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
@@ -472,11 +484,20 @@ def admin_user_accounts():
     for user in users:
         userList.append({"id": user[0], "username": user[1], "email": user[2]})
 
-    return render_template("admin_user_accounts.html", admin_title="User Accounts", userList=userList)
+    return render_template("admin_user_accounts.html", admin_title="User Accounts", userList=userList, user_account=user_account)
 
 
 @app.route("/admin/admin_accounts", methods=["GET", "POST"])
 def admin_admin_accounts():
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+
     users = None
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
@@ -487,19 +508,31 @@ def admin_admin_accounts():
     for user in users:
         userList.append({"id": user[0], "username": user[1], "email": user[2]})
 
-    return render_template("admin_admin_accounts.html", admin_title="Admin Accounts", userList=userList)
+    return render_template("admin_admin_accounts.html", admin_title="Admin Accounts", userList=userList, user_account=user_account)
 
-@app.route("/admin/admin_accounts_delete", methods=["GET", "POST"])
+
+@app.route("/admin/admin_accounts_delete", methods=["GET", "POST"])  # API
 def admin_account_delete():
     userId = request.args["id"]
+    id = request.args["user_id"]
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
         cursor.execute(f"DELETE FROM user WHERE user_id='{userId}'")
 
-    return redirect(url_for("admin_admin_accounts"))
+    return redirect(url_for("admin_admin_accounts", id=id))
+
 
 @app.route("/admin/add_admin_account", methods=["GET", "POST"])
 def add_admin_account():
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+
     form = RegistrationForm()
     error = None
     if request.method == "POST" and form.validate_on_submit():
@@ -523,13 +556,25 @@ def add_admin_account():
                 updated = cursor.execute("SELECT * FROM user").fetchall()
                 print(f"Updated database : {updated}")
                 conn.commit()
-                return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form)
-    return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form)
+                return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form, user_account=user_account)
+    return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form, user_account=user_account)
 
 
 @app.route("/admin/logs")
 def admin_logs():
-    return render_template("admin_logs.html", admin_title="History Logs")
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+
+    with open("werkzeug.txt") as f:
+        logs = f.read().split("\n")[:-1]
+        logs.reverse()
+    return render_template("admin_logs.html", admin_title="History Logs", user_account=user_account, logs=logs)
 
 
 @app.route("/", methods=['GET', 'POST'])
