@@ -323,12 +323,69 @@ def admin_feedbacks():
 
 @app.route("/admin/user_accounts")
 def admin_user_accounts():
-    return render_template("admin_user_accounts.html", admin_title="User Accounts")
+    users = None
+    with sqlite3.connect("swoy.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM user WHERE admin = 0")
+        users = cursor.fetchall()
+
+    userList = []
+    for user in users:
+        userList.append({"id": user[0], "username": user[1], "email": user[2]})
+
+    return render_template("admin_user_accounts.html", admin_title="User Accounts", userList=userList)
 
 
-@app.route("/admin/admin_accounts")
+@app.route("/admin/admin_accounts", methods=["GET", "POST"])
 def admin_admin_accounts():
-    return render_template("admin_admin_accounts.html", admin_title="Admin Accounts")
+    users = None
+    with sqlite3.connect("swoy.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM user WHERE admin = 1")
+        users = cursor.fetchall()
+
+    userList = []
+    for user in users:
+        userList.append({"id": user[0], "username": user[1], "email": user[2]})
+
+    return render_template("admin_admin_accounts.html", admin_title="Admin Accounts", userList=userList)
+
+@app.route("/admin/admin_accounts_delete", methods=["GET", "POST"])
+def admin_account_delete():
+    userId = request.args["id"]
+    with sqlite3.connect("swoy.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE FROM user WHERE user_id='{userId}'")
+
+    return redirect(url_for("admin_admin_accounts"))
+
+@app.route("/admin/add_admin_account", methods=["GET", "POST"])
+def add_admin_account():
+    form = RegistrationForm()
+    error = None
+    if request.method == "POST" and form.validate_on_submit():
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            username = form.username.data
+            email = form.email.data
+            password = form.password.data
+            security_qns = form.security_qns.data
+            security_ans = form.security_ans.data
+            admin = 1
+            command = f"SELECT * FROM user WHERE email='{email}'"
+            account_match = cursor.execute(command).fetchone()
+            # print(f"Account: {account_match}")
+            if account_match:
+                error = "Email already exists"
+            else:
+                command = f"INSERT INTO user(username, email, password, security_qns, security_ans, admin) " \
+                          f"VALUES ('{username}', '{email}', '{password}', '{security_qns}', '{security_ans}', '{admin}')"
+                cursor.execute(command)
+                updated = cursor.execute("SELECT * FROM user").fetchall()
+                print(f"Updated database : {updated}")
+                conn.commit()
+                return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form)
+    return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form)
 
 
 @app.route("/admin/logs")
