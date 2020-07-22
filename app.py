@@ -748,6 +748,23 @@ def change_password():
 
 
 @app.route("/order_history", methods=["GET", "POST"])
+def order_history():
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+            cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
+            cart_items = cursor.fetchone()
+            if cart_items:
+                cart_item_count = len(eval(cart_items[0]))
+            else:
+                cart_item_count = 0
+    except:
+        user_account = None
+        cart_item_count = 0
+    return render_template("order_history.html", user_account=user_account, cart_item_count=cart_item_count)
 
 
 @app.route("/pw")

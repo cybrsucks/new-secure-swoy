@@ -76,7 +76,7 @@
                     <div class="dropdown-content">
                         <a class="dropdown-link" href="{{ url_for('view_profile', id=user_account[0]) }}">View My
                             Profile</a>
-                        <a class="dropdown-link" href="/order-history">View Past Orders</a>
+                        <a class="dropdown-link" href="{{ url_for('order_history', id=user_account[0]) }}">View Past Orders</a>
                     </div>
                 </div>
             </li>
