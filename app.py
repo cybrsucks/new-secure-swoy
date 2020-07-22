@@ -4,20 +4,24 @@ from werkzeug.utils import secure_filename
 import sqlite3
 import xmltodict
 import xml.etree.ElementTree
-
-
-# class User:
-#     def __init__(self, id, email, password):
-#         self.id = id
-#         self.email = email
-#         self.password = password
-#
-# users = []
-# users.append(User(id=1, email="abc@example.com", password="password"))
-# users.append(User(id=2, email="qwerty@mymail.com", password="secret"))
+import time
+import logging
+from werkzeug.serving import WSGIRequestHandler, _log
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "supersecretkey"
+
+
+class MyRequestHandler(WSGIRequestHandler):
+    # Just like WSGIRequestHandler, but without "- -"
+    def log(self, type, message, *args):
+        _log(type, '%s [%s] %s\n' % (self.address_string(),
+                                     self.log_date_time_string(),
+                                     message % args))
+
+    # Just like WSGIRequestHandler, but without "code"
+    def log_request(self, code='-', size='-'):
+        self.log('info', '"%s" %s', self.requestline, size)
 
 
 @app.route("/admin")
@@ -30,7 +34,27 @@ def admin_dashboard():
             user_account = cursor.fetchone()
     except:
         user_account = None
-    return render_template("admin_dashboard.html", admin_title="Dashboard", user_account=user_account)
+
+    with sqlite3.connect("swoy.db") as conn:
+        cursor = conn.cursor()
+
+        cursor.execute(f"SELECT * FROM user WHERE admin = 1")
+        admin = cursor.fetchall()
+        noOfAdmin = len(admin)
+
+        cursor.execute(f"SELECT * FROM user WHERE admin = 0")
+        user = cursor.fetchall()
+        noOfUser = len(user)
+
+        # cursor.execute(f"SELECT * FROM ")
+
+    productData = xmltodict.parse(open("static/products.xml", "r").read())
+    toppingsNo = len(productData["products"]["toppings"]["topping"])
+    drinkNo = len(productData["products"]["drinks"]["drink"])
+
+    return render_template("admin_dashboard.html", admin_title="Dashboard", user_account=user_account,
+                           noOfAdmin=noOfAdmin, noOfUser=noOfUser, toppingsNo=toppingsNo, drinkNo=drinkNo)
+
 
 
 @app.route("/admin_account")
@@ -113,7 +137,7 @@ def admin_menu_drinks_modify(drink_id):
 
         id = int(drink_id)
         et = xml.etree.ElementTree.parse("static/products.xml")
-        drinkTag = et.getroot()[0].getchildren()[id-1]
+        drinkTag = et.getroot()[0].getchildren()[id - 1]
         for element in list(drinkTag):
             if element.tag == "thumbnail":
                 if filename != None:
@@ -122,12 +146,12 @@ def admin_menu_drinks_modify(drink_id):
                 drinkTag.remove(element)
 
         et.write("static/products.xml")
-        descriptionTag = xml.etree.ElementTree.SubElement(et.getroot()[0][id-1], "description")
+        descriptionTag = xml.etree.ElementTree.SubElement(et.getroot()[0][id - 1], "description")
         descriptionTag.text = name
-        priceTag = xml.etree.ElementTree.SubElement(et.getroot()[0][id-1], "price")
+        priceTag = xml.etree.ElementTree.SubElement(et.getroot()[0][id - 1], "price")
         priceTag.text = str(price)
         if filename != None:
-            thumbnailTag = xml.etree.ElementTree.SubElement(et.getroot()[0][id-1], "thumbnail")
+            thumbnailTag = xml.etree.ElementTree.SubElement(et.getroot()[0][id - 1], "thumbnail")
             thumbnailTag.text = filename
         et.write("static/products.xml")
 
@@ -209,9 +233,7 @@ def admin_menu_toppings():
     topping_list = []
     for topping in toppings:
         for i in toppings[topping]:
-            price = float(i['price'])
-            formatted_price = f"{price:.2f}"
-            topping_list.append({"id": i["@id"], "name": i["description"], "price": formatted_price, "image": i["thumbnail"]})
+            topping_list.append({"id": i["@id"], "name": i["description"], "price": i["price"], "image": i["thumbnail"]})
 
     return render_template("admin_menu_toppings.html", admin_title="Menu Items - Toppings", topping_list=topping_list, user_account=user_account)
 
@@ -267,7 +289,7 @@ def admin_menu_toppings_modify(topping_id):
 
         id = int(topping_id)
         et = xml.etree.ElementTree.parse("static/products.xml")
-        toppingTag = et.getroot()[1].getchildren()[id-1]
+        toppingTag = et.getroot()[1].getchildren()[id - 1]
         for element in list(toppingTag):
             if element.tag == "thumbnail":
                 if filename != None:
@@ -276,16 +298,16 @@ def admin_menu_toppings_modify(topping_id):
                 toppingTag.remove(element)
 
         et.write("static/products.xml")
-        descriptionTag = xml.etree.ElementTree.SubElement(et.getroot()[1][id-1], "description")
+        descriptionTag = xml.etree.ElementTree.SubElement(et.getroot()[1][id - 1], "description")
         descriptionTag.text = name
-        priceTag = xml.etree.ElementTree.SubElement(et.getroot()[1][id-1], "price")
+        priceTag = xml.etree.ElementTree.SubElement(et.getroot()[1][id - 1], "price")
         priceTag.text = str(price)
         if filename != None:
-            thumbnailTag = xml.etree.ElementTree.SubElement(et.getroot()[1][id-1], "thumbnail")
+            thumbnailTag = xml.etree.ElementTree.SubElement(et.getroot()[1][id - 1], "thumbnail")
             thumbnailTag.text = filename
         et.write("static/products.xml")
 
-    return render_template("admin_menu_toppings_modify.html", admin_title=f"Menu Items - Modify Toppings - {form.name.data}", form=form, topping_id=topping_id, user_account=user_account)
+    return render_template("admin_menu_toppings_modify.html", admin_title=f"Menu Items - Modify Toppings - {form.name.data}", form=form, topping_id=topping_id)
 
 
 @app.route("/admin/menu_toppings/add_topping", methods=["GET", "POST"])
@@ -440,12 +462,69 @@ def admin_feedbacks():
 
 @app.route("/admin/user_accounts")
 def admin_user_accounts():
-    return render_template("admin_user_accounts.html", admin_title="User Accounts")
+    users = None
+    with sqlite3.connect("swoy.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM user WHERE admin = 0")
+        users = cursor.fetchall()
+
+    userList = []
+    for user in users:
+        userList.append({"id": user[0], "username": user[1], "email": user[2]})
+
+    return render_template("admin_user_accounts.html", admin_title="User Accounts", userList=userList)
 
 
-@app.route("/admin/admin_accounts")
+@app.route("/admin/admin_accounts", methods=["GET", "POST"])
 def admin_admin_accounts():
-    return render_template("admin_admin_accounts.html", admin_title="Admin Accounts")
+    users = None
+    with sqlite3.connect("swoy.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM user WHERE admin = 1")
+        users = cursor.fetchall()
+
+    userList = []
+    for user in users:
+        userList.append({"id": user[0], "username": user[1], "email": user[2]})
+
+    return render_template("admin_admin_accounts.html", admin_title="Admin Accounts", userList=userList)
+
+@app.route("/admin/admin_accounts_delete", methods=["GET", "POST"])
+def admin_account_delete():
+    userId = request.args["id"]
+    with sqlite3.connect("swoy.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE FROM user WHERE user_id='{userId}'")
+
+    return redirect(url_for("admin_admin_accounts"))
+
+@app.route("/admin/add_admin_account", methods=["GET", "POST"])
+def add_admin_account():
+    form = RegistrationForm()
+    error = None
+    if request.method == "POST" and form.validate_on_submit():
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            username = form.username.data
+            email = form.email.data
+            password = form.password.data
+            security_qns = form.security_qns.data
+            security_ans = form.security_ans.data
+            admin = 1
+            command = f"SELECT * FROM user WHERE email='{email}'"
+            account_match = cursor.execute(command).fetchone()
+            # print(f"Account: {account_match}")
+            if account_match:
+                error = "Email already exists"
+            else:
+                command = f"INSERT INTO user(username, email, password, security_qns, security_ans, admin) " \
+                          f"VALUES ('{username}', '{email}', '{password}', '{security_qns}', '{security_ans}', '{admin}')"
+                cursor.execute(command)
+                updated = cursor.execute("SELECT * FROM user").fetchall()
+                print(f"Updated database : {updated}")
+                conn.commit()
+                return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form)
+    return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form)
 
 
 @app.route("/admin/logs")
@@ -514,7 +593,8 @@ def home():
     #         return redirect(url_for("admin_base"))
     #
     #     return redirect(url_for("home"))
-    return render_template("home.html", drink_list=drink_list, user_account=user_account, search=search, cart_item_count=cart_item_count)
+    return render_template("home.html", drink_list=drink_list, user_account=user_account, search=search,
+                           cart_item_count=cart_item_count)
 
 
 @app.route("/signup", methods=["GET", "POST"])
@@ -558,14 +638,24 @@ def login():
             password = form.password.data
             cursor.execute(f"SELECT * FROM user WHERE email='{email}'")
             account_match = cursor.fetchone()
+
+            localtime = time.asctime(time.localtime(time.time()))
+            log_return = "(" + str(account_match[1]) + ") -- login attempt at [" + str(localtime) + "]."
+            logging.info(log_return)
+
             if account_match:
                 command = f"SELECT * FROM user WHERE email='{email}' and password='{password}'"
                 account_match = cursor.execute(command).fetchone()
                 print(f"Account: {account_match}")
                 if account_match:
                     if account_match[6]:
+
+                        log_return = "Admin (" + str(account_match[1]) + ") successfully logged in at " + str(localtime)
+                        logging.warning(log_return)
                         return redirect(url_for("admin_dashboard", id=account_match[0]))
                     else:
+                        log_return = "Customer (" + str(account_match[1]) + ") logged in at " + str(localtime)
+                        logging.info(log_return)
                         return redirect(url_for("home", id=account_match[0]))
                 else:
                     error = "Password is incorrect."
@@ -636,7 +726,8 @@ def product(drink_name):
     #     else:
     #         return redirect(url_for("home"))
 
-    return render_template("product.html", drink=drink, comment_list=comment_list, topping_list=topping_list, user_account=user_account, cart_item_count=cart_item_count)
+    return render_template("product.html", drink=drink, comment_list=comment_list, topping_list=topping_list,
+                           user_account=user_account, cart_item_count=cart_item_count)
 
 
 @app.route("/product/update_drink_comments", methods=["GET", "POST"])  # API
@@ -727,7 +818,8 @@ def cart():
             total_price = 0
             cursor.execute(f"INSERT INTO cart VALUES ('{user_id}', '{cart_items}')")
 
-    return render_template("cart.html", user_account=user_account, cart_item_count=cart_item_count, cart_items=cart_items, total_price=total_price)
+    return render_template("cart.html", user_account=user_account, cart_item_count=cart_item_count,
+                           cart_items=cart_items, total_price=total_price)
 
 
 @app.route("/cart/add", methods=["GET", "POST"])  # API
@@ -900,6 +992,10 @@ def security_question(email):
     if request.method == "POST" and form.validate_on_submit():
         given_ans = form.security_ans.data
         if given_ans.lower() == user_account[5].lower():
+            localtime = time.asctime(time.localtime(time.time()))
+            log_return = "(" + str(user_account[1]) + ") attempted to change password [FORGOT PASSWORD] at [" + str(
+                localtime) + "]."
+            logging.warning(log_return)
             return redirect(url_for('forgot_password_change', email=email))
         else:
             error = "Wrong answer given."
@@ -910,6 +1006,16 @@ def security_question(email):
 def forgot_password_change(email):
     form = UpdatePasswordForm()
     if request.method == "POST" and form.validate_on_submit():
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE email = '{email}'")
+            user_account = cursor.fetchone()
+
+        localtime = time.asctime(time.localtime(time.time()))
+        log_return = "(" + str(user_account[1]) + ") successfully changed password [FORGOT PASSWORD] at [" + str(
+            localtime) + "]."
+        logging.warning(log_return)
+
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
             new_password = form.new_pwd.data
@@ -947,7 +1053,8 @@ def view_profile():
 
     username_form = ChangeLoggedInUserUsernameForm()
     password_form = ChangeLoggedInUserPasswordForm()
-    return render_template("profile.html", username_form=username_form, password_error=password_error, password_form=password_form, user_account=user_account, cart_item_count=cart_item_count)
+    return render_template("profile.html", username_form=username_form, password_error=password_error,
+                           password_form=password_form, user_account=user_account, cart_item_count=cart_item_count)
 
 
 @app.route("/change_username", methods=["GET", "POST"])
@@ -971,6 +1078,14 @@ def change_password():
         current_pwd = request.form["current_pwd"]
         new_password = request.form["new_pwd"]
         confirm_password = request.form["confirm_new_pwd"]
+
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+
+        localtime = time.asctime(time.localtime(time.time()))
+
         if new_password != confirm_password:
             return redirect(url_for("view_profile", id=user_id, password_error=1))
         else:
@@ -978,8 +1093,18 @@ def change_password():
                 cursor = conn.cursor()
                 current_password_from_db = cursor.execute(f"SELECT password FROM user WHERE user_id = '{user_id}'")
                 if current_password_from_db.fetchone()[0] != current_pwd:
-                    print("The current password was incorrect. Your password cannot be changed ta this time.")
+                    log_return = "(" + str(
+                        user_account[1]) + ") attempted to change password [EXISTING PASSWORD] at [" + str(
+                        localtime) + "]."
+                    logging.warning(log_return)
                     return redirect(url_for("view_profile", id=user_id, password_error=1))
+
+                else:
+                    log_return = "(" + str(
+                        user_account[1]) + ") successfully changed password [EXISTING PASSWORD] at [" + str(
+                        localtime) + "]."
+                    logging.warning(log_return)
+
                 cursor.execute(f"UPDATE user SET password = '{new_password}' WHERE user_id = '{user_id}'")
                 conn.commit()
             return redirect(url_for("view_profile", id=user_id))
@@ -1014,5 +1139,16 @@ def pw():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # this is for logging INFO:werkzeug logs
+    # the below line is to generate external log file
+    logging.basicConfig(filename='werkzeug.txt', level=logging.INFO)
+    # logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger('werkzeug')
+    logger.setLevel(logging.INFO)
 
+    # logging.basicConfig(level=logging.DEBUG)
+
+    # use the logging method below for final product
+    # logging.basicConfig(filename='swoy.log', level=logging.DEBUG)
+
+    app.run(debug=True, request_handler=MyRequestHandler)
