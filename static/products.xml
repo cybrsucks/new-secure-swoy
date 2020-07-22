@@ -20,17 +20,7 @@
                 <price>5.0</price>
                 <thumbnail>Mango Boba.jpg</thumbnail>
             </drink>
-            <drink id="5">
-                <description>Passionfruit</description>
-                <price>5.0</price>
-                <thumbnail>Passionfruit Boba.jpg</thumbnail>
-            </drink>
-            <drink id="6">
-                <description>Strawberry Milk</description>
-                <price>5.0</price>
-                <thumbnail>Strawberry Boba.jpeg</thumbnail>
-            </drink>
-    </drinks>
+            </drinks>
     <toppings>
         <topping id="1">
             <thumbnail>aloe vera.png</thumbnail>

@@ -512,3 +512,16 @@ body{
 font-size: 16px;
 font-family: Quenda-Medium;
 }
+
+.swoy-btn{
+    color: #253d52;
+    background-color: transparent;
+    border-color: #253d52;
+}
+
+.swoy-btn:hover{
+    color: white;
+    background-color: #253d52;
+    border-color: #253d52;
+    transition: all 0.3s ease;
+}

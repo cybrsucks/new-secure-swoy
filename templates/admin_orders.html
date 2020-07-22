@@ -1,8 +1,39 @@
 {% extends "admin_base.html" %}
 {% block content %}
-    <div class="row">
-        <div class="col-md-12">
-            <p>Test</p>
-        </div>
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Username</th>
+                <th scope="col">Address</th>
+                <th scope="col">Delivery Time</th>
+                <th scope="col">View Order</th>
+                <th scope="col">Delivery Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for order in order_list %}
+            <tr>
+                <th scope="row">{{ loop.index }}</th>
+                <td>{{ order[1] }}</td>
+                <td>{{ order[2] }}</td>
+                <td>{{ order[3] }} | {{ order[4] }}</td>
+                <td>
+                    <a href="{{  url_for('admin_order_details', order_id=order[0]) }}" style="text-decoration:none;">
+                        <button type="submit" class="swoy-btn btn btn-primary btn-block">Order details</button>
+                    </a>
+                </td>
+                {% if order[6] %}
+                    <td>Delivered</td>
+                {% else %}
+                    <td>Not yet delivered</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
+</div>
 {% endblock %}

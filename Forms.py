@@ -35,6 +35,15 @@ class RegistrationForm(FlaskForm):
 
 class CheckoutForm(FlaskForm):
     address = StringField('Address:', [validators.data_required()])
+    delivery_date = DateField('Expiry Date:', [validators.data_required()])
+    delivery_time = SelectField('Delivery Time:', [validators.data_required()], choices=[
+        ("12pm", "12pm"),
+        ("1pm", "1pm"),
+        ("2pm", "2pm"),
+        ("3pm", "3pm"),
+        ("4pm", "4pm"),
+        ("5pm", "5pm"),
+        ("6pm", "6pm")])
     creditNo = StringField('Credit Card Number:', [validators.data_required(), validators.NumberRange(min=1000000000000000, max=9999999999999999)])
     ccv = StringField('CCV:', [validators.data_required(), validators.NumberRange(min=100, max=999)])
     expireDate = DateField('Expiry Date:', [validators.data_required()])
