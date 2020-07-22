@@ -1,4 +1,4 @@
-from wtforms import StringField, PasswordField, validators, Form, DateField, DecimalField, SelectField
+from wtforms import StringField, PasswordField, validators, Form, DateField, DecimalField, SelectField, IntegerField
 from wtforms.validators import InputRequired, Email, Length, NumberRange
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
@@ -34,10 +34,9 @@ class RegistrationForm(FlaskForm):
 
 
 class CheckoutForm(FlaskForm):
-    name = StringField('Name:', [validators.data_required(), validators.length(max=99)])
     address = StringField('Address:', [validators.data_required()])
-    creditNo = StringField('Credit Card Number:', [validators.data_required(), validators.length(min=16, max=16)])
-    ccv = StringField('CCV:', [validators.data_required(), validators.length(min=3, max=3)])
+    creditNo = StringField('Credit Card Number:', [validators.data_required(), validators.NumberRange(min=1000000000000000, max=9999999999999999)])
+    ccv = StringField('CCV:', [validators.data_required(), validators.NumberRange(min=100, max=999)])
     expireDate = DateField('Expiry Date:', [validators.data_required()])
 
 

@@ -34,7 +34,27 @@ def admin_dashboard():
             user_account = cursor.fetchone()
     except:
         user_account = None
-    return render_template("admin_dashboard.html", admin_title="Dashboard", user_account=user_account)
+
+    with sqlite3.connect("swoy.db") as conn:
+        cursor = conn.cursor()
+
+        cursor.execute(f"SELECT * FROM user WHERE admin = 1")
+        admin = cursor.fetchall()
+        noOfAdmin = len(admin)
+
+        cursor.execute(f"SELECT * FROM user WHERE admin = 0")
+        user = cursor.fetchall()
+        noOfUser = len(user)
+
+        # cursor.execute(f"SELECT * FROM ")
+
+    productData = xmltodict.parse(open("static/products.xml", "r").read())
+    toppingsNo = len(productData["products"]["toppings"]["topping"])
+    drinkNo = len(productData["products"]["drinks"]["drink"])
+
+    return render_template("admin_dashboard.html", admin_title="Dashboard", user_account=user_account,
+                           noOfAdmin=noOfAdmin, noOfUser=noOfUser, toppingsNo=toppingsNo, drinkNo=drinkNo)
+
 
 
 @app.route("/admin/<user_id>")
@@ -311,12 +331,69 @@ def admin_feedbacks():
 
 @app.route("/admin/user_accounts")
 def admin_user_accounts():
-    return render_template("admin_user_accounts.html", admin_title="User Accounts")
+    users = None
+    with sqlite3.connect("swoy.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM user WHERE admin = 0")
+        users = cursor.fetchall()
+
+    userList = []
+    for user in users:
+        userList.append({"id": user[0], "username": user[1], "email": user[2]})
+
+    return render_template("admin_user_accounts.html", admin_title="User Accounts", userList=userList)
 
 
-@app.route("/admin/admin_accounts")
+@app.route("/admin/admin_accounts", methods=["GET", "POST"])
 def admin_admin_accounts():
-    return render_template("admin_admin_accounts.html", admin_title="Admin Accounts")
+    users = None
+    with sqlite3.connect("swoy.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM user WHERE admin = 1")
+        users = cursor.fetchall()
+
+    userList = []
+    for user in users:
+        userList.append({"id": user[0], "username": user[1], "email": user[2]})
+
+    return render_template("admin_admin_accounts.html", admin_title="Admin Accounts", userList=userList)
+
+@app.route("/admin/admin_accounts_delete", methods=["GET", "POST"])
+def admin_account_delete():
+    userId = request.args["id"]
+    with sqlite3.connect("swoy.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE FROM user WHERE user_id='{userId}'")
+
+    return redirect(url_for("admin_admin_accounts"))
+
+@app.route("/admin/add_admin_account", methods=["GET", "POST"])
+def add_admin_account():
+    form = RegistrationForm()
+    error = None
+    if request.method == "POST" and form.validate_on_submit():
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            username = form.username.data
+            email = form.email.data
+            password = form.password.data
+            security_qns = form.security_qns.data
+            security_ans = form.security_ans.data
+            admin = 1
+            command = f"SELECT * FROM user WHERE email='{email}'"
+            account_match = cursor.execute(command).fetchone()
+            # print(f"Account: {account_match}")
+            if account_match:
+                error = "Email already exists"
+            else:
+                command = f"INSERT INTO user(username, email, password, security_qns, security_ans, admin) " \
+                          f"VALUES ('{username}', '{email}', '{password}', '{security_qns}', '{security_ans}', '{admin}')"
+                cursor.execute(command)
+                updated = cursor.execute("SELECT * FROM user").fetchall()
+                print(f"Updated database : {updated}")
+                conn.commit()
+                return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form)
+    return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form)
 
 
 @app.route("/admin/logs")
@@ -623,9 +700,9 @@ def add_cart_item():
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
-            cart_items = cursor.fetchone()[0]
+            cart_items = cursor.fetchone()
             if cart_items:
-                cart_items = eval(cart_items)
+                cart_items = eval(cart_items[0])
                 cart_items.append(item_details)
                 cursor.execute(f"UPDATE cart SET cart_items = '{cart_items}' WHERE user_id = '{user_id}'")
             else:
@@ -638,8 +715,32 @@ def add_cart_item():
         return redirect(url_for("home"))
 
 
+@app.route("/cart/remove", methods=["GET", "POST"])  # API
+def remove_cart_item():
+    try:
+        user_id = int(request.args["user_id"])
+        index_to_remove = int(request.args["item_num"]) - 1
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
+            cart_items = cursor.fetchone()[0]
+            cart_items = eval(cart_items)
+            del cart_items[index_to_remove]
+            cursor.execute(f"UPDATE cart SET cart_items = '{cart_items}' WHERE user_id = '{user_id}'")
+            conn.commit()
+        return redirect(url_for("cart", id=user_id))
+    except:
+        return redirect(url_for("home"))
+
+
 @app.route("/checkout", methods=["GET", "POST"])
 def checkout():
+    form = CheckoutForm()
+    return render_template("checkout.html", form=form)
+
+
+@app.route("/checkout", methods=["GET", "POST"])
+def add_order():
     form = CheckoutForm()
     return render_template("checkout.html", form=form)
 

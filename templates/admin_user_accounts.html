@@ -1,8 +1,21 @@
 {% extends "admin_base.html" %}
 {% block content %}
-    <div class="row">
-        <div class="col-md-12">
-            <p>Test</p>
-        </div>
-    </div>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Username</th>
+      <th scope="col">Email</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user in userList %}
+    <tr>
+      <th scope="row">{{user.id}}</th>
+      <td>{{user.username}}</td>
+      <td>{{user.email}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 {% endblock %}
