@@ -30,7 +30,27 @@ def admin_dashboard():
             user_account = cursor.fetchone()
     except:
         user_account = None
-    return render_template("admin_dashboard.html", admin_title="Dashboard", user_account=user_account)
+
+    with sqlite3.connect("swoy.db") as conn:
+        cursor = conn.cursor()
+
+        cursor.execute(f"SELECT * FROM user WHERE admin = 1")
+        admin = cursor.fetchall()
+        noOfAdmin = len(admin)
+
+        cursor.execute(f"SELECT * FROM user WHERE admin = 0")
+        user = cursor.fetchall()
+        noOfUser = len(user)
+
+        # cursor.execute(f"SELECT * FROM ")
+
+    productData = xmltodict.parse(open("static/products.xml", "r").read())
+    toppingsNo = len(productData["products"]["toppings"]["topping"])
+    drinkNo = len(productData["products"]["drinks"]["drink"])
+
+    return render_template("admin_dashboard.html", admin_title="Dashboard", user_account=user_account,
+                           noOfAdmin=noOfAdmin, noOfUser=noOfUser, toppingsNo=toppingsNo, drinkNo=drinkNo)
+
 
 
 @app.route("/admin/<user_id>")
