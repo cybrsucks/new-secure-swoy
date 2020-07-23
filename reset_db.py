@@ -30,9 +30,10 @@ with sqlite3.connect("swoy.db") as conn:
         order_id INTEGER PRIMARY KEY,
         user_id INTEGER NOT NULL,
         address TEXT NOT NULL,
+        delivery_date TEXT NOT NULL,
+        delivery_time TEXT NOT NULL,
         order_items TEXT NOT NULL,
-        price DOUBLE NOT NULL,
-        delivered INTEGER NOT NULL)""")
+        delivered INTEGER DEFAULT 0)""")
 
     cursor.execute("INSERT INTO user(username, email, password, security_qns, security_ans, admin) "
                    "VALUES('testing', 'test@test.com', 'testtest', 'What is the name of your favourite teacher?', 'Ms Tan', 0)")

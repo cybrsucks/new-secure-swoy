@@ -4,7 +4,7 @@
 {% block content %}
     <div class="row">
         <div class="col-md-12">
-            <form method="post" action="{{url_for('admin_menu_drinks_modify', drink_id=drink_id)}}" enctype="multipart/form-data">
+            <form method="post" action="{{url_for('admin_menu_drinks_modify', drink_id=drink_id, id=user_account[0])}}" enctype="multipart/form-data">
                 {{ form.csrf_token }}
                 <div class="form-group col">
                     <h2>Modify</h2>
@@ -24,7 +24,7 @@
                 <hr>
 
             </form>
-            <form method="post" action="{{url_for('admin_menu_drinks_delete', drink_id=drink_id)}}" enctype="multipart/form-data">
+            <form method="post" action="{{url_for('admin_menu_drinks_delete', drink_id=drink_id, id=user_account[0])}}" enctype="multipart/form-data">
                 <div class="text-center">
                     <button type="submit" class="btn btn-primary btn-block" style="background-color:red; border-color:pink;">Delete</button>
                 </div>

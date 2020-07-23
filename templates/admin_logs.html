@@ -1,8 +1,23 @@
 {% extends "admin_base.html" %}
 {% block content %}
-    <div class="row">
-        <div class="col-md-12">
-            <p>Test</p>
-        </div>
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Log Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for log in logs %}
+            <tr>
+                <th scope="row">{{ logs|length - loop.index + 1 }}</th>
+                <td>{{ log }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
+</div>
 {% endblock %}

@@ -46,28 +46,34 @@ def admin_dashboard():
         user = cursor.fetchall()
         noOfUser = len(user)
 
-        # cursor.execute(f"SELECT * FROM ")
+        cursor.execute(f"SELECT * FROM delivery_order WHERE delivered = 0")
+        order = cursor.fetchall()
+        noOfOrder = len(order)
 
     productData = xmltodict.parse(open("static/products.xml", "r").read())
     toppingsNo = len(productData["products"]["toppings"]["topping"])
     drinkNo = len(productData["products"]["drinks"]["drink"])
 
     return render_template("admin_dashboard.html", admin_title="Dashboard", user_account=user_account,
-                           noOfAdmin=noOfAdmin, noOfUser=noOfUser, toppingsNo=toppingsNo, drinkNo=drinkNo)
+                           noOfAdmin=noOfAdmin, noOfUser=noOfUser, toppingsNo=toppingsNo, drinkNo=drinkNo, noOfOrder=noOfOrder)
 
 
 
-@app.route("/admin/<user_id>")
-def admin_own_account(user_id):
+@app.route("/admin_account")
+def admin_own_account():
     return render_template("admin_own_account.html", admin_title="Your Account")
 
 
 @app.route("/admin/menu_drinks")
 def admin_menu_drinks():
-    # with sqlite3.connect("swoy.db") as conn:
-    #     cursor = conn.cursor()
-    #     cursor.execute("SELECT * FROM drinks")
-    #     drinks = cursor.fetchall()
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
 
     productData = xmltodict.parse(open("static/products.xml", "r").read())
     drinks = productData["products"]["drinks"]
@@ -75,13 +81,24 @@ def admin_menu_drinks():
     drink_list = []
     for drink in drinks:
         for i in drinks[drink]:
-            drink_list.append({"id": i["@id"], "name": i["description"], "price": i["price"], "image": i["thumbnail"]})
+            price = float(i['price'])
+            formatted_price = f"{price:.2f}"
+            drink_list.append({"id": i["@id"], "name": i["description"], "price": formatted_price, "image": i["thumbnail"]})
 
-    return render_template("admin_menu_drinks.html", admin_title="Menu Items - Drinks", drink_list=drink_list)
+    return render_template("admin_menu_drinks.html", admin_title="Menu Items - Drinks", drink_list=drink_list, user_account=user_account)
 
 
 @app.route("/admin/menu_drinks/<drink_id>", methods=["GET", "POST"])
 def admin_menu_drinks_modify(drink_id):
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+
     form = ModifyDrinkForm()
     if request.method == "GET":
         # with sqlite3.connect("swoy.db") as conn:
@@ -140,12 +157,20 @@ def admin_menu_drinks_modify(drink_id):
             thumbnailTag.text = filename
         et.write("static/products.xml")
 
-    return render_template("admin_menu_drinks_modify.html",
-                           admin_title=f"Menu Items - Modify Drinks - {form.name.data}", form=form, drink_id=drink_id)
+    return render_template("admin_menu_drinks_modify.html", admin_title=f"Menu Items - Modify Drinks - {form.name.data}", form=form, drink_id=drink_id, user_account=user_account)
 
 
 @app.route("/admin/menu_drinks/add_drink", methods=["GET", "POST"])
 def admin_menu_drinks_add():
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+
     form = AddDrinkForm()
     if request.method == "POST" and form.validate_on_submit():
         name = form.name.data
@@ -174,7 +199,7 @@ def admin_menu_drinks_add():
         thumbnailTag = xml.etree.ElementTree.SubElement(newTag, "thumbnail")
         thumbnailTag.text = filename
         et.write("static/products.xml")
-    return render_template("admin_menu_drinks_add.html", admin_title=f"Menu Items - Add Drink", form=form)
+    return render_template("admin_menu_drinks_add.html", admin_title=f"Menu Items - Add Drink", form=form, user_account=user_account)
 
 
 @app.route("/admin/menu_drinks/delete/<drink_id>", methods=["POST"])  # API
@@ -183,31 +208,49 @@ def admin_menu_drinks_delete(drink_id):
     #     cursor = conn.cursor()
     #     cursor.execute(f"DELETE FROM drinks WHERE drink_id='{drink_id}'")
     id = drink_id
+    user_id = request.args["id"]
     et = xml.etree.ElementTree.parse("static/products.xml")
     for drinkTag in list(et.getroot()[0].getchildren()):
         if id == drinkTag.attrib["id"]:
             et.getroot()[0].remove(drinkTag)
             et.write("static/products.xml")
 
-    return redirect(url_for("admin_menu_drinks"))
+    return redirect(url_for("admin_menu_drinks", id=user_id))
 
 
 @app.route("/admin/menu_toppings")
 def admin_menu_toppings():
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+
     productData = xmltodict.parse(open("static/products.xml", "r").read())
     toppings = productData["products"]["toppings"]
 
     topping_list = []
     for topping in toppings:
         for i in toppings[topping]:
-            topping_list.append(
-                {"id": i["@id"], "name": i["description"], "price": i["price"], "image": i["thumbnail"]})
+            topping_list.append({"id": i["@id"], "name": i["description"], "price": i["price"], "image": i["thumbnail"]})
 
-    return render_template("admin_menu_toppings.html", admin_title="Menu Items - Toppings", topping_list=topping_list)
+    return render_template("admin_menu_toppings.html", admin_title="Menu Items - Toppings", topping_list=topping_list, user_account=user_account)
 
 
 @app.route("/admin/menu_toppings/<topping_id>", methods=["GET", "POST"])
 def admin_menu_toppings_modify(topping_id):
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+
     form = ModifyToppingForm()
     if request.method == "GET":
         # with sqlite3.connect("swoy.db") as conn:
@@ -266,13 +309,20 @@ def admin_menu_toppings_modify(topping_id):
             thumbnailTag.text = filename
         et.write("static/products.xml")
 
-    return render_template("admin_menu_toppings_modify.html",
-                           admin_title=f"Menu Items - Modify Toppings - {form.name.data}", form=form,
-                           topping_id=topping_id)
+    return render_template("admin_menu_toppings_modify.html", admin_title=f"Menu Items - Modify Toppings - {form.name.data}", form=form, topping_id=topping_id, user_account=user_account)
 
 
 @app.route("/admin/menu_toppings/add_topping", methods=["GET", "POST"])
 def admin_menu_toppings_add():
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+
     form = AddToppingForm()
     if request.method == "POST" and form.validate_on_submit():
         name = form.name.data
@@ -301,7 +351,7 @@ def admin_menu_toppings_add():
         thumbnailTag = xml.etree.ElementTree.SubElement(newTag, "thumbnail")
         thumbnailTag.text = filename
         et.write("static/products.xml")
-    return render_template("admin_menu_toppings_add.html", admin_title=f"Menu Items - Add Topping", form=form)
+    return render_template("admin_menu_toppings_add.html", admin_title=f"Menu Items - Add Topping", form=form, user_account=user_account)
 
 
 @app.route("/admin/menu_toppings/delete/<topping_id>", methods=["POST"])  # API
@@ -310,18 +360,102 @@ def admin_menu_toppings_delete(topping_id):
     #     cursor = conn.cursor()
     #     cursor.execute(f"DELETE FROM drinks WHERE drink_id='{drink_id}'")
     id = topping_id
+    user_id = request.args["id"]
     et = xml.etree.ElementTree.parse("static/products.xml")
     for toppingTag in list(et.getroot()[1].getchildren()):
         if id == toppingTag.attrib["id"]:
             et.getroot()[1].remove(toppingTag)
             et.write("static/products.xml")
 
-    return redirect(url_for("admin_menu_toppings"))
+    return redirect(url_for("admin_menu_toppings", id=user_id))
 
 
 @app.route("/admin/orders")
 def admin_orders():
-    return render_template("admin_orders.html", admin_title="Delivery Orders")
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+
+    with sqlite3.connect("swoy.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM delivery_order")
+        result = cursor.fetchall()
+        order_list = []
+        for order in result:
+            cursor.execute(f"SELECT username FROM user WHERE user_id='{order[1]}'")
+            username = cursor.fetchone()[0]
+            order_list.append([order[0], username, order[2], order[3], order[4], order[5], order[6]])
+        order_list.reverse()
+
+    return render_template("admin_orders.html", admin_title="Delivery Orders", order_list=order_list, user_account=user_account)
+
+
+@app.route("/admin/orders/clear")  # API
+def clear_admin_orders():
+    order_id = request.args["order_id"]
+    user_id = request.args["id"]
+    with sqlite3.connect("swoy.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"UPDATE delivery_order SET delivered = 1 WHERE order_id = '{order_id}'")
+        conn.commit()
+    return redirect(url_for("admin_orders", id=user_id))
+
+
+@app.route("/admin/orders_details")
+def admin_order_details():
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+
+    order_id = request.args["order_id"]
+    with sqlite3.connect("swoy.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM delivery_order WHERE order_id = '{order_id}'")
+        result = cursor.fetchone()
+
+        order_items = []
+        total_price = 0
+        for item in eval(result[5]):
+            formatted_item = []
+
+            productData = xmltodict.parse(open("static/products.xml", "r").read())
+            drinks = productData["products"]["drinks"]
+            for drink in drinks:
+                for i in drinks[drink]:
+                    if i["@id"] == str(item[0]):
+                        formatted_item.append(i["description"])
+                        price = float(i["price"])
+
+            topping_list = []
+            toppings = productData["products"]["toppings"]
+            for topping in toppings:
+                for i in toppings[topping]:
+                    if i["@id"] in [str(s) for s in item[1]]:
+                        topping_list.append(i["description"])
+                        price += float(i["price"])
+            formatted_item.append(topping_list)
+
+            formatted_item.append(item[2])
+            formatted_item.append(item[3])
+
+            price *= item[3]
+            total_price += price
+            formatted_item.append(f"{price:.2f}")
+            order_items.append(formatted_item)
+
+        total_price = f"{total_price:.2f}"
+
+    return render_template("admin_order_details.html", admin_title="Order details", order_items=order_items, total_price=total_price, order_id=order_id, user_account=user_account)
 
 
 @app.route("/admin/feedbacks")
@@ -331,6 +465,15 @@ def admin_feedbacks():
 
 @app.route("/admin/user_accounts")
 def admin_user_accounts():
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+
     users = None
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
@@ -341,11 +484,20 @@ def admin_user_accounts():
     for user in users:
         userList.append({"id": user[0], "username": user[1], "email": user[2]})
 
-    return render_template("admin_user_accounts.html", admin_title="User Accounts", userList=userList)
+    return render_template("admin_user_accounts.html", admin_title="User Accounts", userList=userList, user_account=user_account)
 
 
 @app.route("/admin/admin_accounts", methods=["GET", "POST"])
 def admin_admin_accounts():
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+
     users = None
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
@@ -356,11 +508,13 @@ def admin_admin_accounts():
     for user in users:
         userList.append({"id": user[0], "username": user[1], "email": user[2]})
 
-    return render_template("admin_admin_accounts.html", admin_title="Admin Accounts", userList=userList)
+    return render_template("admin_admin_accounts.html", admin_title="Admin Accounts", userList=userList, user_account=user_account)
 
-@app.route("/admin/admin_accounts_delete", methods=["GET", "POST"])
+
+@app.route("/admin/admin_accounts_delete", methods=["GET", "POST"])  # API
 def admin_account_delete():
     userId = request.args["id"]
+    id = request.args["user_id"]
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
         cursor.execute(f"DELETE FROM user WHERE user_id='{userId}'")
@@ -368,10 +522,20 @@ def admin_account_delete():
     log_return = "Account deleted at [" + str(localtime) + "]."
     logging.warning(log_return)
 
-    return redirect(url_for("admin_admin_accounts"))
+    return redirect(url_for("admin_admin_accounts", id=id))
+
 
 @app.route("/admin/add_admin_account", methods=["GET", "POST"])
 def add_admin_account():
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+
     form = RegistrationForm()
     error = None
     if request.method == "POST" and form.validate_on_submit():
@@ -395,13 +559,25 @@ def add_admin_account():
                 updated = cursor.execute("SELECT * FROM user").fetchall()
                 print(f"Updated database : {updated}")
                 conn.commit()
-                return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form)
-    return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form)
+                return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form, user_account=user_account)
+    return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form, user_account=user_account)
 
 
 @app.route("/admin/logs")
 def admin_logs():
-    return render_template("admin_logs.html", admin_title="History Logs")
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+
+    with open("werkzeug.txt") as f:
+        logs = f.read().split("\n")[:-1]
+        logs.reverse()
+    return render_template("admin_logs.html", admin_title="History Logs", user_account=user_account, logs=logs)
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -434,7 +610,9 @@ def home():
     drink_list = []
     for drink in drinks:
         for i in drinks[drink]:
-            drink_list.append({"id": i["@id"], "name": i["description"], "price": i["price"], "image": i["thumbnail"]})
+            price = float(i['price'])
+            formatted_price = f"{price:.2f}"
+            drink_list.append({"id": i["@id"], "name": i["description"], "price": formatted_price, "image": i["thumbnail"]})
 
     try:
         search = request.args["search"]
@@ -561,7 +739,9 @@ def product(drink_name):
 
     for toppingTag in toppings:
         for i in toppings[toppingTag]:
-            topping_list.append((int(i["@id"]), i["description"], float(i["price"]), i["thumbnail"]))
+            price = float(i['price'])
+            formatted_price = f"{price:.2f}"
+            topping_list.append((int(i["@id"]), i["description"], formatted_price, i["thumbnail"]))
 
     try:
         user_id = request.args["id"]
@@ -738,13 +918,88 @@ def remove_cart_item():
 
 @app.route("/checkout", methods=["GET", "POST"])
 def checkout():
+    try:
+        user_id = request.args["id"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+            cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
+            cart_items = cursor.fetchone()
+            if cart_items:
+                cart_item_count = len(eval(cart_items[0]))
+            else:
+                cart_item_count = 0
+    except:
+        user_account = None
+        cart_item_count = 0
     form = CheckoutForm()
-    return render_template("checkout.html", form=form)
+
+    with sqlite3.connect("swoy.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
+        cart_items = cursor.fetchone()
+        if cart_items:
+            cart_items = eval(cart_items[0])  # [[0]: drink_id, [1]: [topping_id], [2]: sugar_level, [3]: quantity]
+            formatted_cart_items = []
+            total_price = 0
+            for item in cart_items:
+                formatted_item = []
+
+                productData = xmltodict.parse(open("static/products.xml", "r").read())
+                drinks = productData["products"]["drinks"]
+                for drink in drinks:
+                    for i in drinks[drink]:
+                        if i["@id"] == str(item[0]):
+                            formatted_item.append(i["description"])
+                            price = float(i["price"])
+
+                topping_list = []
+                toppings = productData["products"]["toppings"]
+                for topping in toppings:
+                    for i in toppings[topping]:
+                        if i["@id"] in [str(s) for s in item[1]]:
+                            topping_list.append(i["description"])
+                            price += float(i["price"])
+                formatted_item.append(topping_list)
+
+                formatted_item.append(item[2])
+                formatted_item.append(item[3])
+
+                price *= item[3]
+                total_price += price
+                formatted_item.append(f"{price:.2f}")
+                formatted_cart_items.append(formatted_item)
+
+            total_price = f"{total_price:.2f}"
+            cart_items = formatted_cart_items
+
+        else:
+            cart_items = []
+            total_price = 0
+            cursor.execute(f"INSERT INTO cart VALUES ('{user_id}', '{cart_items}')")
+
+    return render_template("checkout.html", form=form, user_account=user_account, cart_item_count=cart_item_count, cart_items=cart_items, total_price=total_price)
 
 
-@app.route("/checkout", methods=["GET", "POST"])
+@app.route("/checkout/add_order", methods=["GET", "POST"])
 def add_order():
-    form = CheckoutForm()
+    try:
+        user_id = request.args["id"]
+        address = request.form["address"]
+        delivery_date = request.form["delivery_date"]
+        delivery_time = request.form["delivery_time"]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
+            cart_items = cursor.fetchone()[0]
+            cursor.execute(f"INSERT INTO delivery_order(user_id, address, delivery_date, delivery_time, order_items)"
+                           f"VALUES('{user_id}', '{address}', '{delivery_date}', '{delivery_time}', '{cart_items}')")
+            cursor.execute(f"UPDATE cart SET cart_items = '[]' WHERE user_id = '{user_id}'")
+            conn.commit()
+        return redirect(url_for("home", id=user_id))
+    except:
+        return redirect(url_for("home"))
     return render_template("checkout.html", form=form)
 
 

@@ -12,11 +12,19 @@
         <div style="margin-left: 30px;">
             <div class="container-fluid swoy-container swoy-form-container">
                 <h1>Transaction Details</h1>
-                <form method="POST" action="">
+                <form method="POST" action="{{ url_for('add_order', id=user_account[0]) }}">
                     <div class="form-group">
                         {{render_field(form.address, class="form-control", placeholder="123 Hunan Road")}}
 <!--                        <label>Address:</label>-->
 <!--                        <input type="text" class="form-control" placeholder="123 Hunan Road">-->
+                    </div>
+
+                    <div class="form-group">
+                        {{render_field(form.delivery_date, class="form-control", type="date")}}
+                    </div>
+
+                    <div class="form-group">
+                        {{render_field(form.delivery_time, class="form-control")}}
                     </div>
 
                     <div class="form-row">
@@ -53,16 +61,21 @@
             <div class="container-fluid swoy-container order-details-container">
                 <h4>Cart
                     <span class="price" style="color:black">
-                <i class="fa fa-shopping-cart"></i>
-                <b>4</b>
-            </span>
+                        <i class="fa fa-shopping-cart"></i>
+                        <b>{{ cart_item_count }}</b>
+                    </span>
                 </h4>
-                <p><a href="#">Green Tea</a> <span class="price">$3.20</span></p>
-                <p><a href="#">Milk Tea</a> <span class="price">$3.50</span></p>
-                <p><a href="#">Passionfruit Tea</a> <span class="price">$3</span></p>
-                <p><a href="#">Strawberry Tea</a> <span class="price">$3.50</span></p>
+                {% for item in cart_items %}
+                    <p>{{ item[3] }}x {{ item[0] }}<span style="float:right;">${{ item[4] }}</span></p>
+                    <ul>
+                        <li>{{ item[2] }}% Sugar</li>
+                        {% for topping in item[1] %}
+                            <li>{{ topping }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
                 <hr>
-                <p>Total <span class="price" style="color:black"><b>$13.20</b></span></p>
+                <p>Total price - <span class="price" style="color:black"><b>${{ total_price }}</b></span></p>
             </div>
         </div>
     </div>

@@ -30,7 +30,7 @@
                 <price>5.0</price>
                 <thumbnail>Strawberry Boba.jpeg</thumbnail>
             </drink>
-    <drink id="7"><description>W I D E Putin</description><price>6.9</price><thumbnail>w_i_d_e_putin.jpg</thumbnail></drink></drinks>
+    </drinks>
     <toppings>
         <topping id="1">
             <description>Aloe Vera</description>
