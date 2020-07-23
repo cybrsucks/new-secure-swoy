@@ -364,6 +364,9 @@ def admin_account_delete():
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
         cursor.execute(f"DELETE FROM user WHERE user_id='{userId}'")
+    localtime = time.asctime(time.localtime(time.time()))
+    log_return = "Account deleted at [" + str(localtime) + "]."
+    logging.warning(log_return)
 
     return redirect(url_for("admin_admin_accounts"))
 
