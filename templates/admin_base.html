@@ -35,7 +35,7 @@
             </div>
             <div class="sidebar-header">
                 <div class="user-pic">
-                    <a href="{{ url_for('admin_own_account', id=user_account[0]) }}">
+                    <a href="{{ url_for('admin_own_account', user_id=user_account[0]) }}">
                         <img class="img-responsive img-rounded"
                          src="https://raw.githubusercontent.com/azouaoui-med/pro-sidebar-template/gh-pages/src/img/user.jpg"
                          alt="User picture">
@@ -43,7 +43,7 @@
                 </div>
                 <div class="user-info">
                     {% if user_account %}
-                    <a href="{{ url_for('admin_own_account', id=user_account[0]) }}">
+                    <a href="{{ url_for('admin_own_account', user_id=user_account[0]) }}">
                         <span class="user-name" style="color:lightgray;">{{ user_account[1] }}</span>
                     </a>
                     {% else %}
