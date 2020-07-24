@@ -24,15 +24,10 @@
 <body>
 <nav class="navbar navbar-expand-lg row" style="background:#E7F3FC;">
     {% if user_account %}
-    <a href="/home?id={{ user_account[0] }}"> <img class="navbar-brand responsive" src="../../../static/cover.png"/></a>
+        <a href="/home?id={{ user_account[0] }}"> <img class="navbar-brand responsive" src="../../../static/cover.png"/></a>
     {% else %}
-    <a href="/home"> <img class="navbar-brand responsive" src="../../../static/cover.png"/></a>
+        <a href="/home"> <img class="navbar-brand responsive" src="../../../static/cover.png"/></a>
     {% endif %}
-    <!--    <button class="" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"-->
-    <!--            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"-->
-    <!--            style="border: none; outline: none;">-->
-    <!--        <i class="fa fa-bars hamburger-custom" aria-hidden="true"></i>-->
-    <!--    </button>-->
     <button class="hamburger hamburger--collapse hamburger-custom navbar-toggler" type="button" data-toggle="collapse"
             data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
             aria-label="Toggle navigation" style="outline: none;">
@@ -44,24 +39,17 @@
 
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent" style="text-align: center;">
-        <!--        <ul class="navbar-nav mr-auto">-->
-        <!--            <li class="nav-item active">-->
-        <!--                <a class="navbar-links" href="/product">Browse our menu<span class="sr-only">(current)</span></a>-->
-        <!--            </li>-->
-
-        <!--        </ul>-->
         <ul class="navbar-nav mr-auto"></ul>
         <ul class="navbar-nav" style="margin-right:30px;">
             <div class="search-box">
                 <form method="GET" action="{{ url_for('home') }}">
-
                     <input class="mr-sm-2 input-search" type="text" name="search" placeholder="Search"
                            aria-label="Search"
                            style="text-align:middle">
                     {% if user_account %}
-                    <input type="hidden" name="id" value="{{ user_account[0] }}">
+                        <input type="hidden" name="id" value="{{ user_account[0] }}">
                     {% endif %}
-                    <button class="btn btn-navbar swoy-btn my-2 my-sm-0" type="submit" style="border-radius:50%;"><i
+                        <button class="btn btn-navbar swoy-btn my-2 my-sm-0" type="submit" style="border-radius:50%;"><i
                             class="fas fa-search"></i></button>
                 </form>
             </div>

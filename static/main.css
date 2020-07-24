@@ -152,18 +152,6 @@ a.article-title:hover {
     margin-top: 20px;
     }
 
-/*
-.signup, .signin{
-    border-radius: 10px;
-    width: 1000px;
-    padding: 30px;
-    padding-bottom: 50px;
-    margin: auto;
-    margin-top: 100px;
-    margin-bottom: 100px;
-}
-*/
-
 #details{
     border: 2px solid grey;
     border-radius:10px;
@@ -192,41 +180,41 @@ a.article-title:hover {
 
 /*Search Bar Extends */
 .search-box {
-  width: auto;
-  position: relative;
+    width: auto;
+    position: relative;
 }
 
 .input-search {
-display: inline-block;
-vertical-align: middle;
-background-color: lightgrey;
-  box-sizing: border-box;
-  width: 100px;
-  padding: 0 20px;
-  outline: none;
-  font-size: 18px;
-  border-radius: 50px;
-  color: #29313a;
-  border: 1px;
-  transition: all 0.4s ease;
+    display: inline-block;
+    vertical-align: middle;
+    background-color: lightgrey;
+    box-sizing: border-box;
+    width: 100px;
+    padding: 0 20px;
+    outline: none;
+    font-size: 18px;
+    border-radius: 50px;
+    color: #29313a;
+    border: 1px;
+    transition: all 0.4s ease;
 }
 
 .input-search:focus {
-  width: 250px;
-  background: light grey;
+    width: 250px;
+    background: light grey;
     border: 1px solid #007de8;
 }
 /*Search Bar Extends */
 
 /* NEW FONT!! QUENDA MEDIUM */
 @font-face{
-font-family: 'Quenda-Medium';
-src: url(Quenda-Medium.otf);
+    font-family: 'Quenda-Medium';
+    src: url(Quenda-Medium.otf);
 }
 /*end import font*/
 
 .product-caption{
-text-align: center;
+    text-align: center;
 }
 
 /* product item card style for home.html*/

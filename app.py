@@ -35,8 +35,10 @@ def token_required(f):
 
     return decorated
 
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "supersecretkey"
+
 
 class MyRequestHandler(WSGIRequestHandler):
     # Just like WSGIRequestHandler, but without "- -"
@@ -82,7 +84,8 @@ def admin_dashboard():
     drinkNo = len(productData["products"]["drinks"]["drink"])
 
     return render_template("admin_dashboard.html", admin_title="Dashboard", user_account=user_account,
-                           noOfAdmin=noOfAdmin, noOfUser=noOfUser, toppingsNo=toppingsNo, drinkNo=drinkNo, noOfOrder=noOfOrder)
+                           noOfAdmin=noOfAdmin, noOfUser=noOfUser, toppingsNo=toppingsNo, drinkNo=drinkNo,
+                           noOfOrder=noOfOrder)
 
 
 @app.route("/admin/otp")
@@ -117,9 +120,11 @@ def admin_menu_drinks():
         for i in drinks[drink]:
             price = float(i['price'])
             formatted_price = f"{price:.2f}"
-            drink_list.append({"id": i["@id"], "name": i["description"], "price": formatted_price, "image": i["thumbnail"]})
+            drink_list.append(
+                {"id": i["@id"], "name": i["description"], "price": formatted_price, "image": i["thumbnail"]})
 
-    return render_template("admin_menu_drinks.html", admin_title="Menu Items - Drinks", drink_list=drink_list, user_account=user_account)
+    return render_template("admin_menu_drinks.html", admin_title="Menu Items - Drinks", drink_list=drink_list,
+                           user_account=user_account)
 
 
 @app.route("/admin/menu_drinks/<drink_id>", methods=["GET", "POST"])
@@ -174,7 +179,9 @@ def admin_menu_drinks_modify(drink_id):
             thumbnailTag.text = filename
         et.write("static/products.xml")
 
-    return render_template("admin_menu_drinks_modify.html", admin_title=f"Menu Items - Modify Drinks - {form.name.data}", form=form, drink_id=drink_id, user_account=user_account)
+    return render_template("admin_menu_drinks_modify.html",
+                           admin_title=f"Menu Items - Modify Drinks - {form.name.data}", form=form, drink_id=drink_id,
+                           user_account=user_account)
 
 
 @app.route("/admin/menu_drinks/add_drink", methods=["GET", "POST"])
@@ -213,7 +220,8 @@ def admin_menu_drinks_add():
         thumbnailTag = xml.etree.ElementTree.SubElement(newTag, "thumbnail")
         thumbnailTag.text = filename
         et.write("static/products.xml")
-    return render_template("admin_menu_drinks_add.html", admin_title=f"Menu Items - Add Drink", form=form, user_account=user_account)
+    return render_template("admin_menu_drinks_add.html", admin_title=f"Menu Items - Add Drink", form=form,
+                           user_account=user_account)
 
 
 @app.route("/admin/menu_drinks/delete/<drink_id>", methods=["POST"])  # API
@@ -230,6 +238,7 @@ def admin_menu_drinks_delete(drink_id):
 
 
 @app.route("/admin/menu_toppings")
+@token_required
 def admin_menu_toppings():
     try:
         user_id = request.args["id"]
@@ -246,9 +255,11 @@ def admin_menu_toppings():
     topping_list = []
     for topping in toppings:
         for i in toppings[topping]:
-            topping_list.append({"id": i["@id"], "name": i["description"], "price": i["price"], "image": i["thumbnail"]})
+            topping_list.append(
+                {"id": i["@id"], "name": i["description"], "price": i["price"], "image": i["thumbnail"]})
 
-    return render_template("admin_menu_toppings.html", admin_title="Menu Items - Toppings", topping_list=topping_list, user_account=user_account)
+    return render_template("admin_menu_toppings.html", admin_title="Menu Items - Toppings", topping_list=topping_list,
+                           user_account=user_account)
 
 
 @app.route("/admin/menu_toppings/<topping_id>", methods=["GET", "POST"])
@@ -264,10 +275,6 @@ def admin_menu_toppings_modify(topping_id):
 
     form = ModifyToppingForm()
     if request.method == "GET":
-        # with sqlite3.connect("swoy.db") as conn:
-        #     cursor = conn.cursor()
-        #     cursor.execute(f"SELECT * FROM drinks WHERE drink_id = '{drink_id}'")
-        #     drink = cursor.fetchone()
         productData = xmltodict.parse(open("static/products.xml", "r").read())
         toppings = productData["products"]["toppings"]
         for topping in toppings:
@@ -320,7 +327,9 @@ def admin_menu_toppings_modify(topping_id):
             thumbnailTag.text = filename
         et.write("static/products.xml")
 
-    return render_template("admin_menu_toppings_modify.html", admin_title=f"Menu Items - Modify Toppings - {form.name.data}", form=form, topping_id=topping_id, user_account=user_account)
+    return render_template("admin_menu_toppings_modify.html",
+                           admin_title=f"Menu Items - Modify Toppings - {form.name.data}", form=form,
+                           topping_id=topping_id, user_account=user_account)
 
 
 @app.route("/admin/menu_toppings/add_topping", methods=["GET", "POST"])
@@ -362,7 +371,8 @@ def admin_menu_toppings_add():
         thumbnailTag = xml.etree.ElementTree.SubElement(newTag, "thumbnail")
         thumbnailTag.text = filename
         et.write("static/products.xml")
-    return render_template("admin_menu_toppings_add.html", admin_title=f"Menu Items - Add Topping", form=form, user_account=user_account)
+    return render_template("admin_menu_toppings_add.html", admin_title=f"Menu Items - Add Topping", form=form,
+                           user_account=user_account)
 
 
 @app.route("/admin/menu_toppings/delete/<topping_id>", methods=["POST"])  # API
@@ -382,6 +392,7 @@ def admin_menu_toppings_delete(topping_id):
 
 
 @app.route("/admin/orders")
+@token_required
 def admin_orders():
     try:
         user_id = request.args["id"]
@@ -403,7 +414,8 @@ def admin_orders():
             order_list.append([order[0], username, order[2], order[3], order[4], order[5], order[6]])
         order_list.reverse()
 
-    return render_template("admin_orders.html", admin_title="Delivery Orders", order_list=order_list, user_account=user_account)
+    return render_template("admin_orders.html", admin_title="Delivery Orders", order_list=order_list,
+                           user_account=user_account)
 
 
 @app.route("/admin/orders/clear")  # API
@@ -466,15 +478,18 @@ def admin_order_details():
 
         total_price = f"{total_price:.2f}"
 
-    return render_template("admin_order_details.html", admin_title="Order details", order_items=order_items, total_price=total_price, order_id=order_id, user_account=user_account)
+    return render_template("admin_order_details.html", admin_title="Order details", order_items=order_items,
+                           total_price=total_price, order_id=order_id, user_account=user_account)
 
 
 @app.route("/admin/feedbacks")
+@token_required
 def admin_feedbacks():
     return render_template("admin_feedbacks.html", admin_title="Customer Feedbacks")
 
 
 @app.route("/admin/user_accounts")
+@token_required
 def admin_user_accounts():
     try:
         user_id = request.args["id"]
@@ -495,10 +510,12 @@ def admin_user_accounts():
     for user in users:
         userList.append({"id": user[0], "username": user[1], "email": user[2]})
 
-    return render_template("admin_user_accounts.html", admin_title="User Accounts", userList=userList, user_account=user_account)
+    return render_template("admin_user_accounts.html", admin_title="User Accounts", userList=userList,
+                           user_account=user_account)
 
 
 @app.route("/admin/admin_accounts", methods=["GET", "POST"])
+@token_required
 def admin_admin_accounts():
     try:
         user_id = request.args["id"]
@@ -519,7 +536,8 @@ def admin_admin_accounts():
     for user in users:
         userList.append({"id": user[0], "username": user[1], "email": user[2]})
 
-    return render_template("admin_admin_accounts.html", admin_title="Admin Accounts", userList=userList, user_account=user_account)
+    return render_template("admin_admin_accounts.html", admin_title="Admin Accounts", userList=userList,
+                           user_account=user_account)
 
 
 @app.route("/admin/admin_accounts_delete", methods=["GET", "POST"])  # API
@@ -570,11 +588,14 @@ def add_admin_account():
                 updated = cursor.execute("SELECT * FROM user").fetchall()
                 print(f"Updated database : {updated}")
                 conn.commit()
-                return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form, user_account=user_account)
-    return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form, user_account=user_account)
+                return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form,
+                                       user_account=user_account)
+    return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form,
+                           user_account=user_account)
 
 
 @app.route("/admin/logs")
+@token_required
 def admin_logs():
     try:
         user_id = request.args["id"]
@@ -610,11 +631,6 @@ def home():
         user_account = None
         cart_item_count = 0
 
-    # if not search:
-    #     with sqlite3.connect("swoy.db") as conn:
-    #         cursor = conn.cursor()
-    #         cursor.execute("SELECT * FROM drinks")
-    #         drinks = cursor.fetchall()
     productData = xmltodict.parse(open("static/products.xml", "r").read())
     drinks = productData["products"]["drinks"]
 
@@ -623,7 +639,8 @@ def home():
         for i in drinks[drink]:
             price = float(i['price'])
             formatted_price = f"{price:.2f}"
-            drink_list.append({"id": i["@id"], "name": i["description"], "price": formatted_price, "image": i["thumbnail"]})
+            drink_list.append(
+                {"id": i["@id"], "name": i["description"], "price": formatted_price, "image": i["thumbnail"]})
 
     try:
         search = request.args["search"]
@@ -632,26 +649,9 @@ def home():
             if search.lower() in drink["name"].lower():
                 filtered_drink_list.append(drink)
         drink_list = filtered_drink_list
-        # with sqlite3.connect("swoy.db") as conn:
-        #     cursor = conn.cursor()
-        #     cursor.execute(f"SELECT * FROM drinks WHERE "
-        #                    f"name = '{search}' OR name LIKE '{search}%' OR name LIKE '%{search}' OR name LIKE '%{search}%'")
-        #     drinks = cursor.fetchall()
     except:
         search = None
 
-    # if request == 'POST' and form.validate on :
-    #     session.pop('user_id', None)
-    #
-    #     email = request.form['email']
-    #     password = request.form['password']
-    #
-    #     user = [x for x in users if x.email == email][0]
-    #     if user and user.password == password:
-    #         session['user_id'] = user.id
-    #         return redirect(url_for("admin_base"))
-    #
-    #     return redirect(url_for("home"))
     return render_template("home.html", drink_list=drink_list, user_account=user_account, search=search,
                            cart_item_count=cart_item_count)
 
@@ -660,12 +660,20 @@ def home():
 def signup():
     form = RegistrationForm()
     error = None
+    error_password = None
     if request.method == "POST" and form.validate_on_submit():
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
             username = form.username.data
             email = form.email.data
             password = form.password.data
+
+            if not re.search(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{8,20}$", password):
+                error_password = "Your password must be at least 8 characters, contain at least 1 symbol (@, $, !, %, *, #, ?, &), at least 1 uppercase and at least 1 lowercase"
+                return render_template("signup.html", form=form, error=error, error_password=error_password)
+            else:
+                error_password = None
+
             security_qns = form.security_qns.data
             security_ans = form.security_ans.data
             admin = 0
@@ -682,7 +690,6 @@ def signup():
                 print(f"Updated database : {updated}")
                 conn.commit()
                 return render_template("login.html", form=LoginForm())
-
     return render_template("signup.html", form=form, error=error)
 
 
@@ -705,22 +712,24 @@ def login():
             if account_match:
                 command = f"SELECT * FROM user WHERE email='{email}' and password='{password}'"
                 account_match = cursor.execute(command).fetchone()
-                print(f"Account: {account_match}")
+                # print(f"Account: {account_match}")
                 if account_match:
                     if account_match[6]:
-
+                        token = jwt.encode({' user': account_match[0], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
                         log_return = "Admin (" + str(account_match[1]) + ") successfully logged in at " + str(localtime)
                         logging.warning(log_return)
                         return redirect(url_for("admin_dashboard", id=account_match[0]))
                     else:
+                        token = jwt.encode({' user': account_match[0], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
                         log_return = "Customer (" + str(account_match[1]) + ") logged in at " + str(localtime)
                         logging.info(log_return)
                         return redirect(url_for("home", id=account_match[0]))
                 else:
+                    # Change to ambiguous message
                     error = "Password is incorrect."
             else:
+                # Change to ambiguous message
                 error = "Email does not exist."
-
     return render_template("login.html", form=form, error=error)
 
 
@@ -769,27 +778,12 @@ def product(drink_name):
     except:
         user_account = None
         cart_item_count = 0
-    # with sqlite3.connect("swoy.db") as conn:
-    #     cursor = conn.cursor()
-    #     cursor.execute(f"SELECT * FROM drinks WHERE name = '{drink_name}'")
-    #     # drink = cursor.fetchone()
-    #
-    #     if drink:
-    #         cursor.execute(f"SELECT * FROM comments WHERE drink_id = '{drink[0]}'")
-    #         comments = cursor.fetchall()
-    #         comment_list = []
-    #         for comment in comments:
-    #             cursor.execute(f"SELECT username FROM user WHERE user_id = '{comment[2]}'")
-    #             author = cursor.fetchone()[0]
-    #             comment_list.append({"content": comment[1], "author": author})
-    #     else:
-    #         return redirect(url_for("home"))
-
     return render_template("product.html", drink=drink, comment_list=comment_list, topping_list=topping_list,
                            user_account=user_account, cart_item_count=cart_item_count)
 
 
 @app.route("/product/update_drink_comments", methods=["GET", "POST"])  # API
+@token_required
 def update_comment():
     try:
         drink_id = request.args["drink_id"]
@@ -799,8 +793,6 @@ def update_comment():
             cursor = conn.cursor()
             cursor.execute(f"INSERT INTO comments(content, user_id, drink_id) "
                            f"VALUES ('{content}', '{user_id}', '{drink_id}')")
-            # cursor.execute(f"SELECT name FROM drinks WHERE drink_id = '{drink_id}'")
-            # drink_name = cursor.fetchone()[0]
             conn.commit()
 
         productData = xmltodict.parse(open("static/products.xml", "r").read())
@@ -928,6 +920,7 @@ def remove_cart_item():
 
 
 @app.route("/checkout", methods=["GET", "POST"])
+@token_required
 def checkout():
     try:
         user_id = request.args["id"]
@@ -990,7 +983,8 @@ def checkout():
             total_price = 0
             cursor.execute(f"INSERT INTO cart VALUES ('{user_id}', '{cart_items}')")
 
-    return render_template("checkout.html", form=form, user_account=user_account, cart_item_count=cart_item_count, cart_items=cart_items, total_price=total_price)
+    return render_template("checkout.html", form=form, user_account=user_account, cart_item_count=cart_item_count,
+                           cart_items=cart_items, total_price=total_price)
 
 
 @app.route("/checkout/add_order", methods=["GET", "POST"])
@@ -1015,6 +1009,7 @@ def add_order():
 
 
 @app.route("/delivery")
+@token_required
 def delivery():
     form = DeliveryForm()
     return render_template("delivery.html", form=form)
@@ -1057,6 +1052,7 @@ def security_question(email):
             logging.warning(log_return)
             return redirect(url_for('forgot_password_change', email=email))
         else:
+            # Change to ambiguous message
             error = "Wrong answer given."
     return render_template("forgot_password.html", form=form, security_qn=security_qn, email=email, error=error)
 
