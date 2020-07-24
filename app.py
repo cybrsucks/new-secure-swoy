@@ -1,16 +1,42 @@
 from flask import Flask, render_template, redirect, url_for, request, Response
+from wtforms import ValidationError
 from Forms import *
 from werkzeug.utils import secure_filename
 import sqlite3
+import re
+from flask_jwt import jwt
+import datetime
+from functools import wraps
 import xmltodict
 import xml.etree.ElementTree
 import time
 import logging
 from werkzeug.serving import WSGIRequestHandler, _log
 
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.args.get('token')
+
+        if not token:
+            print("token is missing")
+            return redirect(url_for('login'))
+
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'])
+            print("token is accepted")
+
+        except:
+            print("Token expired")
+            return redirect(url_for('home'))
+
+        return f(*args, **kwargs)
+
+    return decorated
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "supersecretkey"
-
 
 class MyRequestHandler(WSGIRequestHandler):
     # Just like WSGIRequestHandler, but without "- -"
@@ -25,6 +51,7 @@ class MyRequestHandler(WSGIRequestHandler):
 
 
 @app.route("/admin")
+@token_required
 def admin_dashboard():
     try:
         user_id = request.args["id"]
@@ -58,13 +85,25 @@ def admin_dashboard():
                            noOfAdmin=noOfAdmin, noOfUser=noOfUser, toppingsNo=toppingsNo, drinkNo=drinkNo, noOfOrder=noOfOrder)
 
 
+@app.route("/admin/otp")
+def authenticate_otp():
+    form = OTPForm()
+    return render_template("admin_authentication.html", admin_title="Your Account", form=form)
 
-@app.route("/admin_account")
-def admin_own_account():
+
+@app.route("/admin/<user_id>")
+@token_required
+def admin_own_account(user_id):
     return render_template("admin_own_account.html", admin_title="Your Account")
 
 
+# @app.route("/admin_account")
+# def admin_own_account():
+#     return render_template("admin_own_account.html", admin_title="Your Account")
+
+
 @app.route("/admin/menu_drinks")
+@token_required
 def admin_menu_drinks():
     try:
         user_id = request.args["id"]
