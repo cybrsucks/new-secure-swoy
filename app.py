@@ -97,11 +97,6 @@ def admin_own_account(user_id):
     return render_template("admin_own_account.html", admin_title="Your Account")
 
 
-# @app.route("/admin_account")
-# def admin_own_account():
-#     return render_template("admin_own_account.html", admin_title="Your Account")
-
-
 @app.route("/admin/menu_drinks")
 @token_required
 def admin_menu_drinks():
@@ -128,6 +123,7 @@ def admin_menu_drinks():
 
 
 @app.route("/admin/menu_drinks/<drink_id>", methods=["GET", "POST"])
+@token_required
 def admin_menu_drinks_modify(drink_id):
     try:
         user_id = request.args["id"]
@@ -140,10 +136,6 @@ def admin_menu_drinks_modify(drink_id):
 
     form = ModifyDrinkForm()
     if request.method == "GET":
-        # with sqlite3.connect("swoy.db") as conn:
-        #     cursor = conn.cursor()
-        #     cursor.execute(f"SELECT * FROM drinks WHERE drink_id = '{drink_id}'")
-        #     drink = cursor.fetchone()
         productData = xmltodict.parse(open("static/products.xml", "r").read())
         drinks = productData["products"]["drinks"]
         for drink in drinks:
@@ -151,8 +143,6 @@ def admin_menu_drinks_modify(drink_id):
                 if i["@id"] == drink_id:
                     form.name.data = i["description"]
                     form.price.data = float(i["price"])
-        #
-        # return render_template("admin_menu_drinks_modify.html", admin_title=f"Menu Items - Modify Drinks - {name}" ,form=form, drink_id=drink_id)
 
     if request.method == "POST" and form.validate_on_submit():
         name = form.name.data
@@ -161,18 +151,6 @@ def admin_menu_drinks_modify(drink_id):
             filename = secure_filename(form.thumbnail.data.filename)
         except:
             filename = None
-        # with sqlite3.connect("swoy.db") as conn:
-        #     cursor = conn.cursor()
-        #     if filename:
-        #         cursor.execute(f"UPDATE drinks SET name = '{name}', price = '{price}', thumbnail = '{filename}'"
-        #                        f"WHERE drink_id = {drink_id}")
-        #     else:
-        #         cursor.execute(f"UPDATE drinks SET name = '{name}', price = '{price}'"
-        #                        f"WHERE drink_id = {drink_id}")
-        #     conn.commit()
-        # if filename:
-        #     form.thumbnail.data.save("static/" + filename)
-
         if filename != None:
             form.thumbnail.data.save("static/" + filename)
 
@@ -200,6 +178,7 @@ def admin_menu_drinks_modify(drink_id):
 
 
 @app.route("/admin/menu_drinks/add_drink", methods=["GET", "POST"])
+@token_required
 def admin_menu_drinks_add():
     try:
         user_id = request.args["id"]
@@ -218,10 +197,6 @@ def admin_menu_drinks_add():
             filename = secure_filename(form.thumbnail.data.filename)
         except:
             filename = None
-        # with sqlite3.connect("swoy.db") as conn:
-        #     cursor = conn.cursor()
-        #     cursor.execute(f"INSERT INTO drinks(name, price, thumbnail) "
-        #                    f"VALUES('{name}', '{price}', '{filename}')")
         if filename != None:
             form.thumbnail.data.save("static/" + filename)
 
@@ -242,10 +217,8 @@ def admin_menu_drinks_add():
 
 
 @app.route("/admin/menu_drinks/delete/<drink_id>", methods=["POST"])  # API
+@token_required
 def admin_menu_drinks_delete(drink_id):
-    # with sqlite3.connect("swoy.db") as conn:
-    #     cursor = conn.cursor()
-    #     cursor.execute(f"DELETE FROM drinks WHERE drink_id='{drink_id}'")
     id = drink_id
     user_id = request.args["id"]
     et = xml.etree.ElementTree.parse("static/products.xml")
@@ -253,7 +226,6 @@ def admin_menu_drinks_delete(drink_id):
         if id == drinkTag.attrib["id"]:
             et.getroot()[0].remove(drinkTag)
             et.write("static/products.xml")
-
     return redirect(url_for("admin_menu_drinks", id=user_id))
 
 
