@@ -10,6 +10,7 @@ from functools import wraps
 import xmltodict
 import defusedxml.ElementTree
 import xml.etree.ElementTree
+import hashlib
 import time
 import logging
 from werkzeug.serving import WSGIRequestHandler, _log
@@ -611,8 +612,9 @@ def add_admin_account():
             if account_match:
                 error = "Email already exists"
             else:
+                passwordDigest = (hashlib.sha256(password.encode("utf-8"))).hexdigest()
                 command = f"INSERT INTO user(username, email, password, security_qns, security_ans, admin) " \
-                          f"VALUES ('{username}', '{email}', '{password}', '{security_qns}', '{security_ans}', '{admin}')"
+                          f"VALUES ('{username}', '{email}', '{passwordDigest}', '{security_qns}', '{security_ans}', '{admin}')"
                 cursor.execute(command)
                 updated = cursor.execute("SELECT * FROM user").fetchall()
                 print(f"Updated database : {updated}")
@@ -718,8 +720,9 @@ def signup():
             if account_match:
                 error = "Email already exists"
             else:
+                passwordDigest = (hashlib.sha256(password.encode("utf-8"))).hexdigest()
                 command = f"INSERT INTO user(username, email, password, security_qns, security_ans, admin) " \
-                          f"VALUES ('{username}', '{email}', '{password}', '{security_qns}', '{security_ans}', '{admin}')"
+                          f"VALUES ('{username}', '{email}', '{passwordDigest}', '{security_qns}', '{security_ans}', '{admin}')"
                 cursor.execute(command)
                 updated = cursor.execute("SELECT * FROM user").fetchall()
                 print(f"Updated database : {updated}")
@@ -745,7 +748,8 @@ def login():
             logging.info(log_return)
 
             if account_match:
-                command = f"SELECT * FROM user WHERE email='{email}' and password='{password}'"
+                passwordDigest = (hashlib.sha256(password.encode("utf-8"))).hexdigest()
+                command = f"SELECT * FROM user WHERE email='{email}' and password='{passwordDigest}'"
                 account_match = cursor.execute(command).fetchone()
                 # print(f"Account: {account_match}")
                 if account_match:
@@ -1109,7 +1113,8 @@ def forgot_password_change(email):
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
             new_password = form.new_pwd.data
-            cursor.execute(f"UPDATE user SET password = '{new_password}' WHERE email = '{email}'")
+            passwordDigest = (hashlib.sha256(new_password.encode("utf-8"))).hexdigest()
+            cursor.execute(f"UPDATE user SET password = '{passwordDigest}' WHERE email = '{email}'")
             conn.commit()
         return redirect(url_for('home'))
 
@@ -1168,6 +1173,8 @@ def change_password():
         current_pwd = request.form["current_pwd"]
         new_password = request.form["new_pwd"]
         confirm_password = request.form["confirm_new_pwd"]
+        currentPasswordDigest = (hashlib.sha256(current_pwd.encode("utf-8"))).hexdigest()
+        newPasswordDigest = (hashlib.sha256(new_password.encode("utf-8"))).hexdigest()
 
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
@@ -1182,7 +1189,7 @@ def change_password():
             with sqlite3.connect("swoy.db") as conn:
                 cursor = conn.cursor()
                 current_password_from_db = cursor.execute(f"SELECT password FROM user WHERE user_id = '{user_id}'")
-                if current_password_from_db.fetchone()[0] != current_pwd:
+                if current_password_from_db.fetchone()[0] != currentPasswordDigest:
                     log_return = "(" + str(
                         user_account[1]) + ") attempted to change password [EXISTING PASSWORD] at [" + str(
                         localtime) + "]."
@@ -1195,7 +1202,7 @@ def change_password():
                         localtime) + "]."
                     logging.info(log_return)
 
-                cursor.execute(f"UPDATE user SET password = '{new_password}' WHERE user_id = '{user_id}'")
+                cursor.execute(f"UPDATE user SET password = '{newPasswordDigest}' WHERE user_id = '{user_id}'")
                 conn.commit()
             return redirect(url_for("view_profile", id=user_id))
     except:
