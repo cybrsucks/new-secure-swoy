@@ -53,7 +53,7 @@ class MyRequestHandler(WSGIRequestHandler):
 
 
 @app.route("/admin")
-@token_required
+# @token_required
 def admin_dashboard():
     try:
         user_id = request.args["id"]
@@ -95,13 +95,13 @@ def authenticate_otp():
 
 
 @app.route("/admin/<user_id>")
-@token_required
+# @token_required
 def admin_own_account(user_id):
     return render_template("admin_own_account.html", admin_title="Your Account")
 
 
 @app.route("/admin/menu_drinks")
-@token_required
+# @token_required
 def admin_menu_drinks():
     try:
         user_id = request.args["id"]
@@ -128,7 +128,7 @@ def admin_menu_drinks():
 
 
 @app.route("/admin/menu_drinks/<drink_id>", methods=["GET", "POST"])
-@token_required
+# @token_required
 def admin_menu_drinks_modify(drink_id):
     try:
         user_id = request.args["id"]
@@ -185,7 +185,7 @@ def admin_menu_drinks_modify(drink_id):
 
 
 @app.route("/admin/menu_drinks/add_drink", methods=["GET", "POST"])
-@token_required
+# @token_required
 def admin_menu_drinks_add():
     try:
         user_id = request.args["id"]
@@ -225,7 +225,7 @@ def admin_menu_drinks_add():
 
 
 @app.route("/admin/menu_drinks/delete/<drink_id>", methods=["POST"])  # API
-@token_required
+# @token_required
 def admin_menu_drinks_delete(drink_id):
     id = drink_id
     user_id = request.args["id"]
@@ -238,7 +238,7 @@ def admin_menu_drinks_delete(drink_id):
 
 
 @app.route("/admin/menu_toppings")
-@token_required
+# @token_required
 def admin_menu_toppings():
     try:
         user_id = request.args["id"]
@@ -392,7 +392,7 @@ def admin_menu_toppings_delete(topping_id):
 
 
 @app.route("/admin/orders")
-@token_required
+# @token_required
 def admin_orders():
     try:
         user_id = request.args["id"]
@@ -483,13 +483,13 @@ def admin_order_details():
 
 
 @app.route("/admin/feedbacks")
-@token_required
+# @token_required
 def admin_feedbacks():
     return render_template("admin_feedbacks.html", admin_title="Customer Feedbacks")
 
 
 @app.route("/admin/user_accounts")
-@token_required
+# @token_required
 def admin_user_accounts():
     try:
         user_id = request.args["id"]
@@ -515,7 +515,7 @@ def admin_user_accounts():
 
 
 @app.route("/admin/admin_accounts", methods=["GET", "POST"])
-@token_required
+# @token_required
 def admin_admin_accounts():
     try:
         user_id = request.args["id"]
@@ -595,7 +595,7 @@ def add_admin_account():
 
 
 @app.route("/admin/logs")
-@token_required
+# @token_required
 def admin_logs():
     try:
         user_id = request.args["id"]
@@ -783,7 +783,7 @@ def product(drink_name):
 
 
 @app.route("/product/update_drink_comments", methods=["GET", "POST"])  # API
-@token_required
+# @token_required
 def update_comment():
     try:
         drink_id = request.args["drink_id"]
@@ -920,7 +920,7 @@ def remove_cart_item():
 
 
 @app.route("/checkout", methods=["GET", "POST"])
-@token_required
+# @token_required
 def checkout():
     try:
         user_id = request.args["id"]
@@ -1009,7 +1009,7 @@ def add_order():
 
 
 @app.route("/delivery")
-@token_required
+# @token_required
 def delivery():
     form = DeliveryForm()
     return render_template("delivery.html", form=form)
