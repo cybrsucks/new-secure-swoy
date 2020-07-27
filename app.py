@@ -43,10 +43,10 @@ app.config['SECRET_KEY'] = "supersecretkey"
 
 class MyRequestHandler(WSGIRequestHandler):
     # Just like WSGIRequestHandler, but without "- -"
-    def log(self, type, message, *args):
-        _log(type, '%s [%s] %s\n' % (self.address_string(),
-                                     self.log_date_time_string(),
-                                     message % args))
+    # def log(self, type, message, *args):
+    #     _log(type, '%s [%s] %s\n' % (self.address_string(),
+    #                                  self.log_date_time_string(),
+    #                                  message % args))
 
     # Just like WSGIRequestHandler, but without "code"
     def log_request(self, code='-', size='-'):
@@ -578,7 +578,7 @@ def admin_account_delete():
         cursor.execute(f"DELETE FROM user WHERE user_id='{userId}'")
     localtime = time.asctime(time.localtime(time.time()))
     log_return = "Account deleted at [" + str(localtime) + "]."
-    logging.warning(log_return)
+    logging.info(log_return)
 
     return redirect(url_for("admin_admin_accounts", id=id))
 
@@ -741,7 +741,7 @@ def login():
             account_match = cursor.fetchone()
 
             localtime = time.asctime(time.localtime(time.time()))
-            log_return = "(" + str(account_match[1]) + ") -- login attempt at [" + str(localtime) + "]."
+            log_return = "(" + str(account_match[1]) + ") -- login attempt at [" + str(localtime) + "]"
             logging.info(log_return)
 
             if account_match:
@@ -752,7 +752,7 @@ def login():
                     if account_match[6]:
                         token = jwt.encode({' user': account_match[0], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
                         log_return = "Admin (" + str(account_match[1]) + ") successfully logged in at " + str(localtime)
-                        logging.warning(log_return)
+                        logging.info(log_return)
                         return redirect(url_for("admin_dashboard", id=account_match[0], token=token.decode('utf-8')))
                     else:
                         token = jwt.encode({' user': account_match[0], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
@@ -1084,7 +1084,7 @@ def security_question(email):
             localtime = time.asctime(time.localtime(time.time()))
             log_return = "(" + str(user_account[1]) + ") attempted to change password [FORGOT PASSWORD] at [" + str(
                 localtime) + "]."
-            logging.warning(log_return)
+            logging.info(log_return)
             return redirect(url_for('forgot_password_change', email=email))
         else:
             # Change to ambiguous message
@@ -1104,7 +1104,7 @@ def forgot_password_change(email):
         localtime = time.asctime(time.localtime(time.time()))
         log_return = "(" + str(user_account[1]) + ") successfully changed password [FORGOT PASSWORD] at [" + str(
             localtime) + "]."
-        logging.warning(log_return)
+        logging.info(log_return)
 
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
@@ -1186,14 +1186,14 @@ def change_password():
                     log_return = "(" + str(
                         user_account[1]) + ") attempted to change password [EXISTING PASSWORD] at [" + str(
                         localtime) + "]."
-                    logging.warning(log_return)
+                    logging.info(log_return)
                     return redirect(url_for("view_profile", id=user_id, password_error=1))
 
                 else:
                     log_return = "(" + str(
                         user_account[1]) + ") successfully changed password [EXISTING PASSWORD] at [" + str(
                         localtime) + "]."
-                    logging.warning(log_return)
+                    logging.info(log_return)
 
                 cursor.execute(f"UPDATE user SET password = '{new_password}' WHERE user_id = '{user_id}'")
                 conn.commit()
@@ -1229,16 +1229,13 @@ def pw():
 
 
 if __name__ == "__main__":
-    # this is for logging INFO:werkzeug logs
-    # the below line is to generate external log file
     logging.basicConfig(filename='werkzeug.txt', level=logging.INFO)
-    # logging.basicConfig(level=logging.INFO)
+    # all logs with INFO level and above is logged https://docs.python.org/3/howto/logging.html#when-to-use-logging
+
     logger = logging.getLogger('werkzeug')
-    logger.setLevel(logging.INFO)
-
-    # logging.basicConfig(level=logging.DEBUG)
-
-    # use the logging method below for final product
-    # logging.basicConfig(filename='swoy.log', level=logging.DEBUG)
+    logger.setLevel(logging.WARNING)
+    # werkzeug logs such as GET and POST from websites will no longer be logged
+    # instead, the only log that is recorded is when debugger is active (WARNING) level
 
     app.run(debug=True, request_handler=MyRequestHandler)
+    # app.run(debug=False, request_handler=MyRequestHandler)
