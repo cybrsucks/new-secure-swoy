@@ -35,12 +35,16 @@ with sqlite3.connect("swoy.db") as conn:
         order_items TEXT NOT NULL,
         delivered INTEGER DEFAULT 0)""")
 
+    # Passwords:
+    # testing: Password!1
+    # Super Admin: $uperAdm1n
+    # John Doe: Password!2
     cursor.execute("INSERT INTO user(username, email, password, security_qns, security_ans, admin) "
-                   "VALUES('testing', 'test@test.com', 'testtest', 'What is the name of your favourite teacher?', 'Ms Tan', 0)")
+                   "VALUES('testing', 'test@test.com', 'be6fded9eba153d774245490f8f4120cebe2a6d3a5467603eca3343de90d6275', 'What is the name of your favourite teacher?', 'Ms Tan', 0)")
     cursor.execute("INSERT INTO user(username, email, password, security_qns, security_ans, admin) "
-                   "VALUES('Super Admin', 'superadmin@swoy.com', 'admin', 'What is the name of your favourite teacher?', 'Ms Tan', 1)")
+                   "VALUES('Super Admin', 'superadmin@swoy.com', '9c9b477f56f1ed5fc4b1d857e11f86664be481e9e7ea5555916448dd72c649ff', 'What is the name of your favourite teacher?', 'Ms Tan', 1)")
     cursor.execute("INSERT INTO user(username, email, password, security_qns, security_ans, admin) "
-                   "VALUES('John Doe', 'johndoe@gmail.com', '12345678', 'What is the name of your favourite teacher?', 'Ms Tan', 0)")
+                   "VALUES('John Doe', 'johndoe@gmail.com', '7ab048ba3931ced4c81ddc169a632642b38dbc3701ab5b9e616ad83a0eedbcb1', 'What is the name of your favourite teacher?', 'Ms Tan', 0)")
 
     # cursor.execute("INSERT INTO drinks(name, price, thumbnail)"
     #                "VALUES('Chocolate Milk', 5, 'Chocolate Boba.jpeg')")
