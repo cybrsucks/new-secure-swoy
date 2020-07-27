@@ -61,7 +61,7 @@ class ModifyDrinkForm(FlaskForm):
     price = DecimalField('Price:', [validators.data_required(), validators.NumberRange(min=3, max=50,
                                                                                        message="Field must be between $3.00 to $50.00")],
                          places=2)
-    thumbnail = FileField('Thumbnail:')
+    thumbnail = FileField('Thumbnail:', validators=[FileAllowed(['jpg', 'png'], 'Images only!')])
 
 
 class AddDrinkForm(FlaskForm):
@@ -69,7 +69,7 @@ class AddDrinkForm(FlaskForm):
     price = DecimalField('Price:', [validators.data_required(), validators.NumberRange(min=3, max=50,
                                                                                        message="Field must be between $3.00 to $50.00")],
                          places=2, default=5)
-    thumbnail = FileField('Thumbnail:')
+    thumbnail = FileField('Thumbnail:', validators=[FileAllowed(['jpg', 'png'], 'Images only!')])
 
 
 class ModifyToppingForm(FlaskForm):
@@ -77,7 +77,7 @@ class ModifyToppingForm(FlaskForm):
     price = DecimalField('Price:', [validators.data_required(), validators.NumberRange(min=0.1, max=10,
                                                                                        message="Field must be between $3.00 to $50.00")],
                          places=2)
-    thumbnail = FileField('Thumbnail:')
+    thumbnail = FileField('Thumbnail:', validators=[FileAllowed(['jpg', 'png'], 'Images only!')])
 
 
 class AddToppingForm(FlaskForm):
@@ -85,7 +85,7 @@ class AddToppingForm(FlaskForm):
     price = DecimalField('Price:', [validators.data_required(), validators.NumberRange(min=0.1, max=10,
                                                                                        message="Field must be between $3.00 to $50.00")],
                          places=2, default=0.5)
-    thumbnail = FileField('Thumbnail:')
+    thumbnail = FileField('Thumbnail:', validators=[FileAllowed(['jpg', 'png'], 'Images only!')])
 
 
 class ForgotPasswordEmailForm(FlaskForm):

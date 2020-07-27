@@ -8,6 +8,7 @@ from flask_jwt import jwt
 import datetime
 from functools import wraps
 import xmltodict
+import defusedxml.ElementTree
 import xml.etree.ElementTree
 import time
 import logging
@@ -79,13 +80,24 @@ def admin_dashboard():
         order = cursor.fetchall()
         noOfOrder = len(order)
 
-    productData = xmltodict.parse(open("static/products.xml", "r").read())
-    toppingsNo = len(productData["products"]["toppings"]["topping"])
-    drinkNo = len(productData["products"]["drinks"]["drink"])
+    productData = None
+    toppingsNo = 0
+    drinkNo = 0
+    error = ""
+    try:
+        productData = xmltodict.parse(open("static/products.xml", "r").read())
+    except:
+        error = "Warning: Error retrieving product data"
+
+    try:
+        toppingsNo = len(productData["products"]["toppings"]["topping"])
+        drinkNo = len(productData["products"]["drinks"]["drink"])
+    except:
+        error = "Warning: Error retrieving product data"
 
     return render_template("admin_dashboard.html", admin_title="Dashboard", user_account=user_account,
                            noOfAdmin=noOfAdmin, noOfUser=noOfUser, toppingsNo=toppingsNo, drinkNo=drinkNo,
-                           noOfOrder=noOfOrder)
+                           noOfOrder=noOfOrder, error=error)
 
 
 @app.route("/admin/otp")
@@ -113,8 +125,12 @@ def admin_menu_drinks():
         user_account = None
 
     productData = xmltodict.parse(open("static/products.xml", "r").read())
-    drinks = productData["products"]["drinks"]
-
+    drinks = None
+    try:
+        drinks = productData["products"]["drinks"]
+    except:
+        return render_template("admin_menu_drinks.html", admin_title="Menu Items - Drinks", drink_list=[],
+                                user_account=user_account, error="Warning: Error retrieving products")
     drink_list = []
     for drink in drinks:
         for i in drinks[drink]:
@@ -124,7 +140,7 @@ def admin_menu_drinks():
                 {"id": i["@id"], "name": i["description"], "price": formatted_price, "image": i["thumbnail"]})
 
     return render_template("admin_menu_drinks.html", admin_title="Menu Items - Drinks", drink_list=drink_list,
-                           user_account=user_account)
+                           user_account=user_account, error="")
 
 
 @app.route("/admin/menu_drinks/<drink_id>", methods=["GET", "POST"])
@@ -160,7 +176,7 @@ def admin_menu_drinks_modify(drink_id):
             form.thumbnail.data.save("static/" + filename)
 
         id = int(drink_id)
-        et = xml.etree.ElementTree.parse("static/products.xml")
+        et = defusedxml.ElementTree.parse("static/products.xml")
         drinkTag = et.getroot()[0].getchildren()[id - 1]
         for element in list(drinkTag):
             if element.tag == "thumbnail":
@@ -207,7 +223,7 @@ def admin_menu_drinks_add():
         if filename != None:
             form.thumbnail.data.save("static/" + filename)
 
-        et = xml.etree.ElementTree.parse("static/products.xml")
+        et = defusedxml.ElementTree.parse("static/products.xml")
         last = list(et.getroot()[0].getchildren())[-1]
         id = int(last.attrib["id"]) + 1
         newTag = xml.etree.ElementTree.SubElement(et.getroot()[0], 'drink')
@@ -229,7 +245,7 @@ def admin_menu_drinks_add():
 def admin_menu_drinks_delete(drink_id):
     id = drink_id
     user_id = request.args["id"]
-    et = xml.etree.ElementTree.parse("static/products.xml")
+    et = defusedxml.ElementTree.parse("static/products.xml")
     for drinkTag in list(et.getroot()[0].getchildren()):
         if id == drinkTag.attrib["id"]:
             et.getroot()[0].remove(drinkTag)
@@ -250,7 +266,14 @@ def admin_menu_toppings():
         user_account = None
 
     productData = xmltodict.parse(open("static/products.xml", "r").read())
-    toppings = productData["products"]["toppings"]
+
+    toppings = None
+    try:
+        toppings = productData["products"]["toppings"]
+    except:
+        return render_template("admin_menu_toppings.html", admin_title="Menu Items - Toppings",
+                               topping_list=[],
+                               user_account=user_account, error="Warning: Error retrieving products")
 
     topping_list = []
     for topping in toppings:
@@ -259,7 +282,7 @@ def admin_menu_toppings():
                 {"id": i["@id"], "name": i["description"], "price": i["price"], "image": i["thumbnail"]})
 
     return render_template("admin_menu_toppings.html", admin_title="Menu Items - Toppings", topping_list=topping_list,
-                           user_account=user_account)
+                           user_account=user_account, error="")
 
 
 @app.route("/admin/menu_toppings/<topping_id>", methods=["GET", "POST"])
@@ -308,7 +331,7 @@ def admin_menu_toppings_modify(topping_id):
             form.thumbnail.data.save("static/" + filename)
 
         id = int(topping_id)
-        et = xml.etree.ElementTree.parse("static/products.xml")
+        et = defusedxml.ElementTree.parse("static/products.xml")
         toppingTag = et.getroot()[1].getchildren()[id - 1]
         for element in list(toppingTag):
             if element.tag == "thumbnail":
@@ -358,7 +381,7 @@ def admin_menu_toppings_add():
         if filename != None:
             form.thumbnail.data.save("static/" + filename)
 
-        et = xml.etree.ElementTree.parse("static/products.xml")
+        et = defusedxml.ElementTree.parse("static/products.xml")
         last = list(et.getroot()[1].getchildren())[-1]
         id = int(last.attrib["id"]) + 1
         newTag = xml.etree.ElementTree.SubElement(et.getroot()[1], 'topping')
@@ -382,7 +405,7 @@ def admin_menu_toppings_delete(topping_id):
     #     cursor.execute(f"DELETE FROM drinks WHERE drink_id='{drink_id}'")
     id = topping_id
     user_id = request.args["id"]
-    et = xml.etree.ElementTree.parse("static/products.xml")
+    et = defusedxml.ElementTree.parse("static/products.xml")
     for toppingTag in list(et.getroot()[1].getchildren()):
         if id == toppingTag.attrib["id"]:
             et.getroot()[1].remove(toppingTag)
@@ -452,7 +475,14 @@ def admin_order_details():
             formatted_item = []
 
             productData = xmltodict.parse(open("static/products.xml", "r").read())
-            drinks = productData["products"]["drinks"]
+            drinks = None
+            toppings = None
+            try:
+                drinks = productData["products"]["drinks"]
+                toppings = productData["products"]["toppings"]
+            except:
+                return render_template("admin_order_details.html", admin_title="Order details", order_items=order_items,
+                                       total_price=total_price, order_id=order_id, user_account=user_account, error="Warning: Error retrieving products")
             for drink in drinks:
                 for i in drinks[drink]:
                     if i["@id"] == str(item[0]):
@@ -460,7 +490,6 @@ def admin_order_details():
                         price = float(i["price"])
 
             topping_list = []
-            toppings = productData["products"]["toppings"]
             for topping in toppings:
                 for i in toppings[topping]:
                     if i["@id"] in [str(s) for s in item[1]]:
@@ -631,8 +660,14 @@ def home():
         user_account = None
         cart_item_count = 0
 
+
     productData = xmltodict.parse(open("static/products.xml", "r").read())
-    drinks = productData["products"]["drinks"]
+    drinks = None
+    try:
+        drinks = productData["products"]["drinks"]
+    except:
+        return render_template("home.html", drink_list=[], user_account=user_account, search=None,
+                               cart_item_count=cart_item_count, error="Warning: Error retrieving products")
 
     drink_list = []
     for drink in drinks:
