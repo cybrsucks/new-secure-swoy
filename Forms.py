@@ -17,20 +17,6 @@ class RegistrationForm(FlaskForm):
         validators.EqualTo('confirm', message='Passwords must match'),
     ])
     confirm = PasswordField('Repeat Password:', [validators.DataRequired()])
-    security_qns = SelectField('Security Question:',
-                               choices=[('What is the name of your first pet?', 'What is the name of your first pet?'),
-                                        ('What is the name of your favourite teacher?',
-                                         'What is the name of your favourite teacher?'),
-                                        ('What is your favourite pet?', 'What is your favourite pet?'),
-                                        ('What is your hobby?', 'What is your hobby?'),
-                                        ('What is a place that you would like to visit?',
-                                         'What is a place that you would like to visit?'),
-                                        ('What is the first country you visited?',
-                                         'What is the first country you visited?'),
-                                        ('What is the name of your favourite place to visit?',
-                                         'What is the name of your favourite place to visit?')])
-
-    security_ans = StringField("Answer:", [validators.DataRequired()])
 
 
 class CheckoutForm(FlaskForm):
@@ -92,8 +78,8 @@ class ForgotPasswordEmailForm(FlaskForm):
     email = StringField('Email Address:', [validators.data_required()])
 
 
-class ForgotPasswordSecurityAnswerForm(FlaskForm):
-    security_ans = StringField('Answer:', [validators.data_required()])
+class ForgotPasswordOTP(FlaskForm):
+    otp = IntegerField('OTP: ', [validators.data_required()])
 
 
 class UpdatePasswordForm(FlaskForm):
@@ -108,12 +94,13 @@ class ChangeLoggedInUserUsernameForm(FlaskForm):
 
 class ChangeLoggedInUserPasswordForm(FlaskForm):
     current_pwd = PasswordField('Current Password:', [validators.data_required()])
-    new_pwd = PasswordField('New Password:',
-                          [validators.data_required(), validators.EqualTo('confirm_new_pwd', message='Passwords must match')])
+    new_pwd = PasswordField('New Password:', [validators.data_required(), validators.EqualTo('confirm_new_pwd', message='Passwords must match')])
     confirm_new_pwd = PasswordField('Confirm New Password:', [validators.data_required()])
 
 
 class OTPForm(FlaskForm):
-    admin_email = StringField('Email Address:', [validators.DataRequired()])
     otp = IntegerField('OTP: ', [validators.data_required()])
+
+
+
 

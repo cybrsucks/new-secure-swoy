@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "formhelper.html" import render_field %}
+
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+
+{% block content %}
+<div style="margin: 50px; margin-right: 200px; margin-left: 200px;">
+    <div class="container-fluid swoy-container swoy-form-container">
+        <form method="post" class="swoy-container" action="{{url_for('authenticate_otp')}}">
+            {{ form.csrf_token }}
+            <div class="form-group col">
+                <h2>Check OTP in your email</h2>
+            </div>
+            <div class="form-group col">
+                {{render_field(form.otp, class="form-control", placeholder="******")}}
+            </div>
+            <div style="padding-top:10px;">
+                <a href="" class="security-qns"> Resend? </a>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="swoy-btn btn btn-primary btn-block">Enter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

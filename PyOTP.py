@@ -1,17 +1,8 @@
 import smtplib
 import pyotp
-import time
-
 base32secret = 'S3K3TPI5MYA2M67V'
-# print('Secret:', base32secret)
-
 totp = pyotp.TOTP(base32secret)
-# email_otp = totp.now()
-# # print('OTP code:', email_otp)
-# time.sleep(30)
-# # print('OTP code:', totp.now())
-
-timeout = time.time() + 60*3   # 3 minutes from now
+# timeout = time.time() + 60*3
 
 
 def send_otp(send_to_email):
@@ -27,19 +18,8 @@ def send_otp(send_to_email):
     server.starttls()
     server.login(username, password)
     server.sendmail(fromaddr, toaddrs, msg)
-    print("OTP sent to your email inbox.")
     server.quit()
-    print(email_otp)
     return email_otp
-
-
-# email_otp = send_otp()
-# check = input("Email OTP: ")
-# if time.time() > timeout or check != email_otp:
-#     print("OTP INVALID OR EXPIRED")
-#     exit()
-# elif check == email_otp and time.time() < timeout:
-#     print("Success!")
 
 
 
