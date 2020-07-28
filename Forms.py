@@ -112,6 +112,8 @@ class ChangeLoggedInUserPasswordForm(FlaskForm):
                           [validators.data_required(), validators.EqualTo('confirm_new_pwd', message='Passwords must match')])
     confirm_new_pwd = PasswordField('Confirm New Password:', [validators.data_required()])
 
+
 class OTPForm(FlaskForm):
+    admin_email = StringField('Email Address:', [validators.DataRequired()])
     otp = IntegerField('OTP: ', [validators.data_required()])
 

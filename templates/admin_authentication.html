@@ -9,7 +9,7 @@
 
 {% block content %}
 <div style="margin: 50px; margin-right: 200px; margin-left: 200px;">
-        <div class="container-fluid swoy-container transaction-details-container">
+        <div class="container-fluid swoy-container swoy-form-container">
             <form method="post" class="swoy-container" action="{{url_for('login')}}">
                 {{ form.csrf_token }}
                 <div class="form-group col">

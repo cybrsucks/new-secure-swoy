@@ -14,10 +14,10 @@ totp = pyotp.TOTP(base32secret)
 timeout = time.time() + 60*3   # 3 minutes from now
 
 
-def send_otp():
+def send_otp(send_to_email):
     email_otp = totp.now()
     fromaddr = 'swoybubbletea@gmail.com'
-    toaddrs = 'swoybubbletea@gmail.com'
+    toaddrs = send_to_email
     subject = "SWOY Bubble Tea - This is your OTP!"
     body = "Hello " + str(toaddrs) + "! \nYour OTP: " + str(email_otp)
     msg = f'Subject: {subject}\n\n{body}'
@@ -33,13 +33,13 @@ def send_otp():
     return email_otp
 
 
-email_otp = send_otp()
-check = input("Email OTP: ")
-if time.time() > timeout or check != email_otp:
-    print("OTP INVALID OR EXPIRED")
-    exit()
-elif check == email_otp and time.time() < timeout:
-    print("Success!")
+# email_otp = send_otp()
+# check = input("Email OTP: ")
+# if time.time() > timeout or check != email_otp:
+#     print("OTP INVALID OR EXPIRED")
+#     exit()
+# elif check == email_otp and time.time() < timeout:
+#     print("Success!")
 
 
 

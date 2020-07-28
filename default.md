@@ -1,16 +1,12 @@
 Admin Account
 Email: superadmin@swoy.com
-Password: admin
-security ans: Ms Tan
+Password: $uperAdm1n
 
-Test Accounts
 Email: test@test.com
-Password: testtest
-security ans: Ms Tan
+Password: Password!1
 
 Email: johndoe@gmail.com
-Password: 12345678
-security ans: Ms Tan
+Password: Password!2
 
 Test inputs
 Email: jacobevans@gmail.com
