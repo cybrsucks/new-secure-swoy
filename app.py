@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, Response
+from flask import Flask, render_template, redirect, url_for, request, Response, session
 from wtforms import ValidationError
 from Forms import *
 from werkzeug.utils import secure_filename
@@ -19,8 +19,9 @@ from werkzeug.serving import WSGIRequestHandler, _log
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = request.args.get('token')
+        #token = request.args.get('token')
 
+        token = session["token"]
         if not token:
             print("token is missing")
             return redirect(url_for('login'))
@@ -57,6 +58,8 @@ class MyRequestHandler(WSGIRequestHandler):
 @app.route("/admin")
 @token_required
 def admin_dashboard():
+    if session["user"][6] != 1:
+        return redirect(url_for("home"))
     try:
         user_id = request.args["id"]
         with sqlite3.connect("swoy.db") as conn:
@@ -114,7 +117,6 @@ def admin_own_account(user_id):
 
 
 @app.route("/admin/menu_drinks")
-@token_required
 def admin_menu_drinks():
     try:
         user_id = request.args["id"]
@@ -145,7 +147,6 @@ def admin_menu_drinks():
 
 
 @app.route("/admin/menu_drinks/<drink_id>", methods=["GET", "POST"])
-@token_required
 def admin_menu_drinks_modify(drink_id):
     try:
         user_id = request.args["id"]
@@ -202,7 +203,6 @@ def admin_menu_drinks_modify(drink_id):
 
 
 @app.route("/admin/menu_drinks/add_drink", methods=["GET", "POST"])
-@token_required
 def admin_menu_drinks_add():
     try:
         user_id = request.args["id"]
@@ -242,7 +242,6 @@ def admin_menu_drinks_add():
 
 
 @app.route("/admin/menu_drinks/delete/<drink_id>", methods=["POST"])  # API
-@token_required
 def admin_menu_drinks_delete(drink_id):
     id = drink_id
     user_id = request.args["id"]
@@ -647,7 +646,7 @@ def admin_logs():
 @app.route("/home", methods=['GET', 'POST'])
 def home():
     try:
-        user_id = request.args["id"]
+        user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
@@ -757,12 +756,16 @@ def login():
                         token = jwt.encode({' user': account_match[0], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
                         log_return = "Admin (" + str(account_match[1]) + ") successfully logged in at " + str(localtime)
                         logging.info(log_return)
-                        return redirect(url_for("admin_dashboard", id=account_match[0], token=token.decode('utf-8')))
+                        session["token"] = token
+                        session["user"] = account_match
+                        return redirect(url_for("admin_dashboard"))
                     else:
                         token = jwt.encode({' user': account_match[0], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
                         log_return = "Customer (" + str(account_match[1]) + ") logged in at " + str(localtime)
                         logging.info(log_return)
-                        return redirect(url_for("home", id=account_match[0], token=token.decode('utf-8')))
+                        session["token"] = token
+                        session["user"] = account_match
+                        return redirect(url_for("home"))
                 else:
                     # Change to ambiguous message
                     error = "Password is incorrect."
@@ -770,6 +773,12 @@ def login():
                 # Change to ambiguous message
                 error = "Email does not exist."
     return render_template("login.html", form=form, error=error)
+
+@app.route("/logout", methods=["GET", "POST"])
+def logout():
+    session["token"] = None
+    session["user"] = None
+    return redirect(url_for("home"))
 
 
 @app.route("/product/<drink_name>")

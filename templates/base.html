@@ -24,7 +24,7 @@
 <body>
 <nav class="navbar navbar-expand-lg row" style="background:#E7F3FC;">
     {% if user_account %}
-        <a href="/home?id={{ user_account[0] }}"> <img class="navbar-brand responsive" src="../../../static/cover.png"/></a>
+        <a href="/home"> <img class="navbar-brand responsive" src="../../../static/cover.png"/></a>
     {% else %}
         <a href="/home"> <img class="navbar-brand responsive" src="../../../static/cover.png"/></a>
     {% endif %}
@@ -69,7 +69,7 @@
                 </div>
             </li>
             <li class="nav-item active">
-                <a href="/home">
+                <a href="{{ url_for('logout', id=user_account[0]) }}">
                     <button class="btn btn-navbar swoy-btn my-2 my-sm-0">Log out</button>
                 </a>
             </li>
