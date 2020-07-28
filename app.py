@@ -1,27 +1,27 @@
-from flask import Flask, render_template, redirect, url_for, request, Response
-from werkzeug.serving import WSGIRequestHandler, _log
-from werkzeug.utils import secure_filename
+from flask import Flask, render_template, redirect, url_for, request, Response, session
 from wtforms import ValidationError
-from functools import wraps
-from flask_jwt import jwt
 from Forms import *
+from werkzeug.utils import secure_filename
 import sqlite3
 import re
+from flask_jwt import jwt
 import datetime
+from functools import wraps
 import xmltodict
 import defusedxml.ElementTree
 import xml.etree.ElementTree
 import hashlib
 import time
 import logging
-import PyOTP
+from werkzeug.serving import WSGIRequestHandler, _log
 
 
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = request.args.get('token')
+        #token = request.args.get('token')
 
+        token = session["token"]
         if not token:
             print("token is missing")
             return redirect(url_for('login'))
@@ -58,6 +58,8 @@ class MyRequestHandler(WSGIRequestHandler):
 @app.route("/admin")
 @token_required
 def admin_dashboard():
+    if session["user"][6] != 1:
+        return redirect(url_for("home"))
     try:
         user_id = request.args["id"]
         with sqlite3.connect("swoy.db") as conn:
@@ -102,44 +104,10 @@ def admin_dashboard():
                            noOfOrder=noOfOrder, error=error)
 
 
-@app.route("/admin/otp", methods=["GET", "POST"])
-@token_required
+@app.route("/admin/otp")
 def authenticate_otp():
-    try:
-        user_id = request.args["id"]
-        with sqlite3.connect("swoy.db") as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
-            user_account = cursor.fetchone()
-    except:
-        user_account = None
-
     form = OTPForm()
-    email_otp = PyOTP.send_otp('swoybubbletea@gmail.com')
-
-    localtime = time.asctime(time.localtime(time.time()))
-    log_return = "[" + str(localtime) + "] An OTP request has been sent to admin inbox"
-    logging.info(log_return)
-
-    if request.method == "POST" and form.validate_on_submit():
-        email = user_account[2]
-        check = form.otp.data
-
-        # email = send_otp(user_account[2])
-        if time.time() > PyOTP.timeout or check != email_otp:
-            print("OTP INVALID OR EXPIRED")
-        elif check == email_otp and time.time() < PyOTP.timeout:
-            print("Success!")
-
-            localtime = time.asctime(time.localtime(time.time()))
-            log_return = "[" + str(localtime) + "] Admin has been logged in successfully"
-            logging.info(log_return)
-
-            return redirect('admin_dashboard', admin_title="Dashboard", user_account=user_account,
-                               noOfAdmin=noOfAdmin, noOfUser=noOfUser, toppingsNo=toppingsNo, drinkNo=drinkNo,
-                               noOfOrder=noOfOrder, error=error)
-
-    return render_template("admin_authentication.html", form=form, user_account=user_account)
+    return render_template("admin_authentication.html", admin_title="Your Account", form=form)
 
 
 @app.route("/admin/<user_id>")
@@ -149,7 +117,6 @@ def admin_own_account(user_id):
 
 
 @app.route("/admin/menu_drinks")
-@token_required
 def admin_menu_drinks():
     try:
         user_id = request.args["id"]
@@ -180,7 +147,6 @@ def admin_menu_drinks():
 
 
 @app.route("/admin/menu_drinks/<drink_id>", methods=["GET", "POST"])
-@token_required
 def admin_menu_drinks_modify(drink_id):
     try:
         user_id = request.args["id"]
@@ -237,7 +203,6 @@ def admin_menu_drinks_modify(drink_id):
 
 
 @app.route("/admin/menu_drinks/add_drink", methods=["GET", "POST"])
-@token_required
 def admin_menu_drinks_add():
     try:
         user_id = request.args["id"]
@@ -277,7 +242,6 @@ def admin_menu_drinks_add():
 
 
 @app.route("/admin/menu_drinks/delete/<drink_id>", methods=["POST"])  # API
-@token_required
 def admin_menu_drinks_delete(drink_id):
     id = drink_id
     user_id = request.args["id"]
@@ -613,7 +577,7 @@ def admin_account_delete():
         cursor = conn.cursor()
         cursor.execute(f"DELETE FROM user WHERE user_id='{userId}'")
     localtime = time.asctime(time.localtime(time.time()))
-    log_return = "[" + str(localtime) + "]" + str(userId) + "account deleted"
+    log_return = "Account deleted at [" + str(localtime) + "]."
     logging.info(log_return)
 
     return redirect(url_for("admin_admin_accounts", id=id))
@@ -682,7 +646,7 @@ def admin_logs():
 @app.route("/home", methods=['GET', 'POST'])
 def home():
     try:
-        user_id = request.args["id"]
+        user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
@@ -777,11 +741,11 @@ def login():
             password = form.password.data
             cursor.execute(f"SELECT * FROM user WHERE email='{email}'")
             account_match = cursor.fetchone()
-            account_email = account_match[1]
 
             localtime = time.asctime(time.localtime(time.time()))
-            log_return = "[" + str(localtime) + "] " + str(account_match[1]) + " attempted login"
+            log_return = "(" + str(account_match[1]) + ") -- login attempt at [" + str(localtime) + "]"
             logging.info(log_return)
+
             if account_match:
                 passwordDigest = (hashlib.sha256(password.encode("utf-8"))).hexdigest()
                 command = f"SELECT * FROM user WHERE email='{email}' and password='{passwordDigest}'"
@@ -790,30 +754,31 @@ def login():
                 if account_match:
                     if account_match[6]:
                         token = jwt.encode({' user': account_match[0], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
-                        log_return = "[" + str(localtime) + "] Admin (" + str(account_match[1]) + ") is required to enter OTP"
+                        log_return = "Admin (" + str(account_match[1]) + ") successfully logged in at " + str(localtime)
                         logging.info(log_return)
-                        return redirect(url_for("authenticate_otp", id=account_match[0], token=token.decode('utf-8')))
+                        session["token"] = token
+                        session["user"] = account_match
+                        return redirect(url_for("admin_dashboard"))
                     else:
                         token = jwt.encode({' user': account_match[0], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
-                        log_return = "[" + str(localtime) + "] Customer (" + str(account_match[1]) + ") successfully logged in"
+                        log_return = "Customer (" + str(account_match[1]) + ") logged in at " + str(localtime)
                         logging.info(log_return)
-                        return redirect(url_for("home", id=account_match[0], token=token.decode('utf-8')))
+                        session["token"] = token
+                        session["user"] = account_match
+                        return redirect(url_for("home"))
                 else:
+                    # Change to ambiguous message
                     error = "Password is incorrect."
-                    #  log_return = "(" + str(account_email) + ") entered wrong password at [" + str(localtime) + "]"
-                    # logging.info(log_return)
-                    # incorrect_pwd += 1
-                    # print(incorrect_pwd)
-                    # if incorrect_pwd > 3:
-                    #     error = "Account is disabled. Please contact adminstrator."
-                    # else:
-                    #     error = "Password is incorrect."
-                    # continue disable account
-
             else:
                 # Change to ambiguous message
                 error = "Email does not exist."
     return render_template("login.html", form=form, error=error)
+
+@app.route("/logout", methods=["GET", "POST"])
+def logout():
+    session["token"] = None
+    session["user"] = None
+    return redirect(url_for("home"))
 
 
 @app.route("/product/<drink_name>")
@@ -1116,27 +1081,28 @@ def forgot_password():
 
     return render_template("forgot_password_EMAIL.html", form=form, error=error)
 
-#
-# @app.route("/forgot_password/<email>", methods=["GET", "POST"])
-# def security_question(email):
-#     form = ForgotPasswordSecurityAnswerForm()
-#     error = None
-#     with sqlite3.connect("swoy.db") as conn:
-#         cursor = conn.cursor()
-#         cursor.execute(f"SELECT * FROM user WHERE email = '{email}'")
-#         user_account = cursor.fetchone()
-#     security_qn = user_account[4]
-#     if request.method == "POST" and form.validate_on_submit():
-#         given_ans = form.security_ans.data
-#         if given_ans.lower() == user_account[5].lower():
-#             localtime = time.asctime(time.localtime(time.time()))
-#             log_return = "[" + str(localtime) + "] " + str(user_account[1]) + ") attempted to change password [FORGOT PASSWORD]"
-#             logging.info(log_return)
-#             return redirect(url_for('forgot_password_change', email=email))
-#         else:
-#             # Change to ambiguous message
-#             error = "Wrong answer given."
-#     return render_template("forgot_password.html", form=form, security_qn=security_qn, email=email, error=error)
+
+@app.route("/forgot_password/<email>", methods=["GET", "POST"])
+def security_question(email):
+    form = ForgotPasswordSecurityAnswerForm()
+    error = None
+    with sqlite3.connect("swoy.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM user WHERE email = '{email}'")
+        user_account = cursor.fetchone()
+    security_qn = user_account[4]
+    if request.method == "POST" and form.validate_on_submit():
+        given_ans = form.security_ans.data
+        if given_ans.lower() == user_account[5].lower():
+            localtime = time.asctime(time.localtime(time.time()))
+            log_return = "(" + str(user_account[1]) + ") attempted to change password [FORGOT PASSWORD] at [" + str(
+                localtime) + "]."
+            logging.info(log_return)
+            return redirect(url_for('forgot_password_change', email=email))
+        else:
+            # Change to ambiguous message
+            error = "Wrong answer given."
+    return render_template("forgot_password.html", form=form, security_qn=security_qn, email=email, error=error)
 
 
 @app.route("/forgot_password/<email>/change", methods=["GET", "POST"])
@@ -1149,7 +1115,8 @@ def forgot_password_change(email):
             user_account = cursor.fetchone()
 
         localtime = time.asctime(time.localtime(time.time()))
-        log_return = "[" + str(localtime) + "] " + str(user_account[1]) + ") successfully changed password [FORGOT PASSWORD]"
+        log_return = "(" + str(user_account[1]) + ") successfully changed password [FORGOT PASSWORD] at [" + str(
+            localtime) + "]."
         logging.info(log_return)
 
         with sqlite3.connect("swoy.db") as conn:
@@ -1232,12 +1199,16 @@ def change_password():
                 cursor = conn.cursor()
                 current_password_from_db = cursor.execute(f"SELECT password FROM user WHERE user_id = '{user_id}'")
                 if current_password_from_db.fetchone()[0] != currentPasswordDigest:
-                    log_return = "[" + str(localtime) + "] "+ str(user_account[1]) + ") attempted to change password [EXISTING PASSWORD]"
+                    log_return = "(" + str(
+                        user_account[1]) + ") attempted to change password [EXISTING PASSWORD] at [" + str(
+                        localtime) + "]."
                     logging.info(log_return)
                     return redirect(url_for("view_profile", id=user_id, password_error=1))
 
                 else:
-                    log_return = "[" + str(localtime) + "] "+ str(user_account[1]) + ") successfully changed password [EXISTING PASSWORD]"
+                    log_return = "(" + str(
+                        user_account[1]) + ") successfully changed password [EXISTING PASSWORD] at [" + str(
+                        localtime) + "]."
                     logging.info(log_return)
 
                 cursor.execute(f"UPDATE user SET password = '{newPasswordDigest}' WHERE user_id = '{user_id}'")
