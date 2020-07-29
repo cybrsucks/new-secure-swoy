@@ -19,6 +19,7 @@ import re
 
 email_otp = None
 timeout = None
+forgot_pw_email = None
 
 
 def token_required(f):
@@ -151,7 +152,7 @@ def authenticate_otp():
             email_otp = None
             timeout = None
             localtime = time.asctime(time.localtime(time.time()))
-            log_return = "[" + str(localtime) + "] Admin has been logged in successfully"
+            log_return = "[" + str(localtime) + "] Admin " + user_account[1] + " has been logged in successfully"
             logging.info(log_return)
 
             return redirect(url_for('admin_dashboard'))
@@ -625,9 +626,13 @@ def admin_account_delete():
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
         cursor.execute(f"DELETE FROM user WHERE user_id='{userId}'")
+        user_account = cursor.fetchone()
+        cursor.execute(f"SELECT * FROM user WHERE user_id='{id}'")
+        admin_account = cursor.fetchone()
+
     localtime = time.asctime(time.localtime(time.time()))
-    log_return = "[" + str(localtime) + "]" + str(userId) + "account deleted"
-    logging.info(log_return)
+    log_return = "[" + str(localtime) + "] " + admin_account[1] + " deleted an admin account"
+    logging.warning(log_return)
 
     return redirect(url_for("admin_admin_accounts", id=id))
 
@@ -651,6 +656,17 @@ def add_admin_account():
             username = form.username.data
             email = form.email.data
             password = form.password.data
+
+            error_present = True
+            while error_present:
+                if not re.search(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{8,20}$", password):
+                    error_password = "Your password must be at least 8 characters, contain at least 1 symbol (@, $, !, %, *, #, ?, &), at least 1 uppercase and at least 1 lowercase"
+                    while error_password:
+                        return render_template("admin_add_admin_account.html", form=form, error=error,error_password=error_password, admin_title="Add Admin Account", user_account=user_account)
+                else:
+                    error_password = False
+                    break
+
             admin = 1
             command = f"SELECT * FROM user WHERE email='{email}'"
             account_match = cursor.execute(command).fetchone()
@@ -663,12 +679,24 @@ def add_admin_account():
                           f"VALUES ('{username}', '{email}', '{passwordDigest}', '{admin}')"
                 cursor.execute(command)
                 updated = cursor.execute("SELECT * FROM user").fetchall()
-                # print(f"Updated database : {updated}")
                 conn.commit()
-                return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form,
-                                       user_account=user_account)
-    return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form,
-                           user_account=user_account)
+
+                localtime = time.asctime(time.localtime(time.time()))
+                log_return = "[" + str(localtime) + "] " + user_account[1] + " created an admin account " + "[" + username + "] "
+                logging.warning(log_return)
+
+                users = None
+                with sqlite3.connect("swoy.db") as conn:
+                    cursor = conn.cursor()
+                    cursor.execute(f"SELECT * FROM user WHERE admin = 1")
+                    users = cursor.fetchall()
+
+                userList = []
+                for user in users:
+                    userList.append({"id": user[0], "username": user[1], "email": user[2]})
+
+                return render_template("admin_admin_accounts.html", admin_title="Admin Accounts", userList=userList, user_account=user_account)
+    return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form, user_account=user_account, error=error)
 
 
 @app.route("/admin/logs")
@@ -692,6 +720,8 @@ def admin_logs():
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/home", methods=['GET', 'POST'])
 def home():
+    global forgot_pw_email
+    forgot_pw_email = None
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
@@ -776,6 +806,8 @@ def signup():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    global forgot_pw_email
+    forgot_pw_email = None
     form = LoginForm()
     error = None
     if request.method == "POST" and form.validate_on_submit():
@@ -786,11 +818,11 @@ def login():
             cursor.execute(f"SELECT * FROM user WHERE email='{email}'")
             account_match = cursor.fetchone()
 
-            localtime = time.asctime(time.localtime(time.time()))
-            log_return = "[" + str(localtime) + "] " + str(account_match[1]) + " attempted login"
-            logging.info(log_return)
-
             if account_match:
+                localtime = time.asctime(time.localtime(time.time()))
+                log_return = "[" + str(localtime) + "] " + str(account_match[1]) + " attempted login"
+                logging.info(log_return)
+
                 passwordDigest = (hashlib.sha256(password.encode("utf-8"))).hexdigest()
                 command = f"SELECT * FROM user WHERE email='{email}' and password='{passwordDigest}'"
                 account_match = cursor.execute(command).fetchone()
@@ -813,11 +845,11 @@ def login():
                         session["user"] = account_match
                         return redirect(url_for("home"))
                 else:
-                    # Change to ambiguous message
-                    error = "Password is incorrect."
+                    error = "Incorrect email or password"
+                    # error = "Password is incorrect."
             else:
-                # Change to ambiguous message
-                error = "Email does not exist."
+                error = "Incorrect email or password"
+                # error = "Email does not exist."
     return render_template("login.html", form=form, error=error)
 
 @app.route("/logout", methods=["GET", "POST"])
@@ -1110,21 +1142,23 @@ def delivery():
 
 
 @app.route("/forgot_password", methods=["GET", "POST"])
-def forgot_password():
+def forgot_password_email_form():
+    global forgot_pw_email
     form = ForgotPasswordEmailForm()
     error = None
     if request.method == "POST" and form.validate_on_submit():
         with sqlite3.connect("swoy.db") as conn:
-            email = form.email.data
+            forgot_pw_email = form.email.data
             cursor = conn.cursor()
-            command = f"SELECT * FROM user WHERE email='{email}'"
+            command = f"SELECT * FROM user WHERE email='{forgot_pw_email}'"
             account_match = cursor.execute(command).fetchone()
             if account_match:
-                return redirect(url_for('forgot_pwd_otp', email=email))
+                # print("here")
+                return redirect(url_for('forgot_pwd_otp'))
             else:
                 error = "Email does not exist"
+    return render_template("forgot_password(1).html", form=form, error=error)
 
-    return render_template("forgot_password_OTP.html", form=form, error=error)
 
 @app.route("/forgot_password/otp", methods=["GET", "POST"])
 def forgot_pwd_otp():
@@ -1132,25 +1166,26 @@ def forgot_pwd_otp():
     global timeout
 
     form = OTPForm()
+
+    if not forgot_pw_email:
+        return redirect(url_for("home"))
+
     try:
-        email = email.form.data
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE email = '{email}'")
+            cursor.execute(f"SELECT * FROM user WHERE email = '{forgot_pw_email}'")
             user_account = cursor.fetchone()
-            print(user_account)
     except:
         user_account = None
 
     if request.method == "GET":
-        email_otp = PyOTP.send_otp(email)
+        email_otp = PyOTP.send_otp(forgot_pw_email)
         timeout = time.time() + 60 * 3  # current_time + 3 minutes
         localtime = time.asctime(time.localtime(time.time()))
-        log_return = "[" + str(localtime) + "] An OTP request has been sent to inbox"
+        log_return = "[" + str(localtime) + "] OTP verification needed to change password for " + user_account[1] + " [FORGOT PASSWORD]"
         logging.info(log_return)
 
     if request.method == "POST" and form.validate_on_submit():
-        email = user_account[2]
         check = str(form.otp.data)
 
         if time.time() > timeout or check != email_otp:
@@ -1159,60 +1194,53 @@ def forgot_pwd_otp():
             print("Success!")
             email_otp = None
             timeout = None
-            localtime = time.asctime(time.localtime(time.time()))
-            log_return = "[" + str(localtime) + "] Verification needed"
-            logging.info(log_return)
 
             return redirect(url_for('forgot_password_change'))
 
-    return render_template("forgot_password.html", form=form)
-
-
-
-# @app.route("/forgot_password/<email>", methods=["GET", "POST"])
-# def security_question(email):
-#     form = ForgotPasswordSecurityAnswerForm()
-#     error = None
-#     with sqlite3.connect("swoy.db") as conn:
-#         cursor = conn.cursor()
-#         cursor.execute(f"SELECT * FROM user WHERE email = '{email}'")
-#         user_account = cursor.fetchone()
-#     security_qn = user_account[4]
-#     if request.method == "POST" and form.validate_on_submit():
-#         given_ans = form.security_ans.data
-#         if given_ans.lower() == user_account[5].lower():
-#             localtime = time.asctime(time.localtime(time.time()))
-#             log_return = "[" + str(localtime) + "] " + str(user_account[1]) + ") successfully changed password [FORGOT PASSWORD]"
-#             logging.info(log_return)
-#             return redirect(url_for('forgot_password_change', email=email))
-#         else:
-#             # Change to ambiguous message
-#             error = "Wrong answer given."
-#     return render_template("forgot_password.html", form=form, security_qn=security_qn, email=email, error=error)
+    return render_template("forgot_password(2).html", form=form)
 
 
 @app.route("/forgot_password/change", methods=["GET", "POST"])
-def forgot_password_change(email):
+def forgot_password_change():
+    global forgot_pw_email
+    if not forgot_pw_email:
+        return redirect(url_for("home"))
+
     form = UpdatePasswordForm()
+    error = None
+
     if request.method == "POST" and form.validate_on_submit():
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE email = '{email}'")
+            cursor.execute(f"SELECT * FROM user WHERE email = '{forgot_pw_email}'")
             user_account = cursor.fetchone()
 
         localtime = time.asctime(time.localtime(time.time()))
-        log_return = "[" + str(localtime) + "] " + str(user_account[1]) + ") attempted to change password [EXISTING PASSWORD]"
+        log_return = "[" + str(localtime) + "] " + str(user_account[1]) + " attempted to change password [EXISTING PASSWORD]"
         logging.info(log_return)
+
+        new_password = form.new_pwd.data
+        error_present = True
+
+        while error_present:
+            if not re.search(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{8,20}$", new_password):
+                error_password = "Your password must be at least 8 characters, contain at least 1 symbol (@, $, !, %, *, #, ?, &), at least 1 uppercase and at least 1 lowercase"
+                while error_password:
+                    return render_template("forgot_password(3).html", form=form, error=error, error_password=error_password)
+            else:
+                error_password = False
+                break
 
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            new_password = form.new_pwd.data
             passwordDigest = (hashlib.sha256(new_password.encode("utf-8"))).hexdigest()
-            cursor.execute(f"UPDATE user SET password = '{passwordDigest}' WHERE email = '{email}'")
+            cursor.execute(f"UPDATE user SET password = '{passwordDigest}' WHERE email = '{forgot_pw_email}'")
             conn.commit()
-        return redirect(url_for('home'))
 
-    return render_template("update_password.html", form=form, email=email)
+        forgot_pw_email = None
+        return redirect(url_for('login'))
+
+    return render_template("forgot_password(3).html", form=form)
 
 
 @app.route("/profile", methods=["GET", "POST"])
@@ -1263,9 +1291,29 @@ def change_username():
 @app.route("/change_password", methods=["GET", "POST"])
 def change_password():
     try:
-        user_id = request.args["id"]
+        user_id = session["user"][0]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+
+    try:
         current_pwd = request.form["current_pwd"]
         new_password = request.form["new_pwd"]
+
+        error_present = True
+        while error_present:
+            if not re.search(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{8,20}$", new_password):
+                error_password = "Your password must be at least 8 characters, contain at least 1 symbol (@, $, !, %, *, #, ?, &), at least 1 uppercase and at least 1 lowercase"
+                while error_password:
+                    return render_template("profile.html", username_form=username_form, password_error=password_error,
+                           password_form=password_form, user_account=user_account, cart_item_count=cart_item_count)
+            else:
+                error_password = False
+                break
+
         confirm_password = request.form["confirm_new_pwd"]
         currentPasswordDigest = (hashlib.sha256(current_pwd.encode("utf-8"))).hexdigest()
         newPasswordDigest = (hashlib.sha256(new_password.encode("utf-8"))).hexdigest()

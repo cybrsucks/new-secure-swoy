@@ -2,12 +2,12 @@
 {% from "formhelper.html" import render_field %}
 {% block content %}
 <div>
-    <div style="margin: 100px;">
+    <div style="width: 400px; margin: auto;">
         <div class="container-fluid swoy-container swoy-form-container">
             <form method="post" action="{{ url_for('add_admin_account', id=user_account[0]) }}" class="swoy-container">
                 {{ form.csrf_token }}
                 <div class="form-group col">
-                    <h2>Sign up</h2>
+                    <h2>Create an Admin</h2>
                 </div>
                 <div class="form-group col">
                     {{render_field(form.username, class="form-control", placeholder="Tom")}}
@@ -24,8 +24,11 @@
                 {% if error %}
                 <p class="error form-group col" style="color:red; background-color:pink; border-radius:10px;">{{ error }}</p>
                 {% endif %}
+                {% if error_password %}
+                <p class="error form-group col" style="color:red; background-color:pink; border-radius:10px;">{{ error_password }}</p>
+                {% endif %}
                 <div class="text-center">
-                    <button type="submit" class="swoy-btn btn btn-primary btn-block">Sign Up</button>
+                    <button type="submit" class="swoy-btn btn btn-primary btn-block">Enter</button>
                 </div>
             </form>
         </div>

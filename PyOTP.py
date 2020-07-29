@@ -19,6 +19,7 @@ def send_otp(send_to_email):
     server.login(username, password)
     server.sendmail(fromaddr, toaddrs, msg)
     server.quit()
+    print(email_otp)
     return email_otp
 
 

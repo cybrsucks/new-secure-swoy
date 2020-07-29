@@ -83,8 +83,8 @@ class ForgotPasswordOTP(FlaskForm):
 
 
 class UpdatePasswordForm(FlaskForm):
-    new_pwd = PasswordField('New Password:',
-                          [validators.data_required(), validators.EqualTo('confirm_new_pwd', message='Passwords must match')])
+    new_pwd = PasswordField('New Password:', [validators.data_required(),
+                                              validators.EqualTo('confirm_new_pwd', message='Passwords must match')])
     confirm_new_pwd = PasswordField('Confirm New Password:', [validators.data_required()])
 
 
