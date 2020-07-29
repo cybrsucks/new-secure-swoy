@@ -1364,12 +1364,6 @@ def order_history():
     return render_template("order_history.html", user_account=user_account, cart_item_count=cart_item_count)
 
 
-@app.route("/pw")
-def pw():
-    with open("default.md", "r") as v:
-        return Response(v.read(), mimetype="text/plain")
-
-
 if __name__ == "__main__":
     logging.basicConfig(filename='werkzeug.txt', level=logging.INFO)
     # all logs with INFO level and above is logged https://docs.python.org/3/howto/logging.html#when-to-use-logging
