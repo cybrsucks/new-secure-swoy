@@ -1,0 +1,19 @@
+superadmin@swoy.com
+$uperAdm1n
+
+johndoe@gmail.com
+Password!2
+
+Test inputs
+Email: jacobevans@ofmailer.net
+Password: Sl33pyJ@cob
+
+Email: isabellegarcia@gmail.com
+Password: Apple123
+Password: apple123
+Password: Apple
+Password: @Ppl3
+Password: @Ppl3123
+
+Email: hillbillyjoe@gmail.com
+Password: @Ppl3123

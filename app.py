@@ -624,7 +624,7 @@ def admin_account_delete():
         cursor.execute("DELETE FROM user WHERE user_id = ?", (userId,))
 
     localtime = time.asctime(time.localtime(time.time()))
-    log_return = "[" + str(localtime) + "] " + account_deleted[1] + " deleted an admin account"
+    log_return = "[" + str(localtime) + "] " + account_deleted[1] + " has been deleted"
     logging.warning(log_return)
 
     return redirect(url_for("admin_admin_accounts"))
@@ -792,8 +792,8 @@ def signup():
                 conn.commit()
 
                 localtime = time.asctime(time.localtime(time.time()))
-                log_return = "[" + str(localtime) + "] New Acount created for " + user_account[1] + " with user_id " + user_account[0]
-                logging.info(log_return)
+                # log_return = "[" + str(localtime) + "] New Acount created for " + user_account[1] + " with user_id " + user_account[0]
+                # logging.info(log_return)
 
                 return render_template("login.html", form=LoginForm())
     return render_template("signup.html", form=form, error=error)
@@ -1378,5 +1378,5 @@ if __name__ == "__main__":
     # werkzeug logs such as GET and POST from websites will no longer be logged
     # instead, the only log that is recorded is when debugger is active (WARNING) level
 
-    app.run(debug=False, request_handler=MyRequestHandler)
+    app.run(debug=True, request_handler=MyRequestHandler)
     # app.run(debug=False, request_handler=MyRequestHandler)
