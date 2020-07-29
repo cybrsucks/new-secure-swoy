@@ -185,6 +185,7 @@ a.article-title:hover {
 .search-box {
     width: auto;
     position: relative;
+    margin-right:30px;
 }
 
 .input-search {

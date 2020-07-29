@@ -819,7 +819,7 @@ def login():
                 logging.info(log_return)
 
                 passwordDigest = (hashlib.sha256(password.encode("utf-8"))).hexdigest()
-                print(passwordDigest)
+                # print(passwordDigest)
                 account_match = cursor.execute("SELECT * FROM user WHERE email = ? and password = ?", (email, passwordDigest)).fetchone()
                 # print(f"Account: {account_match}")
                 if account_match:
