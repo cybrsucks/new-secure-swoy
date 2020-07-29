@@ -17,7 +17,7 @@
       <td>{{user.email}}</td>
         {% if user.id != 2 %}
                 <td>
-                    <a href="{{ url_for('admin_account_delete', id=user.id, user_id=user_account[0]) }}">
+                    <a href="{{ url_for('admin_account_delete', id=user.id) }}">
                         <button type="submit" class="btn btn-danger" style="color:white;">Delete Account</button>
                     </a>
                 </td>
@@ -26,5 +26,5 @@
     {% endfor %}
   </tbody>
 </table>
-<a href="{{ url_for('add_admin_account', id=user_account[0]) }}" type="button" class="btn btn-primary" style="color:white;">Add Admin Account</a>
+<a href="{{ url_for('add_admin_account') }}" type="button" class="btn btn-primary" style="color:white;">Add Admin Account</a>
 {% endblock %}

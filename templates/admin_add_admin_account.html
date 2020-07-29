@@ -4,7 +4,7 @@
 <div>
     <div style="width: 400px; margin: auto;">
         <div class="container-fluid swoy-container swoy-form-container">
-            <form method="post" action="{{ url_for('add_admin_account', id=user_account[0]) }}" class="swoy-container">
+            <form method="post" action="{{ url_for('add_admin_account') }}" class="swoy-container">
                 {{ form.csrf_token }}
                 <div class="form-group col">
                     <h2>Create an Admin</h2>

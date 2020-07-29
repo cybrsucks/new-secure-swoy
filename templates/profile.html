@@ -73,7 +73,7 @@
                                 your username below. Choose a name to be displayed on your home page. </p>
                             <div style="margin-top: 20px;">
                                 <form method="POST" class="swoy-container"
-                                      action="{{ url_for('change_username', id=user_account[0]) }}">
+                                      action="{{ url_for('change_username') }}">
                                     <div class="form-group col">
                                         {{render_field(username_form.new_username, class="form-control")}}
                                     </div>
@@ -113,7 +113,7 @@
                             </p>
                             <div style="margin-top: 20px;">
                                 <form method="POST" class="swoy-container"
-                                      action="{{ url_for('change_password', id=user_account[0]) }}">
+                                      action="{{ url_for('change_password') }}">
                                     <div class="form-group col">
                                         {{render_field(password_form.current_pwd, class="form-control")}}
                                     </div>

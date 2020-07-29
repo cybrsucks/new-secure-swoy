@@ -21,7 +21,7 @@
                 <td>{{ order[2] }}</td>
                 <td>{{ order[3] }} | {{ order[4] }}</td>
                 <td>
-                    <a href="{{  url_for('admin_order_details', order_id=order[0], id=user_account[0]) }}" style="text-decoration:none;">
+                    <a href="{{  url_for('admin_order_details', order_id=order[0]) }}" style="text-decoration:none;">
                         <button type="submit" class="swoy-btn btn btn-primary btn-block">Order details</button>
                     </a>
                 </td>

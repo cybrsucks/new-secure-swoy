@@ -21,7 +21,7 @@ class RegistrationForm(FlaskForm):
 
 class CheckoutForm(FlaskForm):
     address = StringField('Address:', [validators.data_required()])
-    delivery_date = DateField('Expiry Date:', [validators.data_required()])
+    delivery_date = DateField('Delivery Date:', [validators.data_required()])
     delivery_time = SelectField('Delivery Time:', [validators.data_required()], choices=[
         ("12pm", "12pm"),
         ("1pm", "1pm"),

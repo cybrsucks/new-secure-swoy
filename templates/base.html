@@ -46,9 +46,6 @@
                     <input class="mr-sm-2 input-search" type="text" name="search" placeholder="Search"
                            aria-label="Search"
                            style="text-align:middle">
-                    {% if user_account %}
-                        <input type="hidden" name="id" value="{{ user_account[0] }}">
-                    {% endif %}
                         <button class="btn btn-navbar swoy-btn my-2 my-sm-0" type="submit" style="border-radius:50%;"><i
                             class="fas fa-search"></i></button>
                 </form>
@@ -57,23 +54,23 @@
             <li class="nav-item active">
                 <div class="dropdown-user">
                     <button style="min-width: 180px;" class="btn btn-navbar swoy-btn my-2 my-sm-0 dropbtn">{{
-                        user_account[1]|safe
+                        user_account[1]
                         }}
                         <i class="fa fa-caret-down"></i>
                     </button>
                     <div class="dropdown-content">
-                        <a class="dropdown-link" href="{{ url_for('view_profile', id=user_account[0]) }}">View My
+                        <a class="dropdown-link" href="{{ url_for('view_profile') }}">View My
                             Profile</a>
-                        <a class="dropdown-link" href="{{ url_for('order_history', id=user_account[0]) }}">View Past Orders</a>
+                        <a class="dropdown-link" href="{{ url_for('order_history') }}">View Past Orders</a>
                     </div>
                 </div>
             </li>
             <li class="nav-item active">
-                <a href="{{ url_for('logout', id=user_account[0]) }}">
+                <a href="{{ url_for('logout') }}">
                     <button class="btn btn-navbar swoy-btn my-2 my-sm-0">Log out</button>
                 </a>
             </li>
-            <li><a href="{{ url_for('cart', id=user_account[0]) }}">
+            <li><a href="{{ url_for('cart') }}">
                 <button class="btn btn-navbar swoy-btn my-2 my-sm-0"><i class="fa fa-shopping-bag"></i> Cart ({{
                     cart_item_count }})
                 </button>

@@ -6,14 +6,14 @@
             <article class="media content-section">
                 <div class="media-body">
                     <div class=" swoy-card card">
-                        <a href="{{ url_for('admin_menu_drinks_modify', drink_id=item.id, id=user_account[0]) }}" style="text-decoration:none;">
+                        <a href="{{ url_for('admin_menu_drinks_modify', drink_id=item.id) }}" style="text-decoration:none;">
                             {% if item.image != None %}
                                 <img class="card-img-top responsive" src="../static/{{ item.image }}" alt="No image">
                             {% else %}
                                 <img class="card-img-top responsive" src="../static/noimage.png" alt="No image">
                             {% endif %}
                             <div class="card-body" style="color:black;">
-                                <span class="card-text product-caption">{{ item.name|safe }}</span>
+                                <span class="card-text product-caption">{{ item.name }}</span>
                                 <span style="float:right;">$ {{ item.price }}</span>
                             </div>
                         </a>
@@ -26,7 +26,7 @@
         <div class="col-md-4" style="margin-bottom:25px;">
             <article class="media content-section">
                 <div class="media-body">
-                    <a href="{{ url_for('admin_menu_drinks_add', id=user_account[0]) }}" style="text-decoration:none;">
+                    <a href="{{ url_for('admin_menu_drinks_add') }}" style="text-decoration:none;">
                         <div class=" swoy-card card" style="text-align:center;">
                             <i class="fas fa-plus-circle add" style="font-size: 100px; padding-top:115px; padding-bottom:115px;"></i>
                         </div>

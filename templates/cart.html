@@ -32,7 +32,7 @@
                             <td>{{ item[3] }}</td>
                             <td>${{ item[4] }}</td>
                             <td>
-                                <a href="{{ url_for('remove_cart_item', user_id=user_account[0], item_num=loop.index) }}">
+                                <a href="{{ url_for('remove_cart_item', item_num=loop.index) }}">
                                     <i class="fas fa-minus-circle"></i>
                                 </a>
                             </td>
@@ -50,7 +50,7 @@
                 <hr>
                 <hr>
                 <div>
-                    <a href="{{ url_for('checkout', id=user_account[0]) }}" style="text-decoration:none;">
+                    <a href="{{ url_for('checkout') }}" style="text-decoration:none;">
                         <button class="swoy-btn btn btn-primary btn-block" >Checkout</button>
                     </a>
                 </div>
