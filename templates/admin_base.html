@@ -35,21 +35,21 @@
             </div>
             <div class="sidebar-header">
                 <div class="user-pic">
-                    <a href="{{ url_for('admin_own_account', user_id=user_account[0]) }}">
-                        <img class="img-responsive img-rounded"
-                         src="https://raw.githubusercontent.com/azouaoui-med/pro-sidebar-template/gh-pages/src/img/user.jpg"
-                         alt="User picture">
-                    </a>
+
+                    <img class="img-responsive img-rounded"
+                     src="https://raw.githubusercontent.com/azouaoui-med/pro-sidebar-template/gh-pages/src/img/user.jpg"
+                     alt="User picture">
+
                 </div>
                 <div class="user-info">
                     {% if user_account %}
-                    <a href="{{ url_for('admin_own_account', user_id=user_account[0]) }}">
-                        <span class="user-name" style="color:lightgray;">{{ user_account[1] }}</span>
-                    </a>
+
+                    <span class="user-name" style="color:lightgray;">{{ user_account[1] }}</span>
+
                     {% else %}
-                    <a href="{{ url_for('admin_own_account', user_id=2) }}">
-                        <span class="user-name" style="color:lightgray;">John Smith</span>
-                    </a>
+
+                    <span class="user-name" style="color:lightgray;">John Smith</span>
+
                     {% endif %}
                     <span class="user-role">Administrator</span>
                 </div>
@@ -72,7 +72,7 @@
                         <span>General</span>
                     </li>
                     <li>
-                        <a href="{{ url_for('admin_dashboard', id=user_account[0]) }}">
+                        <a href="{{ url_for('admin_dashboard') }}">
                             <i class="fas fa-th-large"></i>
                             <span>Dashboard</span>
                             <!--<span class="badge badge-pill badge-warning">New</span>-->
@@ -86,17 +86,17 @@
                         <div class="sidebar-submenu">
                             <ul>
                                 <li>
-                                    <a href="{{ url_for('admin_menu_drinks', id=user_account[0]) }}">Drinks
+                                    <a href="{{ url_for('admin_menu_drinks') }}">Drinks
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{{ url_for('admin_menu_toppings', id=user_account[0]) }}">Toppings</a>
+                                    <a href="{{ url_for('admin_menu_toppings') }}">Toppings</a>
                                 </li>
                             </ul>
                         </div>
                     </li>
                     <li>
-                        <a href="{{ url_for('admin_orders', id=user_account[0]) }}">
+                        <a href="{{ url_for('admin_orders') }}">
                             <i class="fa fa-shopping-cart"></i>
                             <!--                                <i class="far fa-smile"></i>-->
                             <span>Delivery Orders</span>
@@ -157,19 +157,19 @@
                         <span>Administrative</span>
                     </li>
                     <li>
-                        <a href="{{ url_for('admin_user_accounts', id=user_account[0]) }}">
+                        <a href="{{ url_for('admin_user_accounts') }}">
                             <i class="fa fa-user-circle"></i>
                             <span>User Accounts</span>
                         </a>
                     </li>
                     <li>
-                        <a href="{{ url_for('admin_admin_accounts', id=user_account[0]) }}">
+                        <a href="{{ url_for('admin_admin_accounts') }}">
                             <i class="fa fa-id-card"></i>
                             <span>Admin Accounts</span>
                         </a>
                     </li>
                     <li>
-                        <a href="{{ url_for('admin_logs', id=user_account[0]) }}">
+                        <a href="{{ url_for('admin_logs') }}">
                             <i class="fa fa-file-alt"></i>
                             <span>History Logs</span>
                         </a>
@@ -189,7 +189,7 @@
 
     <main class="page-content">
         <div class="container-fluid">
-            <h2>{{ admin_title|safe }}</h2>
+            <h2>{{ admin_title }}</h2>
             <hr>
             {% block content %}
             {% endblock %}

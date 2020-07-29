@@ -23,7 +23,7 @@
         <div style="margin-left: 30px;">
             <div class="container-fluid swoy-container swoy-form-container">
                 <h5> Choice of Toppings: </h5>
-                <form method="POST" action="{{ url_for('add_cart_item', drink_id=drink[0], user_id=user_account[0]) }}">
+                <form method="POST" action="{{ url_for('add_cart_item', drink_id=drink[0]) }}">
                     <ul>
                         {% for topping in topping_list %}
                             <li class="list-style-none"><input type="checkbox" name="toppings" value="{{ topping[0] }}"><label>&nbsp;&nbsp;{{ topping[1] }}&nbsp;( +${{topping[2]}} )</label><img src="../static/{{ topping[3] }}" class="toppings-img"></li>
@@ -61,12 +61,12 @@
                 <h5> Comments ({{ comment_list|length }}) </h5>
                 <hr>
                 {% for comment in comment_list %}
-                    <strong>{{ comment.author|safe }}</strong>
-                    <p>{{ comment.content|safe }}</p>
+                    <strong>{{ comment.author }}</strong>
+                    <p>{{ comment.content }}</p>
                 {% endfor %}
                 <hr>
                 {% if user_account %}
-                <form method="POST" action="{{ url_for('update_comment', drink_id=drink[0], user_id=user_account[0]) }}">
+                <form method="POST" action="{{ url_for('update_comment', drink_id=drink[0]) }}">
                     <textarea class="form-control" rows="4" name="content" placeholder="Enter comment here..." required></textarea>
                     <div style="text-align:right; margin-top:5px;">
                         <button type="submit" class="swoy-btn btn btn-primary btn-block">Submit</button>

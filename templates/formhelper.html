@@ -1,6 +1,6 @@
 {% macro render_field(field) %}
     {{ field.label }}
-    {{ field(**kwargs)|safe }}
+    {{ field(**kwargs) }}
     {% if field.errors %}
         {% for error in field.errors %}
         <div class="text-danger">{{ error }}</div>

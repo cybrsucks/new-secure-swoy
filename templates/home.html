@@ -6,7 +6,7 @@
         <div class="col-md-12">
             <article class="media content-section" style="background-color:white;">
                 <div class="media-body" style="padding-top:10px;">
-                    <h4>Searched for - {{ search|safe }}</h4>
+                    <h1>Searched for - {{ search }}</h1>
                 </div>
             </article>
         </div>
@@ -19,13 +19,13 @@
                 <div class="media-body">
                     <div class=" swoy-card card" style="">
                         {% if user_account %}
-                            <a href="{{ url_for('product', id=user_account[0], drink_name=item.name) }}" style="text-decoration:none;">
+                            <a href="{{ url_for('product', drink_name=item.name) }}" style="text-decoration:none;">
                         {% else %}
                             <a href="{{ url_for('product', drink_name=item.name) }}" style="text-decoration:none;">
                         {% endif %}
                             <img class="card-img-top responsive" src="../static/{{ item.image }}" alt="Card image cap">
                             <div class="card-body" style="color:black;">
-                                <span class="card-text product-caption">{{ item.name|safe }}</span>
+                                <span class="card-text product-caption">{{ item.name }}</span>
                                 <span style="float:right;">$ {{ item.price }}</span>
                             </div>
 <!--                            <div class="text-center">-->
@@ -42,7 +42,7 @@
         <div class="col-md-12">
             <article class="media content-section" style="color:white;">
                 <div class="media-body" style="padding-top:10px;">
-                    <h5>{{ drink_list|length }} result(s) found</h5>
+                    <h1>{{ drink_list|length }} result(s) found</h1>
                 </div>
             </article>
         </div>

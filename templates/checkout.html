@@ -12,7 +12,7 @@
         <div style="margin-left: 30px;">
             <div class="container-fluid swoy-container swoy-form-container">
                 <h1>Transaction Details</h1>
-                <form method="POST" action="{{ url_for('add_order', id=user_account[0]) }}">
+                <form method="POST" action="{{ url_for('add_order') }}">
                     <div class="form-group">
                         {{render_field(form.address, class="form-control", placeholder="123 Hunan Road")}}
 <!--                        <label>Address:</label>-->
