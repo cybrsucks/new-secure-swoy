@@ -1300,6 +1300,9 @@ def change_password():
         user_account = None
 
     try:
+        # password error 1 = new password and confirm password does not match
+        # password error 2 = current password incorrect
+        # password error 3 = new password format does not match requirements
         current_pwd = request.form["current_pwd"]
         new_password = request.form["new_pwd"]
 
@@ -1308,8 +1311,7 @@ def change_password():
             if not re.search(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{8,20}$", new_password):
                 error_password = "Your password must be at least 8 characters, contain at least 1 symbol (@, $, !, %, *, #, ?, &), at least 1 uppercase and at least 1 lowercase"
                 while error_password:
-                    return render_template("profile.html", username_form=username_form, password_error=password_error,
-                           password_form=password_form, user_account=user_account, cart_item_count=cart_item_count)
+                    return redirect(url_for("view_profile", id=user_id, password_error=3))
             else:
                 error_password = False
                 break
@@ -1332,12 +1334,12 @@ def change_password():
                 cursor = conn.cursor()
                 current_password_from_db = cursor.execute(f"SELECT password FROM user WHERE user_id = '{user_id}'")
                 if current_password_from_db.fetchone()[0] != currentPasswordDigest:
-                    log_return = "[" + str(localtime) + "] "+ str(user_account[1]) + ") attempted to change password [EXISTING PASSWORD]"
+                    log_return = "[" + str(localtime) + "] "+ str(user_account[1]) + " attempted to change password using wrong current password [EXISTING PASSWORD]"
                     logging.info(log_return)
-                    return redirect(url_for("view_profile", id=user_id, password_error=1))
+                    return redirect(url_for("view_profile", id=user_id, password_error=2))
 
                 else:
-                    log_return = "[" + str(localtime) + "] " + str(user_account[1]) + ") successfully changed password [EXISTING PASSWORD]"
+                    log_return = "[" + str(localtime) + "] " + str(user_account[1]) + " successfully changed password [EXISTING PASSWORD]"
                     logging.info(log_return)
 
                 cursor.execute(f"UPDATE user SET password = '{newPasswordDigest}' WHERE user_id = '{user_id}'")

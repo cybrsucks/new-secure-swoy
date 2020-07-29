@@ -57,6 +57,9 @@ body{
     background: #253d52;
 }
 
+.nav-item{
+    margin-right: 10px;
+}
 /* checkout container */
 .swoy-container{
     background: #E7F3FC;
@@ -94,7 +97,7 @@ body{
 .swoy-btn{
     color: #253d52;
     background-color: transparent;
-    border-color: #253d52;
+    border: 1px solid #253d52;
 }
 
 .swoy-btn:hover{

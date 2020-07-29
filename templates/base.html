@@ -41,7 +41,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent" style="text-align: center;">
         <ul class="navbar-nav mr-auto"></ul>
         <ul class="navbar-nav" style="margin-right:30px;">
-            <div class="search-box">
+            <div class="search-box" style="margin-right: 30px;">
                 <form method="GET" action="{{ url_for('home') }}">
                     <input class="mr-sm-2 input-search" type="text" name="search" placeholder="Search"
                            aria-label="Search"
@@ -70,7 +70,7 @@
             </li>
             <li class="nav-item active">
                 <a href="{{ url_for('logout', id=user_account[0]) }}">
-                    <button class="btn btn-navbar swoy-btn my-2 my-sm-0">Log out</button>
+                    <button class="btn btn-navbar swoy-btn my-2 my-sm-0">Sign Out</button>
                 </a>
             </li>
             <li><a href="{{ url_for('cart', id=user_account[0]) }}">
@@ -81,12 +81,12 @@
                 {% else %}
             <li class="nav-item active">
                 <a href="/login">
-                    <button class="btn btn-navbar swoy-btn my-2 my-sm-0">Log in</button>
+                    <button class="btn btn-navbar swoy-btn my-2 my-sm-0">Sign In</button>
                 </a>
             </li>
             <li>
                 <a href="/signup">
-                    <button class="btn btn-navbar swoy-btn my-2 my-sm-0">Sign up</button>
+                    <button class="btn btn-navbar swoy-btn my-2 my-sm-0">Sign Up</button>
                 </a>
             </li>
             {% endif %}
