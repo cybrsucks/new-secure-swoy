@@ -800,6 +800,11 @@ def signup():
                 updated = cursor.execute("SELECT * FROM user").fetchall()
                 # print(f"Updated database : {updated}")
                 conn.commit()
+
+                localtime = time.asctime(time.localtime(time.time()))
+                log_return = "[" + str(localtime) + "] New Acount created for " + user_account[1] + " with user_id " + user_account[0]
+                logging.info(log_return)
+
                 return render_template("login.html", form=LoginForm())
     return render_template("signup.html", form=form, error=error)
 
@@ -1384,5 +1389,5 @@ if __name__ == "__main__":
     # werkzeug logs such as GET and POST from websites will no longer be logged
     # instead, the only log that is recorded is when debugger is active (WARNING) level
 
-    app.run(debug=True, request_handler=MyRequestHandler)
+    app.run(debug=False, request_handler=MyRequestHandler)
     # app.run(debug=False, request_handler=MyRequestHandler)
