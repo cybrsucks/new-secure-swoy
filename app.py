@@ -70,7 +70,7 @@ def admin_dashboard():
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
     except:
         user_account = None
@@ -78,15 +78,15 @@ def admin_dashboard():
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
 
-        cursor.execute(f"SELECT * FROM user WHERE admin = 1")
+        cursor.execute("SELECT * FROM user WHERE admin = 1")
         admin = cursor.fetchall()
         noOfAdmin = len(admin)
 
-        cursor.execute(f"SELECT * FROM user WHERE admin = 0")
+        cursor.execute("SELECT * FROM user WHERE admin = 0")
         user = cursor.fetchall()
         noOfUser = len(user)
 
-        cursor.execute(f"SELECT * FROM delivery_order WHERE delivered = 0")
+        cursor.execute("SELECT * FROM delivery_order WHERE delivered = 0")
         order = cursor.fetchall()
         noOfOrder = len(order)
 
@@ -123,7 +123,7 @@ def authenticate_otp():
         user_id = session["unauthenticated_user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
     except:
         user_account = None
@@ -167,12 +167,13 @@ def admin_own_account(user_id):
 
 
 @app.route("/admin/menu_drinks")
+@token_required
 def admin_menu_drinks():
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
     except:
         user_account = None
@@ -197,12 +198,13 @@ def admin_menu_drinks():
 
 
 @app.route("/admin/menu_drinks/<drink_id>", methods=["GET", "POST"])
+@token_required
 def admin_menu_drinks_modify(drink_id):
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
     except:
         user_account = None
@@ -253,12 +255,13 @@ def admin_menu_drinks_modify(drink_id):
 
 
 @app.route("/admin/menu_drinks/add_drink", methods=["GET", "POST"])
+@token_required
 def admin_menu_drinks_add():
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
     except:
         user_account = None
@@ -292,6 +295,7 @@ def admin_menu_drinks_add():
 
 
 @app.route("/admin/menu_drinks/delete/<drink_id>", methods=["POST"])  # API
+@token_required
 def admin_menu_drinks_delete(drink_id):
     id = drink_id
     user_id = session["user"][0]
@@ -300,7 +304,7 @@ def admin_menu_drinks_delete(drink_id):
         if id == drinkTag.attrib["id"]:
             et.getroot()[0].remove(drinkTag)
             et.write("static/products.xml")
-    return redirect(url_for("admin_menu_drinks", id=user_id))
+    return redirect(url_for("admin_menu_drinks"))
 
 
 @app.route("/admin/menu_toppings")
@@ -310,7 +314,7 @@ def admin_menu_toppings():
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
     except:
         user_account = None
@@ -336,12 +340,13 @@ def admin_menu_toppings():
 
 
 @app.route("/admin/menu_toppings/<topping_id>", methods=["GET", "POST"])
+@token_required
 def admin_menu_toppings_modify(topping_id):
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
     except:
         user_account = None
@@ -365,17 +370,6 @@ def admin_menu_toppings_modify(topping_id):
             filename = secure_filename(form.thumbnail.data.filename)
         except:
             filename = None
-        # with sqlite3.connect("swoy.db") as conn:
-        #     cursor = conn.cursor()
-        #     if filename:
-        #         cursor.execute(f"UPDATE drinks SET name = '{name}', price = '{price}', thumbnail = '{filename}'"
-        #                        f"WHERE drink_id = {drink_id}")
-        #     else:
-        #         cursor.execute(f"UPDATE drinks SET name = '{name}', price = '{price}'"
-        #                        f"WHERE drink_id = {drink_id}")
-        #     conn.commit()
-        # if filename:
-        #     form.thumbnail.data.save("static/" + filename)
 
         if filename != None:
             form.thumbnail.data.save("static/" + filename)
@@ -406,12 +400,13 @@ def admin_menu_toppings_modify(topping_id):
 
 
 @app.route("/admin/menu_toppings/add_topping", methods=["GET", "POST"])
+@token_required
 def admin_menu_toppings_add():
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
     except:
         user_account = None
@@ -424,10 +419,7 @@ def admin_menu_toppings_add():
             filename = secure_filename(form.thumbnail.data.filename)
         except:
             filename = None
-        # with sqlite3.connect("swoy.db") as conn:
-        #     cursor = conn.cursor()
-        #     cursor.execute(f"INSERT INTO drinks(name, price, thumbnail) "
-        #                    f"VALUES('{name}', '{price}', '{filename}')")
+
         if filename != None:
             form.thumbnail.data.save("static/" + filename)
 
@@ -449,10 +441,9 @@ def admin_menu_toppings_add():
 
 
 @app.route("/admin/menu_toppings/delete/<topping_id>", methods=["POST"])  # API
+@token_required
 def admin_menu_toppings_delete(topping_id):
-    # with sqlite3.connect("swoy.db") as conn:
-    #     cursor = conn.cursor()
-    #     cursor.execute(f"DELETE FROM drinks WHERE drink_id='{drink_id}'")
+
     id = topping_id
     user_id = session["user"][0]
     et = defusedxml.ElementTree.parse("static/products.xml")
@@ -461,7 +452,7 @@ def admin_menu_toppings_delete(topping_id):
             et.getroot()[1].remove(toppingTag)
             et.write("static/products.xml")
 
-    return redirect(url_for("admin_menu_toppings", id=user_id))
+    return redirect(url_for("admin_menu_toppings"))
 
 
 @app.route("/admin/orders")
@@ -471,7 +462,7 @@ def admin_orders():
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
     except:
         user_account = None
@@ -482,7 +473,7 @@ def admin_orders():
         result = cursor.fetchall()
         order_list = []
         for order in result:
-            cursor.execute(f"SELECT username FROM user WHERE user_id='{order[1]}'")
+            cursor.execute("SELECT username FROM user WHERE user_id = ?", (order[1],))
             username = cursor.fetchone()[0]
             order_list.append([order[0], username, order[2], order[3], order[4], order[5], order[6]])
         order_list.reverse()
@@ -492,23 +483,25 @@ def admin_orders():
 
 
 @app.route("/admin/orders/clear")  # API
+@token_required
 def clear_admin_orders():
     order_id = request.args["order_id"]
     user_id = session["user"][0]
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
-        cursor.execute(f"UPDATE delivery_order SET delivered = 1 WHERE order_id = '{order_id}'")
+        cursor.execute("UPDATE delivery_order SET delivered = 1 WHERE order_id = ?", (order_id,))
         conn.commit()
-    return redirect(url_for("admin_orders", id=user_id))
+    return redirect(url_for("admin_orders"))
 
 
 @app.route("/admin/orders_details")
+@token_required
 def admin_order_details():
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
     except:
         user_account = None
@@ -516,7 +509,7 @@ def admin_order_details():
     order_id = request.args["order_id"]
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM delivery_order WHERE order_id = '{order_id}'")
+        cursor.execute("SELECT * FROM delivery_order WHERE order_id = ?", (order_id,))
         result = cursor.fetchone()
 
         order_items = []
@@ -574,7 +567,7 @@ def admin_user_accounts():
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
     except:
         user_account = None
@@ -582,7 +575,7 @@ def admin_user_accounts():
     users = None
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM user WHERE admin = 0")
+        cursor.execute("SELECT * FROM user WHERE admin = 0")
         users = cursor.fetchall()
 
     userList = []
@@ -600,7 +593,7 @@ def admin_admin_accounts():
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
     except:
         user_account = None
@@ -608,7 +601,7 @@ def admin_admin_accounts():
     users = None
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM user WHERE admin = 1")
+        cursor.execute("SELECT * FROM user WHERE admin = 1")
         users = cursor.fetchall()
 
     userList = []
@@ -620,30 +613,31 @@ def admin_admin_accounts():
 
 
 @app.route("/admin/admin_accounts_delete", methods=["GET", "POST"])  # API
+@token_required
 def admin_account_delete():
     userId = request.args["id"]
     id = session["user"][0]
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
-        cursor.execute(f"DELETE FROM user WHERE user_id='{userId}'")
-        user_account = cursor.fetchone()
-        cursor.execute(f"SELECT * FROM user WHERE user_id='{id}'")
-        admin_account = cursor.fetchone()
+        cursor.execute("SELECT * FROM user WHERE user_id= ?", (userId,))
+        account_deleted = cursor.fetchone()
+        cursor.execute("DELETE FROM user WHERE user_id = ?", (userId,))
 
     localtime = time.asctime(time.localtime(time.time()))
-    log_return = "[" + str(localtime) + "] " + admin_account[1] + " deleted an admin account"
+    log_return = "[" + str(localtime) + "] " + account_deleted[1] + " deleted an admin account"
     logging.warning(log_return)
 
-    return redirect(url_for("admin_admin_accounts", id=id))
+    return redirect(url_for("admin_admin_accounts"))
 
 
 @app.route("/admin/add_admin_account", methods=["GET", "POST"])
+@token_required
 def add_admin_account():
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
     except:
         user_account = None
@@ -668,16 +662,14 @@ def add_admin_account():
                     break
 
             admin = 1
-            command = f"SELECT * FROM user WHERE email='{email}'"
-            account_match = cursor.execute(command).fetchone()
+            account_match = cursor.execute("SELECT * FROM user WHERE email = ?", (email,)).fetchone()
             # print(f"Account: {account_match}")
             if account_match:
                 error = "Email already exists"
             else:
                 passwordDigest = (hashlib.sha256(password.encode("utf-8"))).hexdigest()
-                command = f"INSERT INTO user(username, email, password, admin) " \
-                          f"VALUES ('{username}', '{email}', '{passwordDigest}', '{admin}')"
-                cursor.execute(command)
+                cursor.execute(f"INSERT INTO user(username, email, password, admin) "
+                               f"VALUES (?, ?, ?, ?)", (username, email, passwordDigest, admin))
                 updated = cursor.execute("SELECT * FROM user").fetchall()
                 conn.commit()
 
@@ -688,7 +680,7 @@ def add_admin_account():
                 users = None
                 with sqlite3.connect("swoy.db") as conn:
                     cursor = conn.cursor()
-                    cursor.execute(f"SELECT * FROM user WHERE admin = 1")
+                    cursor.execute("SELECT * FROM user WHERE admin = 1")
                     users = cursor.fetchall()
 
                 userList = []
@@ -706,7 +698,7 @@ def admin_logs():
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
     except:
         user_account = None
@@ -726,9 +718,9 @@ def home():
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
-            cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT cart_items FROM cart WHERE user_id = ?", (user_id,))
             cart_items = cursor.fetchone()
             if cart_items:
                 cart_item_count = len(eval(cart_items[0]))
@@ -787,16 +779,14 @@ def signup():
             else:
                 error_password = None
             admin = 0
-            command = f"SELECT * FROM user WHERE email='{email}'"
-            account_match = cursor.execute(command).fetchone()
+            account_match = cursor.execute("SELECT * FROM user WHERE email = ?", (email,)).fetchone()
             # print(f"Account: {account_match}")
             if account_match:
                 error = "Email already exists"
             else:
                 passwordDigest = (hashlib.sha256(password.encode("utf-8"))).hexdigest()
-                command = f"INSERT INTO user(username, email, password, admin) " \
-                          f"VALUES ('{username}', '{email}', '{passwordDigest}', '{admin}')"
-                cursor.execute(command)
+                cursor.execute("INSERT INTO user(username, email, password, admin) "
+                               "VALUES (?, ?, ?, ?)", (username, email, passwordDigest, admin))
                 updated = cursor.execute("SELECT * FROM user").fetchall()
                 # print(f"Updated database : {updated}")
                 conn.commit()
@@ -815,7 +805,7 @@ def login():
             cursor = conn.cursor()
             email = form.email.data
             password = form.password.data
-            cursor.execute(f"SELECT * FROM user WHERE email='{email}'")
+            cursor.execute("SELECT * FROM user WHERE email = ?", (email,))
             account_match = cursor.fetchone()
 
             if account_match:
@@ -824,8 +814,8 @@ def login():
                 logging.info(log_return)
 
                 passwordDigest = (hashlib.sha256(password.encode("utf-8"))).hexdigest()
-                command = f"SELECT * FROM user WHERE email='{email}' and password='{passwordDigest}'"
-                account_match = cursor.execute(command).fetchone()
+                print(passwordDigest)
+                account_match = cursor.execute("SELECT * FROM user WHERE email = ? and password = ?", (email, passwordDigest)).fetchone()
                 # print(f"Account: {account_match}")
                 if account_match:
                     if account_match[4]:
@@ -835,7 +825,6 @@ def login():
                         session["token"] = token
                         session["unauthenticated_user"] = account_match
                         session['user'] = None
-                        # return redirect(url_for("admin_dashboard"))
                         return redirect(url_for("authenticate_otp"))
                     else:
                         token = jwt.encode({' user': account_match[0], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
@@ -851,6 +840,7 @@ def login():
                 error = "Incorrect email or password"
                 # error = "Email does not exist."
     return render_template("login.html", form=form, error=error)
+
 
 @app.route("/logout", methods=["GET", "POST"])
 def logout():
@@ -875,11 +865,11 @@ def product(drink_name):
 
                 with sqlite3.connect("swoy.db") as conn:
                     cursor = conn.cursor()
-                    cursor.execute(f"SELECT * FROM comments WHERE drink_id = '{drink[0]}'")
+                    cursor.execute("SELECT * FROM comments WHERE drink_id = ?", (drink[0],))
                     comments = cursor.fetchall()
                     comment_list = []
                     for comment in comments:
-                        cursor.execute(f"SELECT username FROM user WHERE user_id = '{comment[2]}'")
+                        cursor.execute("SELECT username FROM user WHERE user_id = ?", (comment[2],))
                         author = cursor.fetchone()[0]
                         comment_list.append({"content": comment[1], "author": author})
 
@@ -893,9 +883,9 @@ def product(drink_name):
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
-            cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT cart_items FROM cart WHERE user_id = ?", (user_id,))
             cart_items = cursor.fetchone()
             if cart_items:
                 cart_item_count = len(eval(cart_items[0]))
@@ -917,8 +907,7 @@ def update_comment():
         content = request.form["content"]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"INSERT INTO comments(content, user_id, drink_id) "
-                           f"VALUES ('{content}', '{user_id}', '{drink_id}')")
+            cursor.execute(f"INSERT INTO comments(content, user_id, drink_id) VALUES (?, ?, ?)", (content, user_id, drink_id))
             conn.commit()
 
         productData = xmltodict.parse(open("static/products.xml", "r").read())
@@ -928,20 +917,21 @@ def update_comment():
                 if i["@id"] == drink_id:
                     drink_name = i["description"]
 
-        return redirect(url_for("product", id=user_id, drink_name=drink_name, _anchor="comments"))
+        return redirect(url_for("product", drink_name=drink_name, _anchor="comments"))
     except:
         return redirect(url_for("home"))
 
 
 @app.route("/cart")
+@token_required
 def cart():
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
-            cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT cart_items FROM cart WHERE user_id = ?", (user_id,))
             cart_items = cursor.fetchone()
             if cart_items:
                 cart_item_count = len(eval(cart_items[0]))
@@ -953,7 +943,7 @@ def cart():
 
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
+        cursor.execute("SELECT cart_items FROM cart WHERE user_id = ?", (user_id,))
         cart_items = cursor.fetchone()
         if cart_items:
             cart_items = eval(cart_items[0])  # [[0]: drink_id, [1]: [topping_id], [2]: sugar_level, [3]: quantity]
@@ -993,13 +983,14 @@ def cart():
         else:
             cart_items = []
             total_price = 0
-            cursor.execute(f"INSERT INTO cart VALUES ('{user_id}', '{cart_items}')")
+            cursor.execute("INSERT INTO cart VALUES (?, ?)", (user_id, str(cart_items)))
 
     return render_template("cart.html", user_account=user_account, cart_item_count=cart_item_count,
                            cart_items=cart_items, total_price=total_price)
 
 
 @app.route("/cart/add", methods=["GET", "POST"])  # API
+@token_required
 def add_cart_item():
     try:
         drink_id = int(request.args["drink_id"])
@@ -1011,36 +1002,38 @@ def add_cart_item():
 
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT cart_items FROM cart WHERE user_id = ?", (user_id,))
             cart_items = cursor.fetchone()
+            print(cart_items)
             if cart_items:
                 cart_items = eval(cart_items[0])
                 cart_items.append(item_details)
-                cursor.execute(f"UPDATE cart SET cart_items = '{cart_items}' WHERE user_id = '{user_id}'")
+                cursor.execute("UPDATE cart SET cart_items = ? WHERE user_id = ?", (str(cart_items), user_id))
             else:
                 cart_items = [item_details]
-                cursor.execute(f"INSERT INTO cart VALUES ('{user_id}', '{cart_items}')")
+                cursor.execute("INSERT INTO cart VALUES (?, ?)", (user_id, str(cart_items)))
             conn.commit()
 
-        return redirect(url_for("home", id=user_id))
+        return redirect(url_for("home"))
     except:
         return redirect(url_for("home"))
 
 
 @app.route("/cart/remove", methods=["GET", "POST"])  # API
+@token_required
 def remove_cart_item():
     try:
-        user_id = int(request.args["user_id"])
+        user_id = int(session["user"][0])
         index_to_remove = int(request.args["item_num"]) - 1
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT cart_items FROM cart WHERE user_id = ?", (user_id,))
             cart_items = cursor.fetchone()[0]
             cart_items = eval(cart_items)
             del cart_items[index_to_remove]
-            cursor.execute(f"UPDATE cart SET cart_items = '{cart_items}' WHERE user_id = '{user_id}'")
+            cursor.execute("UPDATE cart SET cart_items = ? WHERE user_id = ?", (str(cart_items), user_id))
             conn.commit()
-        return redirect(url_for("cart", id=user_id))
+        return redirect(url_for("cart"))
     except:
         return redirect(url_for("home"))
 
@@ -1049,12 +1042,12 @@ def remove_cart_item():
 @token_required
 def checkout():
     try:
-        user_id = request.args["id"]
+        user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
-            cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT cart_items FROM cart WHERE user_id = ?", (user_id,))
             cart_items = cursor.fetchone()
             if cart_items:
                 cart_item_count = len(eval(cart_items[0]))
@@ -1067,7 +1060,7 @@ def checkout():
 
     with sqlite3.connect("swoy.db") as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
+        cursor.execute("SELECT cart_items FROM cart WHERE user_id = ?", (user_id,))
         cart_items = cursor.fetchone()
         if cart_items:
             cart_items = eval(cart_items[0])  # [[0]: drink_id, [1]: [topping_id], [2]: sugar_level, [3]: quantity]
@@ -1107,28 +1100,29 @@ def checkout():
         else:
             cart_items = []
             total_price = 0
-            cursor.execute(f"INSERT INTO cart VALUES ('{user_id}', '{cart_items}')")
+            cursor.execute("INSERT INTO cart VALUES (?, ?)", (user_id, str(cart_items)))
 
     return render_template("checkout.html", form=form, user_account=user_account, cart_item_count=cart_item_count,
                            cart_items=cart_items, total_price=total_price)
 
 
 @app.route("/checkout/add_order", methods=["GET", "POST"])
+@token_required
 def add_order():
     try:
-        user_id = request.args["id"]
+        user_id = session["user"][0]
         address = request.form["address"]
         delivery_date = request.form["delivery_date"]
         delivery_time = request.form["delivery_time"]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT cart_items FROM cart WHERE user_id = ?", (user_id,))
             cart_items = cursor.fetchone()[0]
-            cursor.execute(f"INSERT INTO delivery_order(user_id, address, delivery_date, delivery_time, order_items)"
-                           f"VALUES('{user_id}', '{address}', '{delivery_date}', '{delivery_time}', '{cart_items}')")
-            cursor.execute(f"UPDATE cart SET cart_items = '[]' WHERE user_id = '{user_id}'")
+            cursor.execute("INSERT INTO delivery_order(user_id, address, delivery_date, delivery_time, order_items) "
+                           "VALUES(?, ?, ?, ?, ?)", (user_id, address, delivery_date, delivery_time, str(cart_items)))
+            cursor.execute("UPDATE cart SET cart_items = '[]' WHERE user_id = ?", (user_id,))
             conn.commit()
-        return redirect(url_for("home", id=user_id))
+        return redirect(url_for("home"))
     except:
         return redirect(url_for("home"))
     return render_template("checkout.html", form=form)
@@ -1150,8 +1144,7 @@ def forgot_password_email_form():
         with sqlite3.connect("swoy.db") as conn:
             forgot_pw_email = form.email.data
             cursor = conn.cursor()
-            command = f"SELECT * FROM user WHERE email='{forgot_pw_email}'"
-            account_match = cursor.execute(command).fetchone()
+            account_match = cursor.execute("SELECT * FROM user WHERE email = ?", (forgot_pw_email,)).fetchone()
             if account_match:
                 # print("here")
                 return redirect(url_for('forgot_pwd_otp'))
@@ -1173,7 +1166,7 @@ def forgot_pwd_otp():
     try:
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE email = '{forgot_pw_email}'")
+            cursor.execute("SELECT * FROM user WHERE email = ?", (forgot_pw_email,))
             user_account = cursor.fetchone()
     except:
         user_account = None
@@ -1212,7 +1205,7 @@ def forgot_password_change():
     if request.method == "POST" and form.validate_on_submit():
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE email = '{forgot_pw_email}'")
+            cursor.execute("SELECT * FROM user WHERE email = ?", (forgot_pw_email,))
             user_account = cursor.fetchone()
 
         localtime = time.asctime(time.localtime(time.time()))
@@ -1234,7 +1227,7 @@ def forgot_password_change():
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
             passwordDigest = (hashlib.sha256(new_password.encode("utf-8"))).hexdigest()
-            cursor.execute(f"UPDATE user SET password = '{passwordDigest}' WHERE email = '{forgot_pw_email}'")
+            cursor.execute("UPDATE user SET password = ? WHERE email = ?", (passwordDigest, forgot_pw_email))
             conn.commit()
 
         forgot_pw_email = None
@@ -1244,14 +1237,15 @@ def forgot_password_change():
 
 
 @app.route("/profile", methods=["GET", "POST"])
+@token_required
 def view_profile():
     try:
-        user_id = request.args["id"]
+        user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
-            cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT cart_items FROM cart WHERE user_id = ?", (user_id,))
             cart_items = cursor.fetchone()
             if cart_items:
                 cart_item_count = len(eval(cart_items[0]))
@@ -1275,26 +1269,28 @@ def view_profile():
 
 
 @app.route("/change_username", methods=["GET", "POST"])
+@token_required
 def change_username():
     try:
-        user_id = request.args["id"]
+        user_id = session["user"][0]
         new_username = request.form["new_username"]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"UPDATE user SET username = '{new_username}' WHERE user_id = '{user_id}'")
+            cursor.execute("UPDATE user SET username = ? WHERE user_id = ?", (new_username, user_id))
             conn.commit()
-        return redirect(url_for("view_profile", id=user_id))
+        return redirect(url_for("view_profile"))
     except:
         return redirect(url_for("home"))
 
 
 @app.route("/change_password", methods=["GET", "POST"])
+@token_required
 def change_password():
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
     except:
         user_account = None
@@ -1320,42 +1316,43 @@ def change_password():
 
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
 
         localtime = time.asctime(time.localtime(time.time()))
 
         if new_password != confirm_password:
-            return redirect(url_for("view_profile", id=user_id, password_error=1))
+            return redirect(url_for("view_profile", password_error=1))
         else:
             with sqlite3.connect("swoy.db") as conn:
                 cursor = conn.cursor()
-                current_password_from_db = cursor.execute(f"SELECT password FROM user WHERE user_id = '{user_id}'")
+                current_password_from_db = cursor.execute("SELECT password FROM user WHERE user_id = ?", (user_id,))
                 if current_password_from_db.fetchone()[0] != currentPasswordDigest:
                     log_return = "[" + str(localtime) + "] "+ str(user_account[1]) + ") attempted to change password [EXISTING PASSWORD]"
                     logging.info(log_return)
-                    return redirect(url_for("view_profile", id=user_id, password_error=1))
+                    return redirect(url_for("view_profile", password_error=1))
 
                 else:
                     log_return = "[" + str(localtime) + "] " + str(user_account[1]) + ") successfully changed password [EXISTING PASSWORD]"
                     logging.info(log_return)
 
-                cursor.execute(f"UPDATE user SET password = '{newPasswordDigest}' WHERE user_id = '{user_id}'")
+                cursor.execute("UPDATE user SET password = ? WHERE user_id = ?", (newPasswordDigest, user_id))
                 conn.commit()
-            return redirect(url_for("view_profile", id=user_id))
+            return redirect(url_for("view_profile"))
     except:
         return redirect(url_for("home"))
 
 
 @app.route("/order_history", methods=["GET", "POST"])
+@token_required
 def order_history():
     try:
-        user_id = request.args["id"]
+        user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM user WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
             user_account = cursor.fetchone()
-            cursor.execute(f"SELECT cart_items FROM cart WHERE user_id = '{user_id}'")
+            cursor.execute("SELECT cart_items FROM cart WHERE user_id = ?", (user_id,))
             cart_items = cursor.fetchone()
             if cart_items:
                 cart_item_count = len(eval(cart_items[0]))
