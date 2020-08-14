@@ -20,6 +20,7 @@ import re
 email_otp = None
 timeout = None
 forgot_pw_email = None
+incorrect_password_tries = 0
 
 
 def token_required(f):
@@ -772,6 +773,7 @@ def signup():
             username = form.username.data
             email = form.email.data
             password = form.password.data
+            locked = 0
 
             if not re.search(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{8,20}$", password):
                 error_password = "Your password must be at least 8 characters, contain at least 1 symbol (@, $, !, %, *, #, ?, &), at least 1 uppercase and at least 1 lowercase"
@@ -785,8 +787,8 @@ def signup():
                 error = "Email already exists"
             else:
                 passwordDigest = (hashlib.sha256(password.encode("utf-8"))).hexdigest()
-                cursor.execute("INSERT INTO user(username, email, password, admin) "
-                               "VALUES (?, ?, ?, ?)", (username, email, passwordDigest, admin))
+                cursor.execute("INSERT INTO user(username, email, password, admin, locked) "
+                               "VALUES (?, ?, ?, ?)", (username, email, passwordDigest, admin, locked))
                 updated = cursor.execute("SELECT * FROM user").fetchall()
                 # print(f"Updated database : {updated}")
                 conn.commit()
@@ -802,6 +804,7 @@ def signup():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     global forgot_pw_email
+    global incorrect_password_tries
     forgot_pw_email = None
     form = LoginForm()
     error = None
@@ -812,6 +815,8 @@ def login():
             password = form.password.data
             cursor.execute("SELECT * FROM user WHERE email = ?", (email,))
             account_match = cursor.fetchone()
+            locked = account_match[5]
+            username = account_match[1]
 
             if account_match:
                 localtime = time.asctime(time.localtime(time.time()))
@@ -839,8 +844,17 @@ def login():
                         session["user"] = account_match
                         return redirect(url_for("home"))
                 else:
-                    error = "Incorrect email or password"
                     # error = "Password is incorrect."
+                    if incorrect_password_tries < 4 and locked == 0:
+                        incorrect_password_tries += 1
+                        error = "Incorrect email or password"
+                    else:
+                        if incorrect_password_tries >= 4:
+                            cursor.execute("UPDATE user SET locked = 1 WHERE email = ?", (email, ))
+                            conn.commit()
+                        error = "Exceeded incorrect password attempts. Please contact website adminstrator."
+                        log_return = "[" + str(localtime) + "] Customer (" + str(username) + ") has exceeded the password attempt limits and has been locked."
+                        logging.info(log_return)
             else:
                 error = "Incorrect email or password"
                 # error = "Email does not exist."
