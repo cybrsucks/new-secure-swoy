@@ -66,7 +66,7 @@ class MyRequestHandler(WSGIRequestHandler):
 @token_required
 def admin_dashboard():
     if session["user"][4] != 1:
-        return redirect(url_for("error_page"))
+        return redirect(url_for("error_404"))
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
@@ -165,7 +165,7 @@ def authenticate_otp():
 @token_required
 def admin_own_account(user_id):
     if session["user"][4] != 1:
-        return redirect(url_for("error_page"))
+        return redirect(url_for("error_404"))
 
     return render_template("admin_own_account.html", admin_title="Your Account")
 
@@ -174,7 +174,7 @@ def admin_own_account(user_id):
 @token_required
 def admin_menu_drinks():
     if session["user"][4] != 1:
-        return redirect(url_for("error_page"))
+        return redirect(url_for("error_404"))
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
@@ -207,7 +207,7 @@ def admin_menu_drinks():
 @token_required
 def admin_menu_drinks_modify(drink_id):
     if session["user"][4] != 1:
-        return redirect(url_for("error_page"))
+        return redirect(url_for("error_404"))
 
     try:
         user_id = session["user"][0]
@@ -267,7 +267,7 @@ def admin_menu_drinks_modify(drink_id):
 @token_required
 def admin_menu_drinks_add():
     if session["user"][4] != 1:
-        return redirect(url_for("error_page"))
+        return redirect(url_for("error_404"))
 
     try:
         user_id = session["user"][0]
@@ -310,7 +310,7 @@ def admin_menu_drinks_add():
 @token_required
 def admin_menu_drinks_delete(drink_id):
     if session["user"][4] != 1:
-        return redirect(url_for("error_page"))
+        return redirect(url_for("error_404"))
 
     id = drink_id
     user_id = session["user"][0]
@@ -326,7 +326,7 @@ def admin_menu_drinks_delete(drink_id):
 @token_required
 def admin_menu_toppings():
     if session["user"][4] != 1:
-        return redirect(url_for("error_page"))
+        return redirect(url_for("error_404"))
 
     try:
         user_id = session["user"][0]
@@ -361,7 +361,7 @@ def admin_menu_toppings():
 @token_required
 def admin_menu_toppings_modify(topping_id):
     if session["user"][4] != 1:
-        return redirect(url_for("error_page"))
+        return redirect(url_for("error_404"))
 
     try:
         user_id = session["user"][0]
@@ -424,7 +424,7 @@ def admin_menu_toppings_modify(topping_id):
 @token_required
 def admin_menu_toppings_add():
     if session["user"][4] != 1:
-        return redirect(url_for("error_page"))
+        return redirect(url_for("error_404"))
 
     try:
         user_id = session["user"][0]
@@ -468,7 +468,7 @@ def admin_menu_toppings_add():
 @token_required
 def admin_menu_toppings_delete(topping_id):
     if session["user"][4] != 1:
-        return redirect(url_for("error_page"))
+        return redirect(url_for("error_404"))
 
     id = topping_id
     user_id = session["user"][0]
@@ -485,7 +485,7 @@ def admin_menu_toppings_delete(topping_id):
 @token_required
 def admin_orders():
     if session["user"][4] != 1:
-        return redirect(url_for("error_page"))
+        return redirect(url_for("error_404"))
 
     try:
         user_id = session["user"][0]
@@ -515,7 +515,7 @@ def admin_orders():
 @token_required
 def clear_admin_orders():
     if session["user"][4] != 1:
-        return redirect(url_for("error_page"))
+        return redirect(url_for("error_404"))
 
     order_id = request.args["order_id"]
     user_id = session["user"][0]
@@ -530,7 +530,7 @@ def clear_admin_orders():
 @token_required
 def admin_order_details():
     if session["user"][4] != 1:
-        return redirect(url_for("error_page"))
+        return redirect(url_for("error_404"))
 
     try:
         user_id = session["user"][0]
@@ -593,7 +593,7 @@ def admin_order_details():
 @token_required
 def admin_feedbacks():
     if session["user"][4] != 1:
-        return redirect(url_for("error_page"))
+        return redirect(url_for("error_404"))
 
     return render_template("admin_feedbacks.html", admin_title="Customer Feedbacks")
 
@@ -602,7 +602,7 @@ def admin_feedbacks():
 @token_required
 def admin_user_accounts():
     if session["user"][4] != 1:
-        return redirect(url_for("error_page"))
+        return redirect(url_for("error_404"))
 
     try:
         user_id = session["user"][0]
@@ -631,7 +631,7 @@ def admin_user_accounts():
 @token_required
 def admin_admin_accounts():
     if session["user"][4] != 1:
-        return redirect(url_for("error_page"))
+        return redirect(url_for("error_404"))
 
     try:
         user_id = session["user"][0]
@@ -660,7 +660,7 @@ def admin_admin_accounts():
 @token_required
 def admin_account_delete():
     if session["user"][4] != 1:
-        return redirect(url_for("error_page"))
+        return redirect(url_for("error_404"))
 
     userId = request.args["id"]
     id = session["user"][0]
@@ -681,7 +681,7 @@ def admin_account_delete():
 @token_required
 def add_admin_account():
     if session["user"][4] != 1:
-        return redirect(url_for("error_page"))
+        return redirect(url_for("error_404"))
 
     try:
         user_id = session["user"][0]
@@ -745,7 +745,7 @@ def add_admin_account():
 @token_required
 def admin_logs():
     if session["user"][4] != 1:
-        return redirect(url_for("error_page"))
+        return redirect(url_for("error_404"))
 
     try:
         user_id = session["user"][0]
@@ -1439,6 +1439,11 @@ def order_history():
 @app.route("/404")
 def error_page(e):
     return render_template("error_404.html"), 404
+
+
+@app.route("/er404")
+def error_404():
+    return render_template("error_404.html")
 
 
 if __name__ == "__main__":
