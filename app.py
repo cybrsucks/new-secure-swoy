@@ -1383,14 +1383,19 @@ def order_history():
     return render_template("order_history.html", user_account=user_account, cart_item_count=cart_item_count)
 
 
+@app.route("/404")
+def error_page():
+     return render_template("error_404.html")
+
 if __name__ == "__main__":
     logging.basicConfig(filename='werkzeug.txt', level=logging.INFO)
     # all logs with INFO level and above is logged https://docs.python.org/3/howto/logging.html#when-to-use-logging
-
     logger = logging.getLogger('werkzeug')
     logger.setLevel(logging.WARNING)
     # werkzeug logs such as GET and POST from websites will no longer be logged
     # instead, the only log that is recorded is when debugger is active (WARNING) level
-
     app.run(debug=True, request_handler=MyRequestHandler)
     # app.run(debug=False, request_handler=MyRequestHandler)
+
+
+
