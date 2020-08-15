@@ -50,16 +50,29 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = "supersecretkey"
 
 
-class MyRequestHandler(WSGIRequestHandler):
-    # Just like WSGIRequestHandler, but without "- -"
-    # def log(self, type, message, *args):
-    #     _log(type, '%s [%s] %s\n' % (self.address_string(),
-    #                                  self.log_date_time_string(),
-    #                                  message % args))
+# class MyRequestHandler(WSGIRequestHandler):
+#     # Just like WSGIRequestHandler, but without "- -"
+#     # def log(self, type, message, *args):
+#     #     _log(type, '%s [%s] %s\n' % (self.address_string(),
+#     #                                  self.log_date_time_string(),
+#     #                                  message % args))
+#
+#     # Just like WSGIRequestHandler, but without "code"
+#     def log_request(self, code='-', size='-'):
+#         self.log('info', '"%s" %s', self.requestline, size)
 
-    # Just like WSGIRequestHandler, but without "code"
-    def log_request(self, code='-', size='-'):
-        self.log('info', '"%s" %s', self.requestline, size)
+formatter = logging.Formatter('%(levelname)s %(message)s')
+
+def setup_logger(name, log_file, level=logging.INFO):
+    """To setup as many loggers as you want"""
+    handler = logging.FileHandler(log_file)
+    handler.setFormatter(formatter)
+
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    logger.addHandler(handler)
+
+    return logger
 
 
 @app.route("/admin", methods=["GET", "POST"])
@@ -132,12 +145,12 @@ def authenticate_otp():
     form = OTPForm()
 
     if request.method == "GET":
-        # email_otp = PyOTP.send_otp('swoybubbletea@gmail.com')
         email_otp = PyOTP.send_otp(user_account[2])
         timeout = time.time() + 60 * 3  # current_time + 3 minutes
         localtime = time.asctime(time.localtime(time.time()))
-        log_return = "[" + str(localtime) + "] An OTP request has been sent to admin inbox"
-        logging.info(log_return)
+        # log_return = "[" + str(localtime) + "] An OTP request has been sent to admin inbox"
+        # logging.info(log_return)
+        admin_logger.info("[" + str(localtime) + "] An OTP request has been sent to admin inbox")
 
     if request.method == "POST" and form.validate_on_submit():
         email = user_account[2]
@@ -153,8 +166,9 @@ def authenticate_otp():
             email_otp = None
             timeout = None
             localtime = time.asctime(time.localtime(time.time()))
-            log_return = "[" + str(localtime) + "] Admin " + user_account[1] + " has been logged in successfully"
-            logging.info(log_return)
+            # log_return = "[" + str(localtime) + "] Admin " + user_account[1] + " has been logged in successfully"
+            # logging.info(log_return)
+            admin_logger.info("[" + str(localtime) + "] Admin " + user_account[1] + " has been logged in successfully")
 
             return redirect(url_for('admin_dashboard'))
 
@@ -671,8 +685,9 @@ def admin_account_delete():
         cursor.execute("DELETE FROM user WHERE user_id = ?", (userId,))
 
     localtime = time.asctime(time.localtime(time.time()))
-    log_return = "[" + str(localtime) + "] " + account_deleted[1] + " has been deleted"
-    logging.warning(log_return)
+    # log_return = "[" + str(localtime) + "] " + session["user"][1] + " has deleted admin account " + account_deleted[1]
+    # logging.warning(log_return)
+    admin_logger.info("[" + str(localtime) + "] " + session["user"][1] + " has deleted admin account " + "[" + account_deleted[1] + "]")
 
     return redirect(url_for("admin_admin_accounts"))
 
@@ -718,14 +733,15 @@ def add_admin_account():
                 error = "Email already exists"
             else:
                 passwordDigest = (hashlib.sha256(password.encode("utf-8"))).hexdigest()
-                cursor.execute(f"INSERT INTO user(username, email, password, admin) "
-                               f"VALUES (?, ?, ?, ?)", (username, email, passwordDigest, admin))
+                cursor.execute(f"INSERT INTO user(username, email, password, admin, locked) "
+                               f"VALUES (?, ?, ?, ?, ?)", (username, email, passwordDigest, admin, 0))
                 updated = cursor.execute("SELECT * FROM user").fetchall()
                 conn.commit()
 
                 localtime = time.asctime(time.localtime(time.time()))
-                log_return = "[" + str(localtime) + "] " + user_account[1] + " created an admin account " + "[" + username + "] "
-                logging.warning(log_return)
+                # log_return = "[" + str(localtime) + "] " + user_account[1] + " created an admin account " + "[" + username + "] "
+                # logging.warning(log_return)
+                admin_logger.warning("[" + str(localtime) + "] " + user_account[1] + " created an admin account " + "[" + username + "] ")
 
                 users = None
                 with sqlite3.connect("swoy.db") as conn:
@@ -848,6 +864,7 @@ def signup():
                 localtime = time.asctime(time.localtime(time.time()))
                 # log_return = "[" + str(localtime) + "] New Acount created for " + user_account[1] + " with user_id " + user_account[0]
                 # logging.info(log_return)
+                admin_logger.info("[" + str(localtime) + "] New Acount created for " + user_account[1] + " with user_id " + user_account[0])
 
                 return render_template("login.html", form=LoginForm())
     return render_template("signup.html", form=form, error=error)
@@ -872,8 +889,9 @@ def login():
 
             if account_match:
                 localtime = time.asctime(time.localtime(time.time()))
-                log_return = "[" + str(localtime) + "] " + str(account_match[1]) + " attempted login"
-                logging.info(log_return)
+                # log_return = "[" + str(localtime) + "] " + str(account_match[1]) + " attempted login"
+                # logging.info(log_return)
+                user_logger.info("[" + str(localtime) + "] " + str(account_match[1]) + " attempted login")
 
                 passwordDigest = (hashlib.sha256(password.encode("utf-8"))).hexdigest()
                 # print(passwordDigest)
@@ -882,16 +900,18 @@ def login():
                 if account_match:
                     if account_match[4]:
                         token = jwt.encode({' user': account_match[0], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
-                        log_return = "[" + str(localtime) + "] Admin (" + str(account_match[1]) + ") is required to enter OTP"
-                        logging.info(log_return)
+                        # log_return = "[" + str(localtime) + "] Admin (" + str(account_match[1]) + ") is required to enter OTP"
+                        # logging.info(log_return)
+                        admin_logger.info("[" + str(localtime) + "] Admin (" + str(account_match[1]) + ") is required to enter OTP")
                         session["token"] = token
                         session["unauthenticated_user"] = account_match
                         session['user'] = None
                         return redirect(url_for("authenticate_otp"))
                     else:
                         token = jwt.encode({' user': account_match[0], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
-                        log_return = "[" + str(localtime) + "] Customer (" + str(account_match[1]) + ") successfully logged in"
-                        logging.info(log_return)
+                        # log_return = "[" + str(localtime) + "] Customer (" + str(account_match[1]) + ") successfully logged in"
+                        # logging.info(log_return)
+                        user_logger.info("[" + str(localtime) + "] Customer (" + str(account_match[1]) + ") successfully logged in")
                         session["token"] = token
                         session["user"] = account_match
                         return redirect(url_for("home"))
@@ -905,8 +925,9 @@ def login():
                             cursor.execute("UPDATE user SET locked = 1 WHERE email = ?", (email, ))
                             conn.commit()
                         error = "Exceeded incorrect password attempts. Please contact website adminstrator."
-                        log_return = "[" + str(localtime) + "] Customer (" + str(username) + ") has exceeded the password attempt limits and has been locked."
-                        logging.info(log_return)
+                        # log_return = "[" + str(localtime) + "] Customer (" + str(username) + ") has exceeded the password attempt limits and has been locked."
+                        # logging.info(log_return)
+                        user_logger.info("[" + str(localtime) + "] Customer (" + str(username) + ") has exceeded the password attempt limits and has been locked.")
             else:
                 error = "Incorrect email or password"
                 # error = "Email does not exist."
@@ -1246,8 +1267,9 @@ def forgot_pwd_otp():
         email_otp = PyOTP.send_otp(forgot_pw_email)
         timeout = time.time() + 60 * 3  # current_time + 3 minutes
         localtime = time.asctime(time.localtime(time.time()))
-        log_return = "[" + str(localtime) + "] OTP verification needed to change password for " + user_account[1] + " [FORGOT PASSWORD]"
-        logging.info(log_return)
+        # log_return = "[" + str(localtime) + "] OTP verification needed to change password for " + user_account[1] + " [FORGOT PASSWORD]"
+        # logging.info(log_return)
+        user_logger.info("[" + str(localtime) + "] OTP verification needed to change password for " + user_account[1] + " [FORGOT PASSWORD]")
 
     if request.method == "POST" and form.validate_on_submit():
         check = str(form.otp.data)
@@ -1280,8 +1302,9 @@ def forgot_password_change():
             user_account = cursor.fetchone()
 
         localtime = time.asctime(time.localtime(time.time()))
-        log_return = "[" + str(localtime) + "] " + str(user_account[1]) + " attempted to change password [EXISTING PASSWORD]"
-        logging.info(log_return)
+        # log_return = "[" + str(localtime) + "] " + str(user_account[1]) + " attempted to change password [EXISTING PASSWORD]"
+        # logging.info(log_return)
+        user_logger.info("[" + str(localtime) + "] " + str(user_account[1]) + " attempted to change password [EXISTING PASSWORD]")
 
         new_password = form.new_pwd.data
         error_present = True
@@ -1399,13 +1422,15 @@ def change_password():
                 cursor = conn.cursor()
                 current_password_from_db = cursor.execute("SELECT password FROM user WHERE user_id = ?", (user_id,))
                 if current_password_from_db.fetchone()[0] != currentPasswordDigest:
-                    log_return = "[" + str(localtime) + "] "+ str(user_account[1]) + ") attempted to change password [EXISTING PASSWORD]"
-                    logging.info(log_return)
+                    # log_return = "[" + str(localtime) + "] "+ str(user_account[1]) + ") attempted to change password [EXISTING PASSWORD]"
+                    # logging.info(log_return)
+                    user_logger.info("[" + str(localtime) + "] "+ str(user_account[1]) + ") attempted to change password [EXISTING PASSWORD]")
                     return redirect(url_for("view_profile", password_error=1))
 
                 else:
-                    log_return = "[" + str(localtime) + "] " + str(user_account[1]) + ") successfully changed password [EXISTING PASSWORD]"
-                    logging.info(log_return)
+                    # log_return = "[" + str(localtime) + "] " + str(user_account[1]) + ") successfully changed password [EXISTING PASSWORD]"
+                    # logging.info(log_return)
+                    user_logger.info("[" + str(localtime) + "] " + str(user_account[1]) + ") successfully changed password [EXISTING PASSWORD]")
 
                 cursor.execute("UPDATE user SET password = ? WHERE user_id = ?", (newPasswordDigest, user_id))
                 conn.commit()
@@ -1447,14 +1472,22 @@ def error_404():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(filename='werkzeug.txt', level=logging.INFO)
-    # all logs with INFO level and above is logged https://docs.python.org/3/howto/logging.html#when-to-use-logging
-    logger = logging.getLogger('werkzeug')
-    logger.setLevel(logging.WARNING)
+    user_logger = setup_logger('user_logs', 'user_logs.log')
+    admin_logger = setup_logger('admin_logs', 'admin_logs.log')
+    werkzeug_logger = logging.getLogger('werkzeug')
+    werkzeug_logger.setLevel(logging.WARNING)
+
+    # logging.basicConfig(filename='werkzeug.txt', level=logging.INFO)
+    # # all logs with INFO level and above is logged https://docs.python.org/3/howto/logging.html#when-to-use-logging
+    # logger = logging.getLogger('werkzeug')
+    # logger.setLevel(logging.WARNING)
     # werkzeug logs such as GET and POST from websites will no longer be logged
     # instead, the only log that is recorded is when debugger is active (WARNING) level
-    app.run(debug=True, request_handler=MyRequestHandler)
-    # app.run(debug=False, request_handler=MyRequestHandler)
+    # logging.basicConfig(filename='admin_logs_only.txt', level=logging.INFO)
+    # logger_admin = logging.getLogger('werkzeug')
+    # logger_admin.setLevel(logging.WARNING)
+
+    app.run(debug=True)
 
 
 
