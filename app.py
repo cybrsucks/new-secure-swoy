@@ -66,7 +66,7 @@ class MyRequestHandler(WSGIRequestHandler):
 @token_required
 def admin_dashboard():
     if session["user"][4] != 1:
-        return redirect(url_for("home"))
+        return redirect(url_for("error_page"))
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
@@ -164,12 +164,17 @@ def authenticate_otp():
 @app.route("/admin/<user_id>")
 @token_required
 def admin_own_account(user_id):
+    if session["user"][4] != 1:
+        return redirect(url_for("error_page"))
+
     return render_template("admin_own_account.html", admin_title="Your Account")
 
 
 @app.route("/admin/menu_drinks")
 @token_required
 def admin_menu_drinks():
+    if session["user"][4] != 1:
+        return redirect(url_for("error_page"))
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
@@ -201,6 +206,9 @@ def admin_menu_drinks():
 @app.route("/admin/menu_drinks/<drink_id>", methods=["GET", "POST"])
 @token_required
 def admin_menu_drinks_modify(drink_id):
+    if session["user"][4] != 1:
+        return redirect(url_for("error_page"))
+
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
@@ -258,6 +266,9 @@ def admin_menu_drinks_modify(drink_id):
 @app.route("/admin/menu_drinks/add_drink", methods=["GET", "POST"])
 @token_required
 def admin_menu_drinks_add():
+    if session["user"][4] != 1:
+        return redirect(url_for("error_page"))
+
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
@@ -298,6 +309,9 @@ def admin_menu_drinks_add():
 @app.route("/admin/menu_drinks/delete/<drink_id>", methods=["POST"])  # API
 @token_required
 def admin_menu_drinks_delete(drink_id):
+    if session["user"][4] != 1:
+        return redirect(url_for("error_page"))
+
     id = drink_id
     user_id = session["user"][0]
     et = defusedxml.ElementTree.parse("static/products.xml")
@@ -311,6 +325,9 @@ def admin_menu_drinks_delete(drink_id):
 @app.route("/admin/menu_toppings")
 @token_required
 def admin_menu_toppings():
+    if session["user"][4] != 1:
+        return redirect(url_for("error_page"))
+
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
@@ -343,6 +360,9 @@ def admin_menu_toppings():
 @app.route("/admin/menu_toppings/<topping_id>", methods=["GET", "POST"])
 @token_required
 def admin_menu_toppings_modify(topping_id):
+    if session["user"][4] != 1:
+        return redirect(url_for("error_page"))
+
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
@@ -403,6 +423,9 @@ def admin_menu_toppings_modify(topping_id):
 @app.route("/admin/menu_toppings/add_topping", methods=["GET", "POST"])
 @token_required
 def admin_menu_toppings_add():
+    if session["user"][4] != 1:
+        return redirect(url_for("error_page"))
+
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
@@ -444,6 +467,8 @@ def admin_menu_toppings_add():
 @app.route("/admin/menu_toppings/delete/<topping_id>", methods=["POST"])  # API
 @token_required
 def admin_menu_toppings_delete(topping_id):
+    if session["user"][4] != 1:
+        return redirect(url_for("error_page"))
 
     id = topping_id
     user_id = session["user"][0]
@@ -459,6 +484,9 @@ def admin_menu_toppings_delete(topping_id):
 @app.route("/admin/orders")
 @token_required
 def admin_orders():
+    if session["user"][4] != 1:
+        return redirect(url_for("error_page"))
+
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
@@ -486,6 +514,9 @@ def admin_orders():
 @app.route("/admin/orders/clear")  # API
 @token_required
 def clear_admin_orders():
+    if session["user"][4] != 1:
+        return redirect(url_for("error_page"))
+
     order_id = request.args["order_id"]
     user_id = session["user"][0]
     with sqlite3.connect("swoy.db") as conn:
@@ -498,6 +529,9 @@ def clear_admin_orders():
 @app.route("/admin/orders_details")
 @token_required
 def admin_order_details():
+    if session["user"][4] != 1:
+        return redirect(url_for("error_page"))
+
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
@@ -558,12 +592,18 @@ def admin_order_details():
 @app.route("/admin/feedbacks")
 @token_required
 def admin_feedbacks():
+    if session["user"][4] != 1:
+        return redirect(url_for("error_page"))
+
     return render_template("admin_feedbacks.html", admin_title="Customer Feedbacks")
 
 
 @app.route("/admin/user_accounts")
 @token_required
 def admin_user_accounts():
+    if session["user"][4] != 1:
+        return redirect(url_for("error_page"))
+
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
@@ -590,6 +630,9 @@ def admin_user_accounts():
 @app.route("/admin/admin_accounts", methods=["GET", "POST"])
 @token_required
 def admin_admin_accounts():
+    if session["user"][4] != 1:
+        return redirect(url_for("error_page"))
+
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
@@ -616,6 +659,9 @@ def admin_admin_accounts():
 @app.route("/admin/admin_accounts_delete", methods=["GET", "POST"])  # API
 @token_required
 def admin_account_delete():
+    if session["user"][4] != 1:
+        return redirect(url_for("error_page"))
+
     userId = request.args["id"]
     id = session["user"][0]
     with sqlite3.connect("swoy.db") as conn:
@@ -634,6 +680,9 @@ def admin_account_delete():
 @app.route("/admin/add_admin_account", methods=["GET", "POST"])
 @token_required
 def add_admin_account():
+    if session["user"][4] != 1:
+        return redirect(url_for("error_page"))
+
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
@@ -695,6 +744,9 @@ def add_admin_account():
 @app.route("/admin/logs")
 @token_required
 def admin_logs():
+    if session["user"][4] != 1:
+        return redirect(url_for("error_page"))
+
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
@@ -1383,9 +1435,11 @@ def order_history():
     return render_template("order_history.html", user_account=user_account, cart_item_count=cart_item_count)
 
 
+@app.errorhandler(404)
 @app.route("/404")
-def error_page():
-     return render_template("error_404.html")
+def error_page(e):
+    return render_template("error_404.html"), 404
+
 
 if __name__ == "__main__":
     logging.basicConfig(filename='werkzeug.txt', level=logging.INFO)
