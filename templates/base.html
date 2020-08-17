@@ -61,7 +61,11 @@
                     <div class="dropdown-content">
                         <a class="dropdown-link" href="{{ url_for('view_profile') }}">View My
                             Profile</a>
+                        {% if user_account[4] == 0 %}
                         <a class="dropdown-link" href="{{ url_for('order_history') }}">View Past Orders</a>
+                        {% else %}
+                        <a class="dropdown-link" href="{{ url_for('admin_dashboard') }}">View Dashboard</a>
+                        {% endif %}
                     </div>
                 </div>
             </li>
