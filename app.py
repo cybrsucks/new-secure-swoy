@@ -781,6 +781,7 @@ def admin_logs():
         logs.reverse()
     return render_template("admin_logs.html", admin_title="History Logs", user_account=user_account, logs=logs)
 
+
 @app.route("/admin/user_logs")
 @token_required
 def user_logs():
@@ -952,6 +953,7 @@ def login():
                         # log_return = "[" + str(localtime) + "] Customer (" + str(username) + ") has exceeded the password attempt limits and has been locked."
                         # logging.info(log_return)
                         user_logger.info("[" + str(localtime) + "] Customer (" + str(username) + ") has exceeded the password attempt limits and has been locked.")
+                        return redirect(url_for("FAQ"))
             else:
                 error = "Incorrect email or password"
                 # error = "Email does not exist."
@@ -1493,6 +1495,11 @@ def error_page(e):
 @app.route("/er404")
 def error_404():
     return render_template("error_404.html")
+
+
+@app.route("/FAQ")
+def FAQ():
+    return render_template("FAQ.html")
 
 
 if __name__ == "__main__":

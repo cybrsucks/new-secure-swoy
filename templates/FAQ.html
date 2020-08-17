@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="swoy-container" style="margin-top: 100px; padding: 20px; border-radius: 20px;">
+    <h1 style="text-align: center">FAQ</h1>
+    <div id="accordion">
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h5 class="mb-0">
+                    <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="True"
+                            aria-controls="collapseOne">
+                        Why can't I log in into my account?
+                    </button>
+                </h5>
+            </div>
+
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                <div class="card-body">
+                    It is most likely that you exceeded the password attempts. Please contact one of our administrators
+                    to change your password.
+                    <table class="table">
+                        <tr>
+                            <th>Administrator Name</th>
+                            <th>Email</th>
+                            <th>Contacting Hours</th>
+                        </tr>
+                        
+                        <tr>
+                            <th>superAdmin</th>
+                            <th>superadmin@swoy.com</th>
+                            <th>12pm-6pm</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" id="headingTwo">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo"
+                            aria-expanded="false" aria-controls="collapseTwo">
+                        Where are your current outlets?
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                <div class="card-body">
+                    Unfortunately we only have a outlet at Jurong West, but no worries we accept deliveries too!
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingThree">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree"
+                            aria-expanded="false" aria-controls="collapseThree">
+                        Have your enterprise ever considered creating a new bubble tea flavour?
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+                <div class="card-body">
+                    Oh yes you bet we are! We are currently making a new flavour so please look forward to it!
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
