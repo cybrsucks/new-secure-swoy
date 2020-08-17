@@ -687,10 +687,31 @@ def admin_user_accounts():
 
     userList = []
     for user in users:
-        userList.append({"id": user[0], "username": user[1], "email": user[2]})
+        userList.append({"id": user[0], "username": user[1], "email": user[2], "locked": user[5]})
 
     return render_template("admin_user_accounts.html", admin_title="User Accounts", userList=userList,
                            user_account=user_account)
+
+@app.route("/admin/user_accounts/enable")
+@token_required
+def enable_account():
+    if session["user"][4] != 1:
+        return redirect(url_for("error_404"))
+    try:
+        userId = request.args["id"]
+        id = session["user"][0]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM user WHERE user_id= ?", (userId,))
+            account_enable = cursor.fetchone()
+            cursor.execute("UPDATE user SET locked = 0 WHERE user_id = ?", (userId,))
+    except:
+        user_account = None
+
+    localtime = time.asctime(time.localtime(time.time()))
+    user_logger.info("[" + str(localtime) + "] " + session["user"][1] + " has enabled account " + "[" + account_enable[1] + "]")
+
+    return redirect(url_for("admin_user_accounts"))
 
 
 @app.route("/admin/admin_accounts", methods=["GET", "POST"])
@@ -737,8 +758,6 @@ def admin_account_delete():
         cursor.execute("DELETE FROM user WHERE user_id = ?", (userId,))
 
     localtime = time.asctime(time.localtime(time.time()))
-    # log_return = "[" + str(localtime) + "] " + session["user"][1] + " has deleted admin account " + account_deleted[1]
-    # logging.warning(log_return)
     admin_logger.info("[" + str(localtime) + "] " + session["user"][1] + " has deleted admin account " + "[" + account_deleted[1] + "]")
 
     return redirect(url_for("admin_admin_accounts"))
@@ -791,8 +810,6 @@ def add_admin_account():
                 conn.commit()
 
                 localtime = time.asctime(time.localtime(time.time()))
-                # log_return = "[" + str(localtime) + "] " + user_account[1] + " created an admin account " + "[" + username + "] "
-                # logging.warning(log_return)
                 admin_logger.warning("[" + str(localtime) + "] " + user_account[1] + " created an admin account " + "[" + html_encode(username) + "] ")
 
                 users = None
@@ -977,10 +994,9 @@ def login():
                 account_match = cursor.execute("SELECT * FROM user WHERE email = ? and password = ?", (html_encode(email), passwordDigest)).fetchone()
                 # print(f"Account: {account_match}")
                 if account_match:
+                    incorrect_password_tries = 0
                     if account_match[4]:
                         token = jwt.encode({' user': account_match[0], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
-                        # log_return = "[" + str(localtime) + "] Admin (" + str(account_match[1]) + ") is required to enter OTP"
-                        # logging.info(log_return)
                         admin_logger.info("[" + str(localtime) + "] Admin (" + str(account_match[1]) + ") is required to enter OTP")
                         session["token"] = token
                         session["unauthenticated_user"] = account_match
@@ -988,8 +1004,6 @@ def login():
                         return redirect(url_for("authenticate_otp"))
                     else:
                         token = jwt.encode({' user': account_match[0], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
-                        # log_return = "[" + str(localtime) + "] Customer (" + str(account_match[1]) + ") successfully logged in"
-                        # logging.info(log_return)
                         user_logger.info("[" + str(localtime) + "] Customer (" + str(account_match[1]) + ") successfully logged in")
                         session["token"] = token
                         session["user"] = account_match
@@ -1004,8 +1018,6 @@ def login():
                             cursor.execute("UPDATE user SET locked = 1 WHERE email = ?", (html_encode(email), ))
                             conn.commit()
                         error = "Exceeded incorrect password attempts. Please contact website adminstrator."
-                        # log_return = "[" + str(localtime) + "] Customer (" + str(username) + ") has exceeded the password attempt limits and has been locked."
-                        # logging.info(log_return)
                         user_logger.info("[" + str(localtime) + "] Customer (" + str(username) + ") has exceeded the password attempt limits and has been locked.")
                         return redirect(url_for("FAQ"))
             else:
@@ -1090,14 +1102,6 @@ def update_comment():
             cursor = conn.cursor()
             cursor.execute(f"INSERT INTO comments(content, user_id, drink_id) VALUES (?, ?, ?)", (content, user_id, drink_id))
             conn.commit()
-
-        # productData = xmltodict.parse(open("static/products.xml", "r").read())
-        # drinks = productData["products"]["drinks"]
-        # for drink in drinks:
-        #     for i in drinks[drink]:
-        #         if i["@id"] == drink_id:
-        #             drink_name = i["description"]
-
         return redirect(url_for("product", drink_id=drink_id, _anchor="comments"))
     except:
         return redirect(url_for("home"))
@@ -1354,24 +1358,18 @@ def forgot_pwd_otp():
 
     if request.method == "GET":
         email_otp = PyOTP.send_otp(forgot_pw_email)
-        timeout = time.time() + 60 * 3  # current_time + 3 minutes
+        timeout = time.time() + 60 * 3
         localtime = time.asctime(time.localtime(time.time()))
-        # log_return = "[" + str(localtime) + "] OTP verification needed to change password for " + user_account[1] + " [FORGOT PASSWORD]"
-        # logging.info(log_return)
         user_logger.info("[" + str(localtime) + "] OTP verification needed to change password for " + user_account[1] + " [FORGOT PASSWORD]")
-
     if request.method == "POST" and form.validate_on_submit():
         check = str(form.otp.data)
-
         if time.time() > timeout or check != email_otp:
             print("OTP INVALID OR EXPIRED")
         elif check == email_otp and time.time() < timeout:
             print("Success!")
             email_otp = None
             timeout = None
-
             return redirect(url_for('forgot_password_change'))
-
     return render_template("forgot_password(2).html", form=form)
 
 
@@ -1391,8 +1389,6 @@ def forgot_password_change():
             user_account = cursor.fetchone()
 
         localtime = time.asctime(time.localtime(time.time()))
-        # log_return = "[" + str(localtime) + "] " + str(user_account[1]) + " attempted to change password [EXISTING PASSWORD]"
-        # logging.info(log_return)
         user_logger.info("[" + str(localtime) + "] " + str(user_account[1]) + " attempted to change password [EXISTING PASSWORD]")
 
         new_password = form.new_pwd.data
@@ -1511,14 +1507,9 @@ def change_password():
                 cursor = conn.cursor()
                 current_password_from_db = cursor.execute("SELECT password FROM user WHERE user_id = ?", (user_id,))
                 if current_password_from_db.fetchone()[0] != currentPasswordDigest:
-                    # log_return = "[" + str(localtime) + "] "+ str(user_account[1]) + ") attempted to change password [EXISTING PASSWORD]"
-                    # logging.info(log_return)
                     user_logger.info("[" + str(localtime) + "] "+ str(user_account[1]) + ") attempted to change password [EXISTING PASSWORD]")
                     return redirect(url_for("view_profile", password_error=1))
-
                 else:
-                    # log_return = "[" + str(localtime) + "] " + str(user_account[1]) + ") successfully changed password [EXISTING PASSWORD]"
-                    # logging.info(log_return)
                     user_logger.info("[" + str(localtime) + "] " + str(user_account[1]) + ") successfully changed password [EXISTING PASSWORD]")
 
                 cursor.execute("UPDATE user SET password = ? WHERE user_id = ?", (newPasswordDigest, user_id))
@@ -1582,6 +1573,3 @@ if __name__ == "__main__":
     # logger_admin.setLevel(logging.WARNING)
 
     app.run(debug=True)
-
-
-

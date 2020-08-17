@@ -525,3 +525,29 @@ font-family: Quenda-Medium;
     border-color: #253d52;
     transition: all 0.3s ease;
 }
+
+.locked-btn{
+    width:80px;
+    color: white;
+    background-color:red;
+    border-color: red;
+}
+
+.locked-btn:hover{
+    opacity: 0.6;
+    background-color:red;
+    border-color: red;
+}
+
+.active-btn{
+    width:80px;
+    color: white;
+    background-color:green;
+    border-color: green;
+}
+
+.active-btn:hover{
+    opacity: 0.7;
+    background-color:green;
+    border-color: green;
+}
