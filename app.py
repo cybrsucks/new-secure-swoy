@@ -112,6 +112,8 @@ def admin_dashboard():
         productData = xmltodict.parse(open("static/products.xml", "r").read())
     except:
         error = "Warning: Error retrieving product data"
+        admin_logger.error("[" + str(localtime) + "] Products are not being properly displayed on the website.")
+
 
     try:
         toppingsNo = len(productData["products"]["toppings"]["topping"])
@@ -757,12 +759,11 @@ def add_admin_account():
     return render_template("admin_add_admin_account.html", admin_title="Add Admin Account", form=form, user_account=user_account, error=error)
 
 
-@app.route("/admin/logs")
+@app.route("/admin/admin_logs")
 @token_required
 def admin_logs():
     if session["user"][4] != 1:
         return redirect(url_for("error_404"))
-
     try:
         user_id = session["user"][0]
         with sqlite3.connect("swoy.db") as conn:
@@ -772,10 +773,29 @@ def admin_logs():
     except:
         user_account = None
 
-    with open("werkzeug.txt") as f:
+    with open("admin_logs.log") as f:
         logs = f.read().split("\n")[:-1]
         logs.reverse()
     return render_template("admin_logs.html", admin_title="History Logs", user_account=user_account, logs=logs)
+
+@app.route("/admin/user_logs")
+@token_required
+def user_logs():
+    if session["user"][4] != 1:
+        return redirect(url_for("error_404"))
+    try:
+        user_id = session["user"][0]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
+            user_account = cursor.fetchone()
+    except:
+        user_account = None
+
+    with open("user_logs.log") as f:
+        logs = f.read().split("\n")[:-1]
+        logs.reverse()
+    return render_template("user_logs.html", admin_title="History Logs", user_account=user_account, logs=logs)
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -856,15 +876,15 @@ def signup():
             else:
                 passwordDigest = (hashlib.sha256(password.encode("utf-8"))).hexdigest()
                 cursor.execute("INSERT INTO user(username, email, password, admin, locked) "
-                               "VALUES (?, ?, ?, ?)", (username, email, passwordDigest, admin, locked))
+                               "VALUES (?, ?, ?, ?, ?)", (username, email, passwordDigest, admin, locked))
                 updated = cursor.execute("SELECT * FROM user").fetchall()
-                # print(f"Updated database : {updated}")
+                print(f"Updated database : {updated}")
                 conn.commit()
 
                 localtime = time.asctime(time.localtime(time.time()))
                 # log_return = "[" + str(localtime) + "] New Acount created for " + user_account[1] + " with user_id " + user_account[0]
                 # logging.info(log_return)
-                admin_logger.info("[" + str(localtime) + "] New Acount created for " + user_account[1] + " with user_id " + user_account[0])
+                admin_logger.info("[" + str(localtime) + "] New Acount created for " + updated[1] + " with user_id " + updated[0])
 
                 return render_template("login.html", form=LoginForm())
     return render_template("signup.html", form=form, error=error)
