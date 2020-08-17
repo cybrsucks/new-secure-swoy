@@ -15,18 +15,21 @@
       <th scope="row">{{user.id}}</th>
       <td>{{user.username}}</td>
       <td>{{user.email}}</td>
-        {% if user.id != 2 %}
-                <td>
-                    <a href="{{ url_for('admin_account_delete', id=user.id) }}">
-                        <button type="submit" class="btn btn-danger" style="color:white;">Delete Account</button>
-                    </a>
-                </td>
+        {% if session["user"][0] == 2 %}
+            {% if user.id != 2 %}
+                    <td>
+                        <a href="{{ url_for('admin_account_delete', id=user.id) }}">
+                            <button type="submit" class="btn btn-danger" style="color:white;">Delete Account</button>
+                        </a>
+                    </td>
+            {% endif %}
         {% endif %}
     </tr>
     {% endfor %}
   </tbody>
 </table>
-
-<a href="{{ url_for('add_admin_account') }}" type="button" class="btn btn-primary" style="color:white;">Add Admin Account</a>
+{% if session["user"][0] == 2 %}
+    <a href="{{ url_for('add_admin_account') }}" type="button" class="btn btn-primary" style="color:white;">Add Admin Account</a>
+{% endif %}
 
 {% endblock %}
