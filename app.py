@@ -129,6 +129,9 @@ def admin_dashboard():
 def authenticate_otp():
     global email_otp
     global timeout
+    if session["unauthenticated_user"] is None:
+        return redirect(url_for("error_404"))
+
     if session["unauthenticated_user"][4] != 1:
         session["user"] = session["unauthenticated_user"]
         session["unauthenticated_user"] = None
@@ -877,6 +880,7 @@ def login():
     forgot_pw_email = None
     form = LoginForm()
     error = None
+
     if request.method == "POST" and form.validate_on_submit():
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
