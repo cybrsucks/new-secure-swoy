@@ -13,7 +13,7 @@
                                 <img class="card-img-top responsive" src="../static/noimage.png" alt="No image">
                             {% endif %}
                             <div class="card-body" style="color:black;">
-                                <span class="card-text product-caption">{{ item.name }}</span>
+                                <span class="card-text product-caption">{{ item.name | safe }}</span>
                                 <span style="float:right;">$ {{ item.price }}</span>
                             </div>
                         </a>
