@@ -193,8 +193,6 @@ def authenticate_otp():
         email_otp = PyOTP.send_otp(user_account[2])
         timeout = time.time() + 60 * 3  # current_time + 3 minutes
         localtime = time.asctime(time.localtime(time.time()))
-        # log_return = "[" + str(localtime) + "] An OTP request has been sent to admin inbox"
-        # logging.info(log_return)
         admin_logger.info("[" + str(localtime) + "] An OTP request has been sent to admin inbox")
 
     if request.method == "POST" and form.validate_on_submit():
@@ -720,7 +718,7 @@ def enable_account():
         user_account = None
 
     localtime = time.asctime(time.localtime(time.time()))
-    user_logger.info("[" + str(localtime) + "] " + session["user"][1] + " has enabled account " + "[" + account_enable[1] + "]")
+    user_logger.info("[" + str(localtime) + "] " + session["user"][1] + " has enabled account " + "[" + account_enable[1] + "] with userID: " + str(account_enable[0]))
 
     return redirect(url_for("admin_user_accounts"))
 
@@ -860,7 +858,7 @@ def admin_logs():
         logs = f.read().split("\n")[:-1]
         logs.reverse()
 
-    return render_template("admin_logs.html", admin_title="History Logs", user_account=user_account, logs=logs)
+    return render_template("admin_logs.html", admin_title="Admin Logs", user_account=user_account, logs=logs)
 
 
 @app.route("/admin/user_logs")
@@ -881,7 +879,7 @@ def user_logs():
         logs = f.read().split("\n")[:-1]
         logs.reverse()
 
-    return render_template("user_logs.html", admin_title="History Logs", user_account=user_account, logs=logs)
+    return render_template("user_logs.html", admin_title="User Logs", user_account=user_account, logs=logs)
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -1022,15 +1020,16 @@ def login():
 
             if account_match:
                 locked = account_match[5]
-                username = account_match[1]
+                send_username = account_match[1]
                 send_email = account_match[2]
+                send_user_id = account_match[0]
                 localtime = time.asctime(time.localtime(time.time()))
-                user_logger.info("[" + str(localtime) + "] " + str(account_match[1]) + " attempted login")
+                user_logger.info("[" + str(localtime) + "] " + str(account_match[1]) + ' USERID: ' + str(account_match[0]) + " attempted login")
                 passwordDigest = (hashlib.sha256(password.encode("utf-8"))).hexdigest()
 
                 account_match = cursor.execute("SELECT * FROM user WHERE email = ? and password = ?", (html_encode(email), passwordDigest)).fetchone()
                 # print(f"Account: {account_match}")
-                if account_match:
+                if account_match and locked == 0:
                     incorrect_password_tries = 0
                     if account_match[4]:
                         token = jwt.encode({' user': account_match[0], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
@@ -1041,7 +1040,7 @@ def login():
                         return redirect(url_for("authenticate_otp"))
                     else:
                         token = jwt.encode({' user': account_match[0], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
-                        user_logger.info("[" + str(localtime) + "] Customer (" + str(account_match[1]) + ") successfully logged in")
+                        user_logger.info("[" + str(localtime) + "] Customer (" + str(account_match[1]) + ' USERID: ' + str(account_match[0]) + ") successfully logged in")
                         session["token"] = token
                         session["user"] = account_match
                         return redirect(url_for("home"))
@@ -1051,7 +1050,7 @@ def login():
                         incorrect_password_tries += 1
                         error = "Incorrect email or password"
                     else:
-                        if incorrect_password_tries >= 4:
+                        if incorrect_password_tries >= 4 or locked == 1:
                             cursor.execute("UPDATE user SET locked = 1 WHERE email = ?", (html_encode(email), ))
                             conn.commit()
                         error = "Exceeded incorrect password attempts. Please contact website adminstrator."
@@ -1067,7 +1066,7 @@ def login():
                         server.login(username, password)
                         server.sendmail(fromaddr, toaddrs, msg)
                         server.quit()
-                        user_logger.info("[" + str(localtime) + "] Customer (" + str(username) + ") has exceeded the password attempt limits and has been locked.")
+                        user_logger.info("[" + str(localtime) + "] Customer (" + str(send_username) + ' USERID: ' + str(send_user_id) + ") has exceeded the password attempt limits and has been locked.")
                         return redirect(url_for("FAQ"))
             else:
                 error = "Incorrect email or password"
@@ -1143,7 +1142,6 @@ def product(drink_id):
 @app.route("/product/update_drink_comments", methods=["GET", "POST"])  # API_id 4
 @token_required
 def update_comment():
-
     try:
         drink_id = request.args["drink_id"]
         user_id = session["user"][0]
@@ -1431,7 +1429,7 @@ def forgot_pwd_otp():
         email_otp = PyOTP.send_otp(forgot_pw_email)
         timeout = time.time() + 60 * 3
         localtime = time.asctime(time.localtime(time.time()))
-        user_logger.info("[" + str(localtime) + "] OTP verification needed to change password for " + user_account[1] + " [FORGOT PASSWORD]")
+        user_logger.info("[" + str(localtime) + "] OTP verification needed to change password for " + str(account_match[1]) + ' USERID: ' + str(account_match[0]) + " [FORGOT PASSWORD]")
     if request.method == "POST" and form.validate_on_submit():
         check = str(form.otp.data)
         if time.time() > timeout or check != email_otp:
@@ -1460,7 +1458,7 @@ def forgot_password_change():
             user_account = cursor.fetchone()
 
         localtime = time.asctime(time.localtime(time.time()))
-        user_logger.info("[" + str(localtime) + "] " + str(user_account[1]) + " attempted to change password [EXISTING PASSWORD]")
+        user_logger.info("[" + str(localtime) + "] " + str(account_match[1]) + ' USERID: ' + str(account_match[0]) + " attempted to change password [EXISTING PASSWORD]")
 
         new_password = form.new_pwd.data
         error_present = True
@@ -1551,59 +1549,54 @@ def change_password():
     except:
         user_account = None
 
-    limit_reached = function_call(7, user_id=int(user_id))
 
-    if not limit_reached:
-        try:
-            current_pwd = request.form["current_pwd"]
-            new_password = request.form["new_pwd"]
+    try:
+        current_pwd = request.form["current_pwd"]
+        new_password = request.form["new_pwd"]
 
-            error_present = True
-            while error_present:
-                if not re.search(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{8,20}$", new_password):
-                    error_password = "Your password must be at least 8 characters, contain at least 1 symbol (@, $, !, %, *, #, ?, &), at least 1 uppercase and at least 1 lowercase"
-                    while error_password:
-                        return render_template("profile.html", username_form=username_form, password_error=password_error,
-                               password_form=password_form, user_account=user_account, cart_item_count=cart_item_count)
-                else:
-                    error_password = False
-                    break
+        error_present = True
+        while error_present:
+            if not re.search(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{8,20}$", new_password):
+                error_password = "Your password must be at least 8 characters, contain at least 1 symbol (@, $, !, %, *, #, ?, &), at least 1 uppercase and at least 1 lowercase"
+                while error_password:
+                    return render_template("profile.html", username_form=username_form, password_error=password_error,
+                           password_form=password_form, user_account=user_account, cart_item_count=cart_item_count)
+            else:
+                error_password = False
+                break
 
-            confirm_password = request.form["confirm_new_pwd"]
-            currentPasswordDigest = (hashlib.sha256(current_pwd.encode("utf-8"))).hexdigest()
-            newPasswordDigest = (hashlib.sha256(new_password.encode("utf-8"))).hexdigest()
+        confirm_password = request.form["confirm_new_pwd"]
+        currentPasswordDigest = (hashlib.sha256(current_pwd.encode("utf-8"))).hexdigest()
+        newPasswordDigest = (hashlib.sha256(new_password.encode("utf-8"))).hexdigest()
 
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
+            user_account = cursor.fetchone()
+
+        localtime = time.asctime(time.localtime(time.time()))
+
+        if new_password != confirm_password:
+            return redirect(url_for("view_profile", password_error=1))
+        else:
             with sqlite3.connect("swoy.db") as conn:
                 cursor = conn.cursor()
-                cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
-                user_account = cursor.fetchone()
-
-            localtime = time.asctime(time.localtime(time.time()))
-
-            if new_password != confirm_password:
-                return redirect(url_for("view_profile", password_error=1))
-            else:
-                with sqlite3.connect("swoy.db") as conn:
-                    cursor = conn.cursor()
-                    current_password_from_db = cursor.execute("SELECT password FROM user WHERE user_id = ?", (user_id,))
-                    if current_password_from_db.fetchone()[0] != currentPasswordDigest:
-                        # log_return = "[" + str(localtime) + "] "+ str(user_account[1]) + ") attempted to change password [EXISTING PASSWORD]"
-                        # logging.info(log_return)
-                        user_logger.info("[" + str(localtime) + "] "+ str(user_account[1]) + ") attempted to change password [EXISTING PASSWORD]")
-                        return redirect(url_for("view_profile", password_error=1))
-
+                current_password_from_db = cursor.execute("SELECT password FROM user WHERE user_id = ?", (user_id,))
+                if current_password_from_db.fetchone()[0] != currentPasswordDigest:
+                    user_logger.info("[" + str(localtime) + "] ("+ str(user_account[1]) + ' USERID: ' + str(user_account[0]) + ") attempted to change password [EXISTING PASSWORD]")
+                    return redirect(url_for("view_profile", password_error=1))
+                else:
+                    limit_reached = function_call(7, user_id=int(user_id))
+                    if not limit_reached:
+                        user_logger.info("[" + str(localtime) + "] (" + str(user_account[1]) + ' USERID: ' + str(user_account[0]) + ") successfully changed password [EXISTING PASSWORD]")
+                        cursor.execute("UPDATE user SET password = ? WHERE user_id = ?", (newPasswordDigest, user_id))
                     else:
-                        # log_return = "[" + str(localtime) + "] " + str(user_account[1]) + ") successfully changed password [EXISTING PASSWORD]"
-                        # logging.info(log_return)
-                        user_logger.info("[" + str(localtime) + "] " + str(user_account[1]) + ") successfully changed password [EXISTING PASSWORD]")
+                        return "Change password daily limit reached."
 
-                    cursor.execute("UPDATE user SET password = ? WHERE user_id = ?", (newPasswordDigest, user_id))
-                    conn.commit()
-                return redirect(url_for("view_profile"))
-        except:
-            return redirect(url_for("home"))
-    else:
-        return "Change password daily limit reached."
+                conn.commit()
+            return redirect(url_for("view_profile"))
+    except:
+        return redirect(url_for("home"))
 
 
 @app.route("/order_history", methods=["GET", "POST"])
@@ -1677,4 +1670,4 @@ if __name__ == "__main__":
     # logger_admin = logging.getLogger('werkzeug')
     # logger_admin.setLevel(logging.WARNING)
 
-    app.run(debug=False)
+    app.run(debug=True)

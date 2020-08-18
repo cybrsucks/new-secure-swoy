@@ -116,14 +116,14 @@ def test1():
 def test2():
     with sqlite3.connect("function_call.db") as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM functions WHERE function_id = 6")
+        cursor.execute("SELECT * FROM functions WHERE function_id = 7")
         print(cursor.fetchall())
-        cursor.execute("SELECT * FROM user_call WHERE function_id = 6")
+        cursor.execute("SELECT * FROM user_call WHERE function_id = 7")
         print(cursor.fetchall())
 
 
 if __name__ == "__main__":
     # create_call_db()
     # test1()
-    # test2()
+    test2()
     pass
