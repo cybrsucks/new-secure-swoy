@@ -1,5 +1,4 @@
 from flask import Flask, render_template, redirect, url_for, request, Response, session
-from werkzeug.serving import WSGIRequestHandler, _log
 from werkzeug.utils import secure_filename
 from wtforms import ValidationError
 from functools import wraps
@@ -111,15 +110,18 @@ def admin_dashboard():
     try:
         productData = xmltodict.parse(open("static/products.xml", "r").read())
     except:
+        localtime = time.asctime(time.localtime(time.time()))
+        admin_logger.error("[" + str(localtime) + "] Products are not being properly displayed on the website. Please check products.xml file")
         error = "Warning: Error retrieving product data"
-        admin_logger.error("[" + str(localtime) + "] Products are not being properly displayed on the website.")
-
-
     try:
         toppingsNo = len(productData["products"]["toppings"]["topping"])
         drinkNo = len(productData["products"]["drinks"]["drink"])
     except:
+        localtime = time.asctime(time.localtime(time.time()))
+        admin_logger.error("[" + str(
+            localtime) + "] Products are not being properly displayed on the admin dashboard. Please check products.xml file")
         error = "Warning: Error retrieving product data"
+
 
     return render_template("admin_dashboard.html", admin_title="Dashboard", user_account=user_account,
                            noOfAdmin=noOfAdmin, noOfUser=noOfUser, toppingsNo=toppingsNo, drinkNo=drinkNo,
@@ -205,8 +207,11 @@ def admin_menu_drinks():
     try:
         drinks = productData["products"]["drinks"]
     except:
+        localtime = time.asctime(time.localtime(time.time()))
+        admin_logger.error("[" + str(localtime) + "] Drinks are not being properly displayed on the admin menu drinks. Please check products.xml file")
         return render_template("admin_menu_drinks.html", admin_title="Menu Items - Drinks", drink_list=[],
                                 user_account=user_account, error="Warning: Error retrieving products")
+
     drink_list = []
     for drink in drinks:
         for i in drinks[drink]:
@@ -359,9 +364,13 @@ def admin_menu_toppings():
     try:
         toppings = productData["products"]["toppings"]
     except:
+        localtime = time.asctime(time.localtime(time.time()))
+        admin_logger.error("[" + str(
+            localtime) + "] Toppings are not being properly displayed on the admin menu toppings. Please check products.xml file")
         return render_template("admin_menu_toppings.html", admin_title="Menu Items - Toppings",
                                topping_list=[],
                                user_account=user_account, error="Warning: Error retrieving products")
+
 
     topping_list = []
     for topping in toppings:
@@ -397,8 +406,6 @@ def admin_menu_toppings_modify(topping_id):
                 if i["@id"] == topping_id:
                     form.name.data = i["description"]
                     form.price.data = float(i["price"])
-        #
-        # return render_template("admin_menu_drinks_modify.html", admin_title=f"Menu Items - Modify Drinks - {name}" ,form=form, drink_id=drink_id)
 
     if request.method == "POST" and form.validate_on_submit():
         name = form.name.data
@@ -575,8 +582,13 @@ def admin_order_details():
                 drinks = productData["products"]["drinks"]
                 toppings = productData["products"]["toppings"]
             except:
+                localtime = time.asctime(time.localtime(time.time()))
+                admin_logger.error("[" + str(
+                    localtime) + "] Products are not being properly displayed on the admin order details. Please check products.xml file")
                 return render_template("admin_order_details.html", admin_title="Order details", order_items=order_items,
                                        total_price=total_price, order_id=order_id, user_account=user_account, error="Warning: Error retrieving products")
+
+
             for drink in drinks:
                 for i in drinks[drink]:
                     if i["@id"] == str(item[0]):
@@ -825,8 +837,12 @@ def home():
     try:
         drinks = productData["products"]["drinks"]
     except:
+        localtime = time.asctime(time.localtime(time.time()))
+        admin_logger.error("[" + str(
+            localtime) + "] Products are not being properly displayed on the homepage. Please check products.xml file and fix immediately")
         return render_template("home.html", drink_list=[], user_account=user_account, search=None,
                                cart_item_count=cart_item_count, error="Warning: Error retrieving products")
+
 
     drink_list = []
     for drink in drinks:
