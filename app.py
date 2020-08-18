@@ -4,6 +4,7 @@ from wtforms import ValidationError
 from functools import wraps
 from flask_jwt import jwt
 from Forms import *
+from function_call_tracker import *
 import defusedxml.ElementTree
 import xml.etree.ElementTree
 import datetime
@@ -366,19 +367,25 @@ def admin_menu_drinks_add():
                            user_account=user_account)
 
 
-@app.route("/admin/menu_drinks/delete/<drink_id>", methods=["POST"])  # API
+@app.route("/admin/menu_drinks/delete/<drink_id>", methods=["POST"])  # API_id 1
 @token_required
 def admin_menu_drinks_delete(drink_id):
     if session["user"][4] != 1:
         return redirect(url_for("error_404"))
 
-    id = drink_id
-    user_id = session["user"][0]
-    et = defusedxml.ElementTree.parse("static/products.xml")
-    for drinkTag in list(et.getroot()[0].getchildren()):
-        if id == drinkTag.attrib["id"]:
-            et.getroot()[0].remove(drinkTag)
-            et.write("static/products.xml")
+    limit_reached = function_call(1)
+
+    if not limit_reached:
+        id = drink_id
+        user_id = session["user"][0]
+        et = defusedxml.ElementTree.parse("static/products.xml")
+        for drinkTag in list(et.getroot()[0].getchildren()):
+            if id == drinkTag.attrib["id"]:
+                et.getroot()[0].remove(drinkTag)
+                et.write("static/products.xml")
+    else:
+        return "Delete drinks daily limit reached."
+
     return redirect(url_for("admin_menu_drinks"))
 
 
@@ -526,19 +533,24 @@ def admin_menu_toppings_add():
                            user_account=user_account)
 
 
-@app.route("/admin/menu_toppings/delete/<topping_id>", methods=["POST"])  # API
+@app.route("/admin/menu_toppings/delete/<topping_id>", methods=["POST"])  # API_id 2
 @token_required
 def admin_menu_toppings_delete(topping_id):
     if session["user"][4] != 1:
         return redirect(url_for("error_404"))
 
-    id = topping_id
-    user_id = session["user"][0]
-    et = defusedxml.ElementTree.parse("static/products.xml")
-    for toppingTag in list(et.getroot()[1].getchildren()):
-        if id == toppingTag.attrib["id"]:
-            et.getroot()[1].remove(toppingTag)
-            et.write("static/products.xml")
+    limit_reached = function_call(2)
+
+    if not limit_reached:
+        id = topping_id
+        user_id = session["user"][0]
+        et = defusedxml.ElementTree.parse("static/products.xml")
+        for toppingTag in list(et.getroot()[1].getchildren()):
+            if id == toppingTag.attrib["id"]:
+                et.getroot()[1].remove(toppingTag)
+                et.write("static/products.xml")
+    else:
+        return "Delete topping daily limit reached."
 
     return redirect(url_for("admin_menu_toppings"))
 
@@ -722,24 +734,29 @@ def admin_admin_accounts():
                            user_account=user_account)
 
 
-@app.route("/admin/admin_accounts_delete", methods=["GET", "POST"])  # API
+@app.route("/admin/admin_accounts_delete", methods=["GET", "POST"])  # API_id 3
 @token_required
 def admin_account_delete():
     if session["user"][4] != 1:
         return redirect(url_for("error_404"))
 
-    userId = request.args["id"]
-    id = session["user"][0]
-    with sqlite3.connect("swoy.db") as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM user WHERE user_id= ?", (userId,))
-        account_deleted = cursor.fetchone()
-        cursor.execute("DELETE FROM user WHERE user_id = ?", (userId,))
+    limit_reached = function_call(3)
 
-    localtime = time.asctime(time.localtime(time.time()))
-    # log_return = "[" + str(localtime) + "] " + session["user"][1] + " has deleted admin account " + account_deleted[1]
-    # logging.warning(log_return)
-    admin_logger.info("[" + str(localtime) + "] " + session["user"][1] + " has deleted admin account " + "[" + account_deleted[1] + "]")
+    if not limit_reached:
+        userId = request.args["id"]
+        id = session["user"][0]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM user WHERE user_id= ?", (userId,))
+            account_deleted = cursor.fetchone()
+            cursor.execute("DELETE FROM user WHERE user_id = ?", (userId,))
+
+        localtime = time.asctime(time.localtime(time.time()))
+        # log_return = "[" + str(localtime) + "] " + session["user"][1] + " has deleted admin account " + account_deleted[1]
+        # logging.warning(log_return)
+        admin_logger.info("[" + str(localtime) + "] " + session["user"][1] + " has deleted admin account " + "[" + account_deleted[1] + "]")
+    else:
+        return "Delete admin daily limit reached."
 
     return redirect(url_for("admin_admin_accounts"))
 
@@ -1014,7 +1031,7 @@ def login():
     return render_template("login.html", form=form, error=error)
 
 
-@app.route("/logout", methods=["GET", "POST"])
+@app.route("/logout", methods=["GET", "POST"])  # API
 def logout():
     session["token"] = None
     session["user"] = None
@@ -1079,26 +1096,34 @@ def product(drink_id):
                            user_account=user_account, cart_item_count=cart_item_count)
 
 
-@app.route("/product/update_drink_comments", methods=["GET", "POST"])  # API
+@app.route("/product/update_drink_comments", methods=["GET", "POST"])  # API_id 4
 @token_required
 def update_comment():
     try:
         drink_id = request.args["drink_id"]
         user_id = session["user"][0]
         content = request.form["content"]
-        with sqlite3.connect("swoy.db") as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"INSERT INTO comments(content, user_id, drink_id) VALUES (?, ?, ?)", (content, user_id, drink_id))
-            conn.commit()
+        if len(content) > 100:
+            return "Comment exceed character limit (100)"
 
-        # productData = xmltodict.parse(open("static/products.xml", "r").read())
-        # drinks = productData["products"]["drinks"]
-        # for drink in drinks:
-        #     for i in drinks[drink]:
-        #         if i["@id"] == drink_id:
-        #             drink_name = i["description"]
+        limit_reached = function_call(4, user_id=int(user_id))
 
-        return redirect(url_for("product", drink_id=drink_id, _anchor="comments"))
+        if not limit_reached:
+            with sqlite3.connect("swoy.db") as conn:
+                cursor = conn.cursor()
+                cursor.execute(f"INSERT INTO comments(content, user_id, drink_id) VALUES (?, ?, ?)", (content, user_id, drink_id))
+                conn.commit()
+
+            # productData = xmltodict.parse(open("static/products.xml", "r").read())
+            # drinks = productData["products"]["drinks"]
+            # for drink in drinks:
+            #     for i in drinks[drink]:
+            #         if i["@id"] == drink_id:
+            #             drink_name = i["description"]
+
+            return redirect(url_for("product", drink_id=drink_id, _anchor="comments"))
+        else:
+            return "Add comment daily limit reached."
     except:
         return redirect(url_for("home"))
 
@@ -1179,15 +1204,18 @@ def add_cart_item():
         toppings = [int(s) for s in request.form.getlist("toppings")]
         sugar = int(request.form["sugar"])
         quantity = int(request.form["quantity"])
+        if quantity > 10:
+            return "Cannot have quantity more than 10"
         item_details = [drink_id, toppings, sugar, quantity]
 
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT cart_items FROM cart WHERE user_id = ?", (user_id,))
             cart_items = cursor.fetchone()
-            print(cart_items)
             if cart_items:
                 cart_items = eval(cart_items[0])
+                if len(cart_items) >= 10:
+                    return "No. of cart items limit (10) reached."
                 cart_items.append(item_details)
                 cursor.execute("UPDATE cart SET cart_items = ? WHERE user_id = ?", (str(cart_items), user_id))
             else:
@@ -1287,7 +1315,7 @@ def checkout():
                            cart_items=cart_items, total_price=total_price)
 
 
-@app.route("/checkout/add_order", methods=["GET", "POST"])
+@app.route("/checkout/add_order", methods=["GET", "POST"])  # API_id 5
 @token_required
 def add_order():
     try:
@@ -1295,15 +1323,21 @@ def add_order():
         address = request.form["address"]
         delivery_date = request.form["delivery_date"]
         delivery_time = request.form["delivery_time"]
-        with sqlite3.connect("swoy.db") as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT cart_items FROM cart WHERE user_id = ?", (user_id,))
-            cart_items = cursor.fetchone()[0]
-            cursor.execute("INSERT INTO delivery_order(user_id, address, delivery_date, delivery_time, order_items) "
-                           "VALUES(?, ?, ?, ?, ?)", (user_id, address, delivery_date, delivery_time, str(cart_items)))
-            cursor.execute("UPDATE cart SET cart_items = '[]' WHERE user_id = ?", (user_id,))
-            conn.commit()
-        return redirect(url_for("home"))
+
+        limit_reached = function_call(5, user_id=int(user_id))
+
+        if not limit_reached:
+            with sqlite3.connect("swoy.db") as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT cart_items FROM cart WHERE user_id = ?", (user_id,))
+                cart_items = cursor.fetchone()[0]
+                cursor.execute("INSERT INTO delivery_order(user_id, address, delivery_date, delivery_time, order_items) "
+                               "VALUES(?, ?, ?, ?, ?)", (user_id, address, delivery_date, delivery_time, str(cart_items)))
+                cursor.execute("UPDATE cart SET cart_items = '[]' WHERE user_id = ?", (user_id,))
+                conn.commit()
+            return redirect(url_for("home"))
+        else:
+            return "Order made daily limit reached."
     except:
         return redirect(url_for("home"))
     return render_template("checkout.html", form=form)
@@ -1325,7 +1359,7 @@ def forgot_password_email_form():
         with sqlite3.connect("swoy.db") as conn:
             forgot_pw_email = form.email.data
             cursor = conn.cursor()
-            account_match = cursor.execute("SELECT * FROM user WHERE email = ?", (forgot_pw_email,)).fetchone()
+            account_match = cursor.execute("SELECT * FROM user WHERE email = ?", (html_encode(forgot_pw_email),)).fetchone()
             if account_match:
                 # print("here")
                 return redirect(url_for('forgot_pwd_otp'))
@@ -1347,7 +1381,7 @@ def forgot_pwd_otp():
     try:
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM user WHERE email = ?", (forgot_pw_email,))
+            cursor.execute("SELECT * FROM user WHERE email = ?", (html_encode(forgot_pw_email),))
             user_account = cursor.fetchone()
     except:
         user_account = None
@@ -1387,7 +1421,7 @@ def forgot_password_change():
     if request.method == "POST" and form.validate_on_submit():
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM user WHERE email = ?", (forgot_pw_email,))
+            cursor.execute("SELECT * FROM user WHERE email = ?", (html_encode(forgot_pw_email),))
             user_account = cursor.fetchone()
 
         localtime = time.asctime(time.localtime(time.time()))
@@ -1410,7 +1444,7 @@ def forgot_password_change():
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
             passwordDigest = (hashlib.sha256(new_password.encode("utf-8"))).hexdigest()
-            cursor.execute("UPDATE user SET password = ? WHERE email = ?", (passwordDigest, forgot_pw_email))
+            cursor.execute("UPDATE user SET password = ? WHERE email = ?", (passwordDigest, html_encode(forgot_pw_email)))
             conn.commit()
 
         forgot_pw_email = None
@@ -1451,22 +1485,28 @@ def view_profile():
                            password_form=password_form, user_account=user_account, cart_item_count=cart_item_count)
 
 
-@app.route("/change_username", methods=["GET", "POST"])
+@app.route("/change_username", methods=["GET", "POST"])  # API_id 6
 @token_required
 def change_username():
     try:
         user_id = session["user"][0]
         new_username = request.form["new_username"]
-        with sqlite3.connect("swoy.db") as conn:
-            cursor = conn.cursor()
-            cursor.execute("UPDATE user SET username = ? WHERE user_id = ?", (html_encode(new_username), user_id))
-            conn.commit()
-        return redirect(url_for("view_profile"))
+
+        limit_reached = function_call(6, user_id=int(user_id))
+
+        if not limit_reached:
+            with sqlite3.connect("swoy.db") as conn:
+                cursor = conn.cursor()
+                cursor.execute("UPDATE user SET username = ? WHERE user_id = ?", (html_encode(new_username), user_id))
+                conn.commit()
+            return redirect(url_for("view_profile"))
+        else:
+            return "Change username daily limit reached."
     except:
         return redirect(url_for("home"))
 
 
-@app.route("/change_password", methods=["GET", "POST"])
+@app.route("/change_password", methods=["GET", "POST"])  # API_id 7
 @token_required
 def change_password():
     try:
@@ -1478,54 +1518,59 @@ def change_password():
     except:
         user_account = None
 
-    try:
-        current_pwd = request.form["current_pwd"]
-        new_password = request.form["new_pwd"]
+    limit_reached = function_call(7, user_id=int(user_id))
 
-        error_present = True
-        while error_present:
-            if not re.search(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{8,20}$", new_password):
-                error_password = "Your password must be at least 8 characters, contain at least 1 symbol (@, $, !, %, *, #, ?, &), at least 1 uppercase and at least 1 lowercase"
-                while error_password:
-                    return render_template("profile.html", username_form=username_form, password_error=password_error,
-                           password_form=password_form, user_account=user_account, cart_item_count=cart_item_count)
-            else:
-                error_password = False
-                break
+    if not limit_reached:
+        try:
+            current_pwd = request.form["current_pwd"]
+            new_password = request.form["new_pwd"]
 
-        confirm_password = request.form["confirm_new_pwd"]
-        currentPasswordDigest = (hashlib.sha256(current_pwd.encode("utf-8"))).hexdigest()
-        newPasswordDigest = (hashlib.sha256(new_password.encode("utf-8"))).hexdigest()
+            error_present = True
+            while error_present:
+                if not re.search(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{8,20}$", new_password):
+                    error_password = "Your password must be at least 8 characters, contain at least 1 symbol (@, $, !, %, *, #, ?, &), at least 1 uppercase and at least 1 lowercase"
+                    while error_password:
+                        return render_template("profile.html", username_form=username_form, password_error=password_error,
+                               password_form=password_form, user_account=user_account, cart_item_count=cart_item_count)
+                else:
+                    error_password = False
+                    break
 
-        with sqlite3.connect("swoy.db") as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
-            user_account = cursor.fetchone()
+            confirm_password = request.form["confirm_new_pwd"]
+            currentPasswordDigest = (hashlib.sha256(current_pwd.encode("utf-8"))).hexdigest()
+            newPasswordDigest = (hashlib.sha256(new_password.encode("utf-8"))).hexdigest()
 
-        localtime = time.asctime(time.localtime(time.time()))
-
-        if new_password != confirm_password:
-            return redirect(url_for("view_profile", password_error=1))
-        else:
             with sqlite3.connect("swoy.db") as conn:
                 cursor = conn.cursor()
-                current_password_from_db = cursor.execute("SELECT password FROM user WHERE user_id = ?", (user_id,))
-                if current_password_from_db.fetchone()[0] != currentPasswordDigest:
-                    # log_return = "[" + str(localtime) + "] "+ str(user_account[1]) + ") attempted to change password [EXISTING PASSWORD]"
-                    # logging.info(log_return)
-                    user_logger.info("[" + str(localtime) + "] "+ str(user_account[1]) + ") attempted to change password [EXISTING PASSWORD]")
-                    return redirect(url_for("view_profile", password_error=1))
+                cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
+                user_account = cursor.fetchone()
 
-                else:
-                    # log_return = "[" + str(localtime) + "] " + str(user_account[1]) + ") successfully changed password [EXISTING PASSWORD]"
-                    # logging.info(log_return)
-                    user_logger.info("[" + str(localtime) + "] " + str(user_account[1]) + ") successfully changed password [EXISTING PASSWORD]")
+            localtime = time.asctime(time.localtime(time.time()))
 
-                cursor.execute("UPDATE user SET password = ? WHERE user_id = ?", (newPasswordDigest, user_id))
-                conn.commit()
-            return redirect(url_for("view_profile"))
-    except:
-        return redirect(url_for("home"))
+            if new_password != confirm_password:
+                return redirect(url_for("view_profile", password_error=1))
+            else:
+                with sqlite3.connect("swoy.db") as conn:
+                    cursor = conn.cursor()
+                    current_password_from_db = cursor.execute("SELECT password FROM user WHERE user_id = ?", (user_id,))
+                    if current_password_from_db.fetchone()[0] != currentPasswordDigest:
+                        # log_return = "[" + str(localtime) + "] "+ str(user_account[1]) + ") attempted to change password [EXISTING PASSWORD]"
+                        # logging.info(log_return)
+                        user_logger.info("[" + str(localtime) + "] "+ str(user_account[1]) + ") attempted to change password [EXISTING PASSWORD]")
+                        return redirect(url_for("view_profile", password_error=1))
+
+                    else:
+                        # log_return = "[" + str(localtime) + "] " + str(user_account[1]) + ") successfully changed password [EXISTING PASSWORD]"
+                        # logging.info(log_return)
+                        user_logger.info("[" + str(localtime) + "] " + str(user_account[1]) + ") successfully changed password [EXISTING PASSWORD]")
+
+                    cursor.execute("UPDATE user SET password = ? WHERE user_id = ?", (newPasswordDigest, user_id))
+                    conn.commit()
+                return redirect(url_for("view_profile"))
+        except:
+            return redirect(url_for("home"))
+    else:
+        return "Change password daily limit reached."
 
 
 @app.route("/order_history", methods=["GET", "POST"])

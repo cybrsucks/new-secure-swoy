@@ -1,15 +1,56 @@
-<?xml version="1.0"?>
-<!DOCTYPE lolz [
-<!ENTITY lol "lol">
-<!ELEMENT lolz (#PCDATA)>
-<!ENTITY lol1 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">
-<!ENTITY lol2 "&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;">
-<!ENTITY lol3 "&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;">
-<!ENTITY lol4 "&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;">
-<!ENTITY lol5 "&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;">
-<!ENTITY lol6 "&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;">
-<!ENTITY lol7 "&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;">
-<!ENTITY lol8 "&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;">
-<!ENTITY lol9 "&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;">
-]>
-<lolz>&lol9;</lolz>
+<products>
+    <drinks>
+            <drink id="1">
+                <description>Chocolate Milk</description>
+                <price>5.0</price>
+                <thumbnail>Chocolate Boba.jpeg</thumbnail>
+            </drink>
+            <drink id="2">
+                <description>Earl Grey Tea</description>
+                <price>4.0</price>
+                <thumbnail>Earl Grey Boba.jpeg</thumbnail>
+            </drink>
+            <drink id="3">
+                <description>Green Tea</description>
+                <price>4.0</price>
+                <thumbnail>Green Tea Boba.jpg</thumbnail>
+            </drink>
+            <drink id="4">
+                <description>Mango</description>
+                <price>5.0</price>
+                <thumbnail>Mango Boba.jpg</thumbnail>
+            </drink>
+            <drink id="5">
+                <description>Passionfruit</description>
+                <price>5.0</price>
+                <thumbnail>Passionfruit Boba.jpg</thumbnail>
+            </drink>
+            <drink id="6">
+                <description>Strawberry Milk</description>
+                <price>5.0</price>
+                <thumbnail>Strawberry Boba.jpeg</thumbnail>
+            </drink>
+    </drinks>
+    <toppings>
+        <topping id="1">
+            <description>Aloe Vera</description>
+            <price>0.5</price>
+            <thumbnail>aloe vera.png</thumbnail>
+        </topping>
+        <topping id="2">
+            <description>Black Pearl</description>
+            <price>0.6</price>
+            <thumbnail>black pearl.png</thumbnail>
+        </topping>
+        <topping id="3">
+            <description>Golden Pearl</description>
+            <price>0.7</price>
+            <thumbnail>golden pearl.png</thumbnail>
+        </topping>
+        <topping id="4">
+            <description>Grass Jelly</description>
+            <price>0.5</price>
+            <thumbnail>grass jelly.png</thumbnail>
+        </topping>
+    </toppings>
+</products>
