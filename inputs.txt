@@ -1,6 +1,9 @@
 superadmin@swoy.com
 $uperAdm1n
 
+test@test.com
+Password!1
+
 johndoe@gmail.com
 Password!2
 

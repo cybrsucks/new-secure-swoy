@@ -887,6 +887,12 @@ def user_logs():
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/home", methods=['GET', 'POST'])
 def home():
+    try:
+        if session["user"] is None:
+            session["user"] = None
+    except:
+        session["user"] = None
+
     global forgot_pw_email
     forgot_pw_email = None
     try:
