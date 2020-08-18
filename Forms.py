@@ -36,13 +36,6 @@ class CheckoutForm(FlaskForm):
     expireDate = DateField('Expiry Date:', [validators.data_required()])
 
 
-class DeliveryForm(FlaskForm):
-    name = StringField('Name:', [validators.data_required(), validators.length(max=99)])
-    address = StringField('Address:', [validators.data_required()])
-    email = EmailField('Email Address:', [validators.data_required(), validators.Length(min=6, max=35)])
-    contactNo = StringField('Contact Number:', [validators.data_required(), validators.length(min=8, max=8)])
-
-
 class ModifyDrinkForm(FlaskForm):
     name = StringField('Name:', [validators.data_required(), validators.length(min=3)])
     price = DecimalField('Price:', [validators.data_required(), validators.NumberRange(min=3, max=50,
