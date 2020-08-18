@@ -12,6 +12,7 @@ import xmltodict
 import sqlite3
 import hashlib
 import logging
+import smtplib
 import PyOTP
 import time
 import re
@@ -914,6 +915,18 @@ def home():
     try:
         drinks = productData["products"]["drinks"]
     except:
+        fromaddr = 'swoybubbletea@gmail.com'
+        toaddrs = 'swoybubbletea@gmail.com'
+        subject = "Fatal Error"
+        body = "Products on the homepage is not being displayed properly."
+        msg = f'Subject: {subject}\n\n{body}'
+        username = 'swoybubbletea@gmail.com'
+        password = 'SWOYB0b4T3A'
+        server = smtplib.SMTP('smtp.gmail.com:587')
+        server.starttls()
+        server.login(username, password)
+        server.sendmail(fromaddr, toaddrs, msg)
+        server.quit()
         localtime = time.asctime(time.localtime(time.time()))
         admin_logger.error("[" + str(
             localtime) + "] Products are not being properly displayed on the homepage. Please check products.xml file and fix immediately")
@@ -1003,13 +1016,11 @@ def login():
             if account_match:
                 locked = account_match[5]
                 username = account_match[1]
+                send_email = account_match[2]
                 localtime = time.asctime(time.localtime(time.time()))
-                # log_return = "[" + str(localtime) + "] " + str(account_match[1]) + " attempted login"
-                # logging.info(log_return)
                 user_logger.info("[" + str(localtime) + "] " + str(account_match[1]) + " attempted login")
-
                 passwordDigest = (hashlib.sha256(password.encode("utf-8"))).hexdigest()
-                # print(passwordDigest)
+
                 account_match = cursor.execute("SELECT * FROM user WHERE email = ? and password = ?", (html_encode(email), passwordDigest)).fetchone()
                 # print(f"Account: {account_match}")
                 if account_match:
@@ -1037,6 +1048,18 @@ def login():
                             cursor.execute("UPDATE user SET locked = 1 WHERE email = ?", (html_encode(email), ))
                             conn.commit()
                         error = "Exceeded incorrect password attempts. Please contact website adminstrator."
+                        fromaddr = 'swoybubbletea@gmail.com'
+                        toaddrs = send_email
+                        subject = "Password Attempt Reached"
+                        body = "You have exceeded the number of password attempts on SWOY Bubble Tea and we have temporarily disabled your account. Please contact website adminstrator if you think this is a mistake."
+                        msg = f'Subject: {subject}\n\n{body}'
+                        username = 'swoybubbletea@gmail.com'
+                        password = 'SWOYB0b4T3A'
+                        server = smtplib.SMTP('smtp.gmail.com:587')
+                        server.starttls()
+                        server.login(username, password)
+                        server.sendmail(fromaddr, toaddrs, msg)
+                        server.quit()
                         user_logger.info("[" + str(localtime) + "] Customer (" + str(username) + ") has exceeded the password attempt limits and has been locked.")
                         return redirect(url_for("FAQ"))
             else:
