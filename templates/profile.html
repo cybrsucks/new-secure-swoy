@@ -18,7 +18,7 @@
                 <div class="profile-row">
                     <div class="infoinfo">
                         <h3 class="profile-label"> Username </h3>
-                        <p class="profile-data"> {{ user_account[1] }} </p>
+                        <p class="profile-data"> {{ user_account[1] | safe }} </p>
                     </div>
                     <div class="change-button-flex">
                         <div class="flex-button-right">
@@ -29,7 +29,7 @@
                 <div class="profile-row">
                     <div class="infoinfo">
                         <h3 class="profile-label"> Email Address </h3>
-                        <p class="profile-data"> {{ user_account[2] }} </p>
+                        <p class="profile-data"> {{ user_account[2] | safe }} </p>
                     </div>
                 </div>
                 <div class="profile-row">

@@ -20,11 +20,11 @@
                     {% for item in cart_items %}
                         <tr>
                             <th scope="row">{{ loop.index }}</th>
-                            <td>{{ item[0] }}</td>
+                            <td>{{ item[0] | safe }}</td>
                             <td>
                                 <ul>
                                     {% for topping in item[1] %}
-                                        <li style="margin-left:-20px;">{{ topping }}</li>
+                                        <li style="margin-left:-20px;">{{ topping | safe }}</li>
                                     {% endfor %}
                                 </ul>
                             </td>

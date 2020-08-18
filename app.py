@@ -74,6 +74,42 @@ def setup_logger(name, log_file, level=logging.INFO):
     return logger
 
 
+def html_encode(string):
+    output = ""
+    encode_dict = {
+        "<": "&lt;",
+        ">": "&gt;",
+        "&": "&amp;",
+        "\"": "&quot;",
+        "'": "&apos;"
+    }
+    for char in string:
+        encoded_char = encode_dict.get(char, False)
+        if encoded_char:
+            output += encoded_char
+        else:
+            output += str(char)
+
+    return output
+
+
+def html_decode(string):
+    decode_list = ["&nbsp;", "&lt;", "&gt;", "&amp;", "&quot;", "&apos;"]
+    decode_dict = {
+        "&nbsp;": " ",
+        "&lt;": "<",
+        "&gt;": ">",
+        "&amp;": "&",
+        "&quot;": "\"",
+        "&apos;": "'"
+    }
+    for symbol in decode_list:
+        if symbol in string:
+            string = string.replace(symbol, decode_dict[symbol])
+
+    return string
+
+
 @app.route("/admin", methods=["GET", "POST"])
 @token_required
 def admin_dashboard():
@@ -133,6 +169,9 @@ def admin_dashboard():
 def authenticate_otp():
     global email_otp
     global timeout
+    if session["unauthenticated_user"] is None:
+        return redirect(url_for("error_404"))
+
     if session["unauthenticated_user"][4] != 1:
         session["user"] = session["unauthenticated_user"]
         session["unauthenticated_user"] = None
@@ -218,7 +257,7 @@ def admin_menu_drinks():
             price = float(i['price'])
             formatted_price = f"{price:.2f}"
             drink_list.append(
-                {"id": i["@id"], "name": i["description"], "price": formatted_price, "image": i["thumbnail"]})
+                {"id": i["@id"], "name": html_encode(i["description"]), "price": formatted_price, "image": i["thumbnail"]})
 
     return render_template("admin_menu_drinks.html", admin_title="Menu Items - Drinks", drink_list=drink_list,
                            user_account=user_account, error="")
@@ -255,8 +294,8 @@ def admin_menu_drinks_modify(drink_id):
         try:
             filename = secure_filename(form.thumbnail.data.filename)
         except:
-            filename = None
-        if filename != None:
+            filename = "noimage.png"
+        if filename != "noimage.png":
             form.thumbnail.data.save("static/" + filename)
 
         id = int(drink_id)
@@ -264,7 +303,7 @@ def admin_menu_drinks_modify(drink_id):
         drinkTag = et.getroot()[0].getchildren()[id - 1]
         for element in list(drinkTag):
             if element.tag == "thumbnail":
-                if filename != None:
+                if filename != "noimage.png":
                     drinkTag.remove(element)
             else:
                 drinkTag.remove(element)
@@ -274,13 +313,13 @@ def admin_menu_drinks_modify(drink_id):
         descriptionTag.text = name
         priceTag = xml.etree.ElementTree.SubElement(et.getroot()[0][id - 1], "price")
         priceTag.text = str(price)
-        if filename != None:
+        if filename != "noimage.png":
             thumbnailTag = xml.etree.ElementTree.SubElement(et.getroot()[0][id - 1], "thumbnail")
             thumbnailTag.text = filename
         et.write("static/products.xml")
 
     return render_template("admin_menu_drinks_modify.html",
-                           admin_title=f"Menu Items - Modify Drinks - {form.name.data}", form=form, drink_id=drink_id,
+                           admin_title=f"Menu Items - Modify Drinks - {html_encode(form.name.data)}", form=form, drink_id=drink_id,
                            user_account=user_account)
 
 
@@ -306,8 +345,8 @@ def admin_menu_drinks_add():
         try:
             filename = secure_filename(form.thumbnail.data.filename)
         except:
-            filename = None
-        if filename != None:
+            filename = "noimage.png"
+        if filename != "noimage.png":
             form.thumbnail.data.save("static/" + filename)
 
         et = defusedxml.ElementTree.parse("static/products.xml")
@@ -376,7 +415,7 @@ def admin_menu_toppings():
     for topping in toppings:
         for i in toppings[topping]:
             topping_list.append(
-                {"id": i["@id"], "name": i["description"], "price": i["price"], "image": i["thumbnail"]})
+                {"id": i["@id"], "name": html_encode(i["description"]), "price": i["price"], "image": i["thumbnail"]})
 
     return render_template("admin_menu_toppings.html", admin_title="Menu Items - Toppings", topping_list=topping_list,
                            user_account=user_account, error="")
@@ -413,9 +452,9 @@ def admin_menu_toppings_modify(topping_id):
         try:
             filename = secure_filename(form.thumbnail.data.filename)
         except:
-            filename = None
+            filename = "noimage.png"
 
-        if filename != None:
+        if filename != "noimage.png":
             form.thumbnail.data.save("static/" + filename)
 
         id = int(topping_id)
@@ -423,7 +462,7 @@ def admin_menu_toppings_modify(topping_id):
         toppingTag = et.getroot()[1].getchildren()[id - 1]
         for element in list(toppingTag):
             if element.tag == "thumbnail":
-                if filename != None:
+                if filename != "noimage.png":
                     toppingTag.remove(element)
             else:
                 toppingTag.remove(element)
@@ -433,13 +472,13 @@ def admin_menu_toppings_modify(topping_id):
         descriptionTag.text = name
         priceTag = xml.etree.ElementTree.SubElement(et.getroot()[1][id - 1], "price")
         priceTag.text = str(price)
-        if filename != None:
+        if filename != "noimage.png":
             thumbnailTag = xml.etree.ElementTree.SubElement(et.getroot()[1][id - 1], "thumbnail")
             thumbnailTag.text = filename
         et.write("static/products.xml")
 
     return render_template("admin_menu_toppings_modify.html",
-                           admin_title=f"Menu Items - Modify Toppings - {form.name.data}", form=form,
+                           admin_title=f"Menu Items - Modify Toppings - {html_encode(form.name.data)}", form=form,
                            topping_id=topping_id, user_account=user_account)
 
 
@@ -465,9 +504,9 @@ def admin_menu_toppings_add():
         try:
             filename = secure_filename(form.thumbnail.data.filename)
         except:
-            filename = None
+            filename = "noimage.png"
 
-        if filename != None:
+        if filename != "noimage.png":
             form.thumbnail.data.save("static/" + filename)
 
         et = defusedxml.ElementTree.parse("static/products.xml")
@@ -527,8 +566,7 @@ def admin_orders():
         for order in result:
             cursor.execute("SELECT username FROM user WHERE user_id = ?", (order[1],))
             username = cursor.fetchone()[0]
-            order_list.append([order[0], username, order[2], order[3], order[4], order[5], order[6]])
-        order_list.reverse()
+            order_list.append([order[0], username, html_encode(order[2]), order[3], order[4], order[5], order[6]])
 
     return render_template("admin_orders.html", admin_title="Delivery Orders", order_list=order_list,
                            user_account=user_account)
@@ -592,14 +630,14 @@ def admin_order_details():
             for drink in drinks:
                 for i in drinks[drink]:
                     if i["@id"] == str(item[0]):
-                        formatted_item.append(i["description"])
+                        formatted_item.append(html_encode(i["description"]))
                         price = float(i["price"])
 
             topping_list = []
             for topping in toppings:
                 for i in toppings[topping]:
                     if i["@id"] in [str(s) for s in item[1]]:
-                        topping_list.append(i["description"])
+                        topping_list.append(html_encode(i["description"]))
                         price += float(i["price"])
             formatted_item.append(topping_list)
 
@@ -741,21 +779,21 @@ def add_admin_account():
                     break
 
             admin = 1
-            account_match = cursor.execute("SELECT * FROM user WHERE email = ?", (email,)).fetchone()
+            account_match = cursor.execute("SELECT * FROM user WHERE email = ?", (html_encode(email),)).fetchone()
             # print(f"Account: {account_match}")
             if account_match:
                 error = "Email already exists"
             else:
                 passwordDigest = (hashlib.sha256(password.encode("utf-8"))).hexdigest()
                 cursor.execute(f"INSERT INTO user(username, email, password, admin, locked) "
-                               f"VALUES (?, ?, ?, ?, ?)", (username, email, passwordDigest, admin, 0))
+                               f"VALUES (?, ?, ?, ?, ?)", (html_encode(username), html_encode(email), passwordDigest, admin, 0))
                 updated = cursor.execute("SELECT * FROM user").fetchall()
                 conn.commit()
 
                 localtime = time.asctime(time.localtime(time.time()))
                 # log_return = "[" + str(localtime) + "] " + user_account[1] + " created an admin account " + "[" + username + "] "
                 # logging.warning(log_return)
-                admin_logger.warning("[" + str(localtime) + "] " + user_account[1] + " created an admin account " + "[" + username + "] ")
+                admin_logger.warning("[" + str(localtime) + "] " + user_account[1] + " created an admin account " + "[" + html_encode(username) + "] ")
 
                 users = None
                 with sqlite3.connect("swoy.db") as conn:
@@ -788,7 +826,9 @@ def admin_logs():
     with open("admin_logs.log") as f:
         logs = f.read().split("\n")[:-1]
         logs.reverse()
+
     return render_template("admin_logs.html", admin_title="History Logs", user_account=user_account, logs=logs)
+
 
 @app.route("/admin/user_logs")
 @token_required
@@ -807,6 +847,7 @@ def user_logs():
     with open("user_logs.log") as f:
         logs = f.read().split("\n")[:-1]
         logs.reverse()
+
     return render_template("user_logs.html", admin_title="History Logs", user_account=user_account, logs=logs)
 
 
@@ -850,7 +891,7 @@ def home():
             price = float(i['price'])
             formatted_price = f"{price:.2f}"
             drink_list.append(
-                {"id": i["@id"], "name": i["description"], "price": formatted_price, "image": i["thumbnail"]})
+                {"id": i["@id"], "name": html_encode(i["description"]), "price": html_encode(formatted_price), "image": i["thumbnail"], "raw":i["description"]})
 
     try:
         search = request.args["search"]
@@ -859,6 +900,7 @@ def home():
             if search.lower() in drink["name"].lower():
                 filtered_drink_list.append(drink)
         drink_list = filtered_drink_list
+        search = html_encode(search)
     except:
         search = None
 
@@ -885,14 +927,14 @@ def signup():
             else:
                 error_password = None
             admin = 0
-            account_match = cursor.execute("SELECT * FROM user WHERE email = ?", (email,)).fetchone()
+            account_match = cursor.execute("SELECT * FROM user WHERE email = ?", (html_encode(email),)).fetchone()
             # print(f"Account: {account_match}")
             if account_match:
                 error = "Email already exists"
             else:
                 passwordDigest = (hashlib.sha256(password.encode("utf-8"))).hexdigest()
                 cursor.execute("INSERT INTO user(username, email, password, admin, locked) "
-                               "VALUES (?, ?, ?, ?, ?)", (username, email, passwordDigest, admin, locked))
+                               "VALUES (?, ?, ?, ?, ?)", (html_encode(username), html_encode(email), passwordDigest, admin, locked))
                 updated = cursor.execute("SELECT * FROM user").fetchall()
                 print(f"Updated database : {updated}")
                 conn.commit()
@@ -900,7 +942,7 @@ def signup():
                 localtime = time.asctime(time.localtime(time.time()))
                 # log_return = "[" + str(localtime) + "] New Acount created for " + user_account[1] + " with user_id " + user_account[0]
                 # logging.info(log_return)
-                admin_logger.info("[" + str(localtime) + "] New Acount created for " + updated[1] + " with user_id " + updated[0])
+                admin_logger.info("[" + str(localtime) + "] New Account created for " + str(updated[-1][1]) + " with user_id " + str(updated[-1][0]))
 
                 return render_template("login.html", form=LoginForm())
     return render_template("signup.html", form=form, error=error)
@@ -913,17 +955,18 @@ def login():
     forgot_pw_email = None
     form = LoginForm()
     error = None
+
     if request.method == "POST" and form.validate_on_submit():
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
             email = form.email.data
             password = form.password.data
-            cursor.execute("SELECT * FROM user WHERE email = ?", (email,))
+            cursor.execute("SELECT * FROM user WHERE email = ?", (html_encode(email),))
             account_match = cursor.fetchone()
-            locked = account_match[5]
-            username = account_match[1]
 
             if account_match:
+                locked = account_match[5]
+                username = account_match[1]
                 localtime = time.asctime(time.localtime(time.time()))
                 # log_return = "[" + str(localtime) + "] " + str(account_match[1]) + " attempted login"
                 # logging.info(log_return)
@@ -931,7 +974,7 @@ def login():
 
                 passwordDigest = (hashlib.sha256(password.encode("utf-8"))).hexdigest()
                 # print(passwordDigest)
-                account_match = cursor.execute("SELECT * FROM user WHERE email = ? and password = ?", (email, passwordDigest)).fetchone()
+                account_match = cursor.execute("SELECT * FROM user WHERE email = ? and password = ?", (html_encode(email), passwordDigest)).fetchone()
                 # print(f"Account: {account_match}")
                 if account_match:
                     if account_match[4]:
@@ -958,12 +1001,13 @@ def login():
                         error = "Incorrect email or password"
                     else:
                         if incorrect_password_tries >= 4:
-                            cursor.execute("UPDATE user SET locked = 1 WHERE email = ?", (email, ))
+                            cursor.execute("UPDATE user SET locked = 1 WHERE email = ?", (html_encode(email), ))
                             conn.commit()
                         error = "Exceeded incorrect password attempts. Please contact website adminstrator."
                         # log_return = "[" + str(localtime) + "] Customer (" + str(username) + ") has exceeded the password attempt limits and has been locked."
                         # logging.info(log_return)
                         user_logger.info("[" + str(localtime) + "] Customer (" + str(username) + ") has exceeded the password attempt limits and has been locked.")
+                        return redirect(url_for("FAQ"))
             else:
                 error = "Incorrect email or password"
                 # error = "Email does not exist."
@@ -977,8 +1021,17 @@ def logout():
     return redirect(url_for("home"))
 
 
-@app.route("/product/<drink_name>")
-def product(drink_name):
+@app.route("/product/<drink_id>")
+def product(drink_id):
+    try:
+        et = defusedxml.ElementTree.parse("static/products.xml")
+        drinkTag = et.getroot()[0].getchildren()[int(drink_id) - 1]
+        for element in list(drinkTag):
+            if element.tag == "description":
+                drink_name = element.text
+    except:
+        return redirect(url_for("error_404"))
+
     comment_list = []
     drink = None
     productData = xmltodict.parse(open("static/products.xml", "r").read())
@@ -989,7 +1042,7 @@ def product(drink_name):
     for drinkTag in drinks:
         for i in drinks[drinkTag]:
             if i["description"] == drink_name:
-                drink = (int(i["@id"]), i["description"], float(i["price"]), i["thumbnail"])
+                drink = (int(i["@id"]), html_encode(i["description"]), float(i["price"]), i["thumbnail"])
 
                 with sqlite3.connect("swoy.db") as conn:
                     cursor = conn.cursor()
@@ -999,13 +1052,13 @@ def product(drink_name):
                     for comment in comments:
                         cursor.execute("SELECT username FROM user WHERE user_id = ?", (comment[2],))
                         author = cursor.fetchone()[0]
-                        comment_list.append({"content": comment[1], "author": author})
+                        comment_list.append({"content": html_encode(comment[1]), "author": author})
 
     for toppingTag in toppings:
         for i in toppings[toppingTag]:
             price = float(i['price'])
             formatted_price = f"{price:.2f}"
-            topping_list.append((int(i["@id"]), i["description"], formatted_price, i["thumbnail"]))
+            topping_list.append((int(i["@id"]), html_encode(i["description"]), formatted_price, i["thumbnail"]))
 
     try:
         user_id = session["user"][0]
@@ -1038,14 +1091,14 @@ def update_comment():
             cursor.execute(f"INSERT INTO comments(content, user_id, drink_id) VALUES (?, ?, ?)", (content, user_id, drink_id))
             conn.commit()
 
-        productData = xmltodict.parse(open("static/products.xml", "r").read())
-        drinks = productData["products"]["drinks"]
-        for drink in drinks:
-            for i in drinks[drink]:
-                if i["@id"] == drink_id:
-                    drink_name = i["description"]
+        # productData = xmltodict.parse(open("static/products.xml", "r").read())
+        # drinks = productData["products"]["drinks"]
+        # for drink in drinks:
+        #     for i in drinks[drink]:
+        #         if i["@id"] == drink_id:
+        #             drink_name = i["description"]
 
-        return redirect(url_for("product", drink_name=drink_name, _anchor="comments"))
+        return redirect(url_for("product", drink_id=drink_id, _anchor="comments"))
     except:
         return redirect(url_for("home"))
 
@@ -1085,7 +1138,7 @@ def cart():
                 for drink in drinks:
                     for i in drinks[drink]:
                         if i["@id"] == str(item[0]):
-                            formatted_item.append(i["description"])
+                            formatted_item.append(html_encode(i["description"]))
                             price = float(i["price"])
 
                 topping_list = []
@@ -1093,7 +1146,7 @@ def cart():
                 for topping in toppings:
                     for i in toppings[topping]:
                         if i["@id"] in [str(s) for s in item[1]]:
-                            topping_list.append(i["description"])
+                            topping_list.append(html_encode(i["description"]))
                             price += float(i["price"])
                 formatted_item.append(topping_list)
 
@@ -1202,7 +1255,7 @@ def checkout():
                 for drink in drinks:
                     for i in drinks[drink]:
                         if i["@id"] == str(item[0]):
-                            formatted_item.append(i["description"])
+                            formatted_item.append(html_encode(i["description"]))
                             price = float(i["price"])
 
                 topping_list = []
@@ -1210,7 +1263,7 @@ def checkout():
                 for topping in toppings:
                     for i in toppings[topping]:
                         if i["@id"] in [str(s) for s in item[1]]:
-                            topping_list.append(i["description"])
+                            topping_list.append(html_encode(i["description"]))
                             price += float(i["price"])
                 formatted_item.append(topping_list)
 
@@ -1406,7 +1459,7 @@ def change_username():
         new_username = request.form["new_username"]
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
-            cursor.execute("UPDATE user SET username = ? WHERE user_id = ?", (new_username, user_id))
+            cursor.execute("UPDATE user SET username = ? WHERE user_id = ?", (html_encode(new_username), user_id))
             conn.commit()
         return redirect(url_for("view_profile"))
     except:
@@ -1505,6 +1558,11 @@ def error_page(e):
 @app.route("/er404")
 def error_404():
     return render_template("error_404.html")
+
+
+@app.route("/FAQ")
+def FAQ():
+    return render_template("FAQ.html")
 
 
 if __name__ == "__main__":

@@ -44,7 +44,7 @@
                 <div class="user-info">
                     {% if user_account %}
 
-                    <span class="user-name" style="color:lightgray;">{{ user_account[1] }}</span>
+                    <span class="user-name" style="color:lightgray;">{{ user_account[1] | safe }}</span>
 
                     {% else %}
 
@@ -199,7 +199,7 @@
 
     <main class="page-content">
         <div class="container-fluid">
-            <h2>{{ admin_title }}</h2>
+            <h2>{{ admin_title | safe }}</h2>
             <hr>
             {% block content %}
             {% endblock %}

@@ -66,11 +66,11 @@
                     </span>
                 </h4>
                 {% for item in cart_items %}
-                    <p>{{ item[3] }}x {{ item[0] }}<span style="float:right;">${{ item[4] }}</span></p>
+                    <p>{{ item[3] }}x {{ item[0] | safe }}<span style="float:right;">${{ item[4] }}</span></p>
                     <ul>
                         <li>{{ item[2] }}% Sugar</li>
                         {% for topping in item[1] %}
-                            <li>{{ topping }}</li>
+                            <li>{{ topping | safe }}</li>
                         {% endfor %}
                     </ul>
                 {% endfor %}

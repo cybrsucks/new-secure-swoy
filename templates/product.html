@@ -12,7 +12,7 @@
         <div style="margin-left: 30px;">
             <div class="container-fluid swoy-container swoy-form-container">
 
-                <h1> {{ drink[1] }} </h1>
+                <h1> {{ drink[1] | safe }} </h1>
                 <img src="../static/{{ drink[3] }}" style="max-width: 500px;" class="responsive">
 
             </div>
@@ -26,7 +26,7 @@
                 <form method="POST" action="{{ url_for('add_cart_item', drink_id=drink[0]) }}">
                     <ul>
                         {% for topping in topping_list %}
-                            <li class="list-style-none"><input type="checkbox" name="toppings" value="{{ topping[0] }}"><label>&nbsp;&nbsp;{{ topping[1] }}&nbsp;( +${{topping[2]}} )</label><img src="../static/{{ topping[3] }}" class="toppings-img"></li>
+                            <li class="list-style-none"><input type="checkbox" name="toppings" value="{{ topping[0] }}"><label>&nbsp;&nbsp;{{ topping[1] | safe }}&nbsp;( +${{topping[2]}} )</label><img src="../static/{{ topping[3] }}" class="toppings-img"></li>
                         {% endfor %}
                     </ul>
                     <hr>
@@ -61,8 +61,8 @@
                 <h5> Comments ({{ comment_list|length }}) </h5>
                 <hr>
                 {% for comment in comment_list %}
-                    <strong>{{ comment.author }}</strong>
-                    <p>{{ comment.content }}</p>
+                    <strong>{{ comment.author | safe }}</strong>
+                    <p>{{ comment.content | safe }}</p>
                 {% endfor %}
                 <hr>
                 {% if user_account %}

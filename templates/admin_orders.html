@@ -17,8 +17,8 @@
             {% for order in order_list %}
             <tr>
                 <th scope="row">{{ loop.index }}</th>
-                <td>{{ order[1] }}</td>
-                <td>{{ order[2] }}</td>
+                <td>{{ order[1] | safe }}</td>
+                <td>{{ order[2] | safe }}</td>
                 <td>{{ order[3] }} | {{ order[4] }}</td>
                 <td>
                     <a href="{{  url_for('admin_order_details', order_id=order[0]) }}" style="text-decoration:none;">

@@ -6,7 +6,7 @@
         <div class="col-md-12">
             <article class="media content-section" style="background-color:white;">
                 <div class="media-body" style="padding-top:10px;">
-                    <h3>Searched for - {{ search }}</h3>
+                    <h3>Searched for - {{ search | safe }}</h3>
                 </div>
             </article>
         </div>
@@ -19,14 +19,14 @@
                 <div class="media-body">
                     <div class=" swoy-card card" style="">
                         {% if user_account %}
-                            <a href="{{ url_for('product', drink_name=item.name) }}" style="text-decoration:none;">
+                            <a href="{{ url_for('product', drink_id=item.id) | safe }}" style="text-decoration:none;">
                         {% else %}
-                            <a href="{{ url_for('product', drink_name=item.name) }}" style="text-decoration:none;">
+                            <a href="{{ url_for('product', drink_id=item.id) | safe }}" style="text-decoration:none;">
                         {% endif %}
                             <img class="card-img-top responsive" src="../static/{{ item.image }}" alt="Card image cap">
                             <div class="card-body" style="color:black;">
-                                <span class="card-text product-caption">{{ item.name }}</span>
-                                <span style="float:right;">$ {{ item.price }}</span>
+                                <span class="card-text product-caption">{{ item.name | safe }}</span>
+                                <span style="float:right;">$ {{ item.price | safe }}</span>
                             </div>
 <!--                            <div class="text-center">-->
 <!--                                <a href="/checkout"><button class="btn btn-primary swoy-btn" style="margin:10px;">Add to Cart</button></a>-->

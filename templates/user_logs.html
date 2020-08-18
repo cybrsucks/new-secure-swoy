@@ -13,7 +13,7 @@
             {% for log in logs %}
             <tr>
                 <th scope="row">{{ logs|length - loop.index + 1 }}</th>
-                <td>{{ log }}</td>
+                <td>{{ log | safe }}</td>
             </tr>
             {% endfor %}
             </tbody>
