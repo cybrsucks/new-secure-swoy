@@ -1390,13 +1390,6 @@ def add_order():
     return render_template("checkout.html", form=form)
 
 
-@app.route("/delivery")
-@token_required
-def delivery():
-    form = DeliveryForm()
-    return render_template("delivery.html", form=form)
-
-
 @app.route("/forgot_password", methods=["GET", "POST"])
 def forgot_password_email_form():
     global forgot_pw_email
