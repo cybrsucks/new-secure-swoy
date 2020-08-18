@@ -1,21 +1,36 @@
 {% extends "admin_base.html" %}
 {% block content %}
 <table class="table">
-  <thead>
+    <thead>
     <tr>
-      <th scope="col">ID</th>
-      <th scope="col">Username</th>
-      <th scope="col">Email</th>
+        <th scope="col">ID</th>
+        <th scope="col">Username</th>
+        <th scope="col">Email</th>
+        <th scope="col">Status</th>
     </tr>
-  </thead>
-  <tbody>
+    </thead>
+    <tbody>
     {% for user in userList %}
     <tr>
-      <th scope="row">{{ user.id }}</th>
-      <td>{{ user.username | safe }}</td>
-      <td>{{ user.email | safe }}</td>
+        <th scope="row">{{ user.id }}</th>
+        <td>{{ user.username | safe }}</td>
+        <td>{{ user.email | safe }}</td>
+        {% if user.locked == 1 %}
+        <td>
+            <div>
+                <a href="{{ url_for('enable_account', id=user.id) | safe }}"><button class="btn locked-btn">Locked</button></a>
+            </div>
+        </td>
+        {% endif %}
+        {% if user.locked == 0 %}
+        <td>
+            <div>
+                <button disabled class="btn active-btn">Active</button>
+            </div>
+        </td>
+        {% endif %}
     </tr>
     {% endfor %}
-  </tbody>
+    </tbody>
 </table>
 {% endblock %}

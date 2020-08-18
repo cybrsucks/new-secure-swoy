@@ -1,17 +1,18 @@
 from wtforms import StringField, PasswordField, validators, Form, DateField, DecimalField, SelectField, IntegerField
+from wtforms.fields.html5 import EmailField
 from wtforms.validators import InputRequired, Email, Length, NumberRange
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 
 
 class LoginForm(FlaskForm):
-    email = StringField('Email Address:', [validators.DataRequired()])
+    email = EmailField('Email Address:', [validators.DataRequired()])
     password = PasswordField('Password:', [validators.DataRequired()])
 
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username:', [validators.DataRequired()])
-    email = StringField('Email Address:', [validators.DataRequired()])
+    email = EmailField('Email Address:', [validators.DataRequired()])
     password = PasswordField('New Password:', [
         validators.DataRequired(),
         validators.EqualTo('confirm', message='Passwords must match'),
@@ -38,7 +39,7 @@ class CheckoutForm(FlaskForm):
 class DeliveryForm(FlaskForm):
     name = StringField('Name:', [validators.data_required(), validators.length(max=99)])
     address = StringField('Address:', [validators.data_required()])
-    email = StringField('Email Address:', [validators.data_required(), validators.Length(min=6, max=35)])
+    email = EmailField('Email Address:', [validators.data_required(), validators.Length(min=6, max=35)])
     contactNo = StringField('Contact Number:', [validators.data_required(), validators.length(min=8, max=8)])
 
 
@@ -75,7 +76,7 @@ class AddToppingForm(FlaskForm):
 
 
 class ForgotPasswordEmailForm(FlaskForm):
-    email = StringField('Email Address:', [validators.data_required()])
+    email = EmailField('Email Address:', [validators.data_required()])
 
 
 class ForgotPasswordOTP(FlaskForm):
