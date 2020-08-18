@@ -1640,7 +1640,25 @@ def error_404():
 
 @app.route("/FAQ")
 def FAQ():
-    return render_template("FAQ.html")
+    try:
+        user_id = session["user"][0]
+        with sqlite3.connect("swoy.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM user WHERE user_id = ?", (user_id,))
+            user_account = cursor.fetchone()
+            cursor.execute("SELECT cart_items FROM cart WHERE user_id = ?", (user_id,))
+            cart_items = cursor.fetchone()
+            if cart_items:
+                cart_item_count = len(eval(cart_items[0]))
+            else:
+                cart_item_count = 0
+            username = user_account[1]
+            email = user_account[2]
+    except:
+        user_account = None
+        cart_item_count = 0
+
+    return render_template("FAQ.html", user_account=user_account, cart_item_count=cart_item_count)
 
 
 if __name__ == "__main__":
