@@ -32,7 +32,7 @@ def token_required(f):
         token = session["token"]
         if not token:
             print("token is missing")
-            return redirect(url_for('login'))
+            return redirect(url_for('home'))
 
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'])
@@ -962,6 +962,9 @@ def signup():
     form = RegistrationForm()
     error = None
     error_password = None
+    if session["user"] is not None:
+        return redirect(url_for("home"))
+
     if request.method == "POST" and form.validate_on_submit():
         with sqlite3.connect("swoy.db") as conn:
             cursor = conn.cursor()
@@ -1004,6 +1007,8 @@ def login():
     forgot_pw_email = None
     form = LoginForm()
     error = None
+    if session["user"] is not None:
+        return redirect(url_for("home"))
 
     if request.method == "POST" and form.validate_on_submit():
         with sqlite3.connect("swoy.db") as conn:
@@ -1136,6 +1141,7 @@ def product(drink_id):
 @app.route("/product/update_drink_comments", methods=["GET", "POST"])  # API_id 4
 @token_required
 def update_comment():
+
     try:
         drink_id = request.args["drink_id"]
         user_id = session["user"][0]
@@ -1160,7 +1166,8 @@ def update_comment():
 
             return redirect(url_for("product", drink_id=drink_id, _anchor="comments"))
         else:
-            return "Add comment daily limit reached."
+            # return "Add comment daily limit reached."
+            return redirect(url_for("home"))
     except:
         return redirect(url_for("home"))
 
@@ -1299,9 +1306,12 @@ def checkout():
                 cart_item_count = len(eval(cart_items[0]))
             else:
                 cart_item_count = 0
+
     except:
         user_account = None
         cart_item_count = 0
+    if cart_item_count <= 0:
+        return redirect(url_for("home"))
     form = CheckoutForm()
 
     with sqlite3.connect("swoy.db") as conn:
@@ -1411,7 +1421,6 @@ def forgot_pwd_otp():
     global timeout
 
     form = OTPForm()
-
     if not forgot_pw_email:
         return redirect(url_for("home"))
 
