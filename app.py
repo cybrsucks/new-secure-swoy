@@ -1168,8 +1168,7 @@ def update_comment():
 
             return redirect(url_for("product", drink_id=drink_id, _anchor="comments"))
         else:
-            # return "Add comment daily limit reached."
-            return redirect(url_for("home"))
+            return "Add comment daily limit reached."
     except:
         return redirect(url_for("home"))
 
