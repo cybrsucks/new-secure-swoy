@@ -211,8 +211,6 @@ def authenticate_otp():
             email_otp = None
             timeout = None
             localtime = time.asctime(time.localtime(time.time()))
-            # log_return = "[" + str(localtime) + "] Admin " + user_account[1] + " has been logged in successfully"
-            # logging.info(log_return)
             admin_logger.info("[" + str(localtime) + "] Admin " + user_account[1] + " has been logged in successfully")
 
             return redirect(url_for('admin_dashboard'))
@@ -774,8 +772,6 @@ def admin_account_delete():
             cursor.execute("DELETE FROM user WHERE user_id = ?", (userId,))
 
         localtime = time.asctime(time.localtime(time.time()))
-        # log_return = "[" + str(localtime) + "] " + session["user"][1] + " has deleted admin account " + account_deleted[1]
-        # logging.warning(log_return)
         admin_logger.info("[" + str(localtime) + "] " + session["user"][1] + " has deleted admin account " + "[" + account_deleted[1] + "]")
     else:
         return "Delete admin daily limit reached."
@@ -1004,7 +1000,7 @@ def signup():
 def login():
     global forgot_pw_email
     global incorrect_password_tries
-    forgot_pw_email = None
+    forgot_pw_email = None  
     form = LoginForm()
     error = None
     if session["user"] is not None:
@@ -1657,4 +1653,4 @@ if __name__ == "__main__":
     # logger_admin = logging.getLogger('werkzeug')
     # logger_admin.setLevel(logging.WARNING)
 
-    app.run(debug=True)
+    app.run(debug=False)

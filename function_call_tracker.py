@@ -124,5 +124,6 @@ def test2():
 
 if __name__ == "__main__":
     # create_call_db()
-    test1()
+    # test1()
     # test2()
+    pass
