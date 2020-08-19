@@ -1023,8 +1023,9 @@ def login():
                 send_username = account_match[1]
                 send_email = account_match[2]
                 send_user_id = account_match[0]
-                localtime = time.asctime(time.localtime(time.time()))
-                user_logger.info("[" + str(localtime) + "] " + str(account_match[1]) + ' USERID: ' + str(account_match[0]) + " attempted login")
+                # The following log has been removed for clarity on user logs and based on tutor's feedback during presentation.
+                # localtime = time.asctime(time.localtime(time.time()))
+                # user_logger.info("[" + str(localtime) + "] " + str(account_match[1]) + ' USERID: ' + str(account_match[0]) + " attempted login")
                 passwordDigest = (hashlib.sha256(password.encode("utf-8"))).hexdigest()
 
                 account_match = cursor.execute("SELECT * FROM user WHERE email = ? and password = ?", (html_encode(email), passwordDigest)).fetchone()

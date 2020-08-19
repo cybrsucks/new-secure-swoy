@@ -1,70 +1,143 @@
 {% extends "base.html" %}
+{% from "formhelper.html" import render_field %}
+
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
 
 {% block content %}
-<div class="swoy-container" style="margin-top: 100px; padding: 20px; border-radius: 20px;">
-    <h1 style="text-align: center">FAQ</h1>
-    <div id="accordion">
-        <div class="card">
-            <div class="card-header" id="headingOne">
-                <h5 class="mb-0">
-                    <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="True"
-                            aria-controls="collapseOne">
-                        Why can't I log in into my account?
-                    </button>
-                </h5>
-            </div>
+<div>
+    <div style="margin: 100px;">
+        <div class="container-fluid swoy-container swoy-form-container">
+            <h2> Frequently Asked Questions (FAQs) </h2>
+            <div id="accordion">
 
-            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
-                <div class="card-body">
-                    It is most likely that you exceeded the password attempts. Please contact one of our administrators
-                    to change your password.
-                    <table class="table">
-                        <tr>
-                            <th>Administrator Name</th>
-                            <th>Email</th>
-                            <th>Contacting Hours</th>
-                        </tr>
 
-                        <tr>
-                            <th>superAdmin</th>
-                            <th>superadmin@swoy.com</th>
-                            <th>12pm-6pm</th>
-                        </tr>
-                    </table>
+                <div class="card">
+                    <div class="card-header" id="headingOne">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne"
+                                    aria-expanded="True"
+                                    aria-controls="collapseOne">
+                                Why can't I log in into my account?
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                        <div class="card-body">
+                            It is most likely that you exceeded the password attempt limits and your account has been
+                            temporarily suspended. If you think there is a mistake, please contact the adminstrator.
+                            <table class="table">
+                                <tr>
+                                    <th>Administrator Name</th>
+                                    <th>Email</th>
+                                    <th>Contacting Hours</th>
+                                </tr>
+
+                                <tr>
+                                    <th>SuperAdmin</th>
+                                    <th>superadmin@swoy.com</th>
+                                    <th>12pm - 6pm</th>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="card">
-            <div class="card-header" id="headingTwo">
-                <h5 class="mb-0">
-                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo"
-                            aria-expanded="false" aria-controls="collapseTwo">
-                        Where are your current outlets?
-                    </button>
-                </h5>
-            </div>
-            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
-                <div class="card-body">
-                    Unfortunately we only have a outlet at Jurong West, but no worries we accept deliveries too!
-                </div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header" id="headingThree">
-                <h5 class="mb-0">
-                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree"
-                            aria-expanded="false" aria-controls="collapseThree">
-                        Have your enterprise ever considered creating a new bubble tea flavour?
-                    </button>
-                </h5>
-            </div>
-            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
-                <div class="card-body">
-                    Oh yes you bet we are! We are currently making a new flavour so please look forward to it!
-                </div>
-            </div>
 
+                <div class="card">
+                    <div class="card-header" id="headingTwo">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo"
+                                    aria-expanded="false" aria-controls="collapseTwo">
+                                Where does your tea leaves come from?
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                        <div class="card-body">
+                            We source our premium tea leaves from Thailand. We work to find only responsibly,
+                            sustainably, and ethically sourced tea leaves. This means we look into the farmer and try to
+                            get to know their story. We try to avoid corporate owned farms and prefer family owned
+                            farms. Our farmers don't use any chemical pesticides and only cultivate non-GMO tea leaves.
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="card">
+                    <div class="card-header" id="headingThree">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree"
+                                    aria-expanded="false" aria-controls="collapseThree">
+                                What is in my bubbles (or pearls)?
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+                        <div class="card-body">
+                            They are made from natural ingredients such as tapioca flour and brown sugar. They are
+                            meticulously prepared to make them so chewy they feel like mochi. No plasticine, just pure
+                            guilty pleasure.
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="card">
+                    <div class="card-header" id="headingFour">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseFour"
+                                    aria-expanded="false" aria-controls="collapseFour">
+                                Does SWOY deliver overseas?
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion">
+                        <div class="card-body">
+                            Unfortunately, no. This service is only for Singaporeans and we ensure our bubble tea
+                            quality is at its tip top finest when it reaches your doorstep.
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="card">
+                    <div class="card-header" id="headingFive">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link collapsed" data-toggle="collapse"
+                                    data-target="#collapseFive"
+                                    aria-expanded="false" aria-controls="collapseFive">
+                                Will my golden pearls get soggy? :(
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordion">
+                        <div class="card-body">
+                            No. Unless... you stay at Jurong.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header" id="headingSix">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseSix"
+                                    aria-expanded="false" aria-controls="collapseSix">
+                                I want a refund! >:C
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="collapseSix" class="collapse" aria-labelledby="headingSix" data-parent="#accordion">
+                        <div class="card-body">
+                        <!-- ok boomer -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 </div>
